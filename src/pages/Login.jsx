@@ -60,11 +60,24 @@ const Login = () => {
         },
       })
       
+      console.log('[Login] Response status:', response.status, response.statusText)
+      
+      if (!response.ok) {
+        console.error('[Login] Backend returned error status:', response.status)
+        const errorText = await response.text()
+        console.error('[Login] Error response:', errorText)
+        setError(`Server error: ${response.status}. Please check if backend is running.`)
+        setLoading(false)
+        return
+      }
+      
       const data = await response.json()
       
+      console.log('[Login] Response data:', JSON.stringify(data, null, 2))
       console.log('[Login] Got auth URL from backend:', data?.data?.auth_url ? 'YES' : 'NO')
       
       if (!data?.data?.auth_url) {
+        console.error('[Login] No auth_url in response. Full data:', data)
         setError('Google OAuth is not configured. Please contact support.')
         setLoading(false)
         return
@@ -84,7 +97,8 @@ const Login = () => {
       window.location.href = googleAuthUrl
     } catch (err) {
       console.error('[Login] Google login error:', err)
-      setError('Failed to start Google login. Please try again.')
+      console.error('[Login] Error stack:', err.stack)
+      setError(`Failed to start Google login: ${err.message}. Please try again.`)
       setLoading(false)
     }
   }
