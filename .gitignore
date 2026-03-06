@@ -24,3 +24,27 @@ dist-ssr
 *.sw?
 
 .vercel
+
+# Environment files (contain secrets)
+.env
+.env.local
+.env.production
+backend/.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.venv/
+venv/
+
+# Database
+*.db
+*.sqlite3
+
+# Local storage fallback
+local_storage/
+
+# OS
+Thumbs.db

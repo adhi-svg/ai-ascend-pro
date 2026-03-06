@@ -1,14 +1,15 @@
-from fastapi import APIRouter
-from app.schemas.category import CategoryResponse
-from app.stores.category_store import category_store
+from fastapi import APIRouter, Depends
+from app.core.database import get_db
+from app.models import Category
 from app.utils.responses import success_response
+from sqlalchemy.orm import Session
 
 router = APIRouter(prefix="/categories", tags=["Categories"])
 
 @router.get("", response_model=dict)
-async def list_categories():
-    """Get all active categories."""
-    categories = category_store.get_all(active_only=True)
+async def list_categories(db: Session = Depends(get_db)):
+    """Get all active categories from the database."""
+    categories = db.query(Category).filter(Category.is_active == True).all()
     return success_response(
         data=categories,
         message="Categories retrieved successfully"

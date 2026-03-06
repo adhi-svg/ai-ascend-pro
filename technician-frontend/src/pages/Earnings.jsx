@@ -1,25 +1,32 @@
 import { useMemo } from 'react'
 import { useTechApp } from '../context/TechAppContext.jsx'
+import { useAuth } from '../context/AuthContext.jsx'
 import Card from '../components/ui/Card.jsx'
 
 export default function Earnings() {
   const { bookings } = useTechApp()
+  const { user } = useAuth()
 
   const completed = useMemo(
-    () => bookings.filter((booking) => booking.status === 'completed'),
+    () => bookings.filter((booking) => ['completed', 'COMPLETED'].includes(booking.status)),
     [bookings],
   )
 
-  const total = completed.reduce((sum, booking) => sum + (booking.amount || 0), 0)
-  const avgRating = 4.7
+  const total = completed.reduce((sum, booking) => sum + (booking.amount || booking.actual_cost || 0), 0)
+  const avgRating = user?.rating || 4.7
 
-  const chartData = [
-    { label: 'Mon', value: 120 },
-    { label: 'Tue', value: 80 },
-    { label: 'Wed', value: 150 },
-    { label: 'Thu', value: 90 },
-    { label: 'Fri', value: 200 },
-  ]
+  const chartData = useMemo(() => {
+    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+    const data = days.map(day => ({ label: day, value: 0 }))
+
+    completed.forEach(booking => {
+      const date = new Date(booking.created_at || booking.createdAt)
+      const dayIndex = (date.getDay() + 6) % 7 // Monday is 0
+      data[dayIndex].value += (booking.amount || booking.actual_cost || 0)
+    })
+
+    return data
+  }, [completed])
 
   return (
     <div className="space-y-6">
@@ -31,7 +38,7 @@ export default function Earnings() {
       <div className="grid gap-4 md:grid-cols-3">
         <Card className="p-5">
           <p className="text-xs text-brand-text-secondary">Total earnings</p>
-          <p className="text-2xl font-semibold text-brand-primary">${total}</p>
+          <p className="text-2xl font-semibold text-brand-primary">₹{total}</p>
         </Card>
         <Card className="p-5">
           <p className="text-xs text-brand-text-secondary">Completed jobs</p>

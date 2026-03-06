@@ -72,6 +72,72 @@ async def http_exception_handler(request: Request, exc: HTTPException):
 async def health_check():
     return {"status": "ok", "version": "2.0.0"}
 
+@app.get("/aws-status")
+async def aws_status():
+    """Check status of all AWS services. Use this to verify credentials are working."""
+    from app.core.config import settings
+    from app.utils.s3_manager import s3_manager
+    from app.utils.sns_manager import sns_manager
+    
+    status = {
+        "database": {
+            "type": "PostgreSQL" if "postgresql" in settings.DATABASE_URL else "SQLite (local)",
+            "configured": "postgresql" in settings.DATABASE_URL or "postgres" in settings.DATABASE_URL,
+        },
+        "s3": {
+            "enabled": settings.ENABLE_S3_UPLOAD,
+            "bucket": settings.AWS_S3_BUCKET_NAME or "(not set)",
+            "region": settings.AWS_REGION,
+            "has_credentials": bool(settings.AWS_ACCESS_KEY_ID),
+            "ready": s3_manager.enabled,
+        },
+        "sns": {
+            "enabled": settings.ENABLE_SNS_ALERTS,
+            "topic_arn": settings.AWS_SNS_TOPIC_ARN or "(not set)",
+            "has_credentials": bool(settings.AWS_ACCESS_KEY_ID),
+            "ready": sns_manager.enabled,
+        },
+        "cognito": {
+            "user_pool_id": settings.COGNITO_USER_POOL_ID or "(not set)",
+            "app_client_id": settings.COGNITO_APP_CLIENT_ID or "(not set)",
+            "configured": bool(settings.COGNITO_USER_POOL_ID and settings.COGNITO_APP_CLIENT_ID),
+        },
+        "google": {
+            "oauth_configured": bool(settings.GOOGLE_CLIENT_ID),
+            "gemini_configured": bool(settings.GOOGLE_API_KEY),
+            "maps_configured": bool(settings.GOOGLE_MAPS_API_KEY),
+        },
+    }
+    
+    # Test S3 connectivity if enabled
+    if s3_manager.enabled:
+        try:
+            s3_manager.s3_client.head_bucket(Bucket=settings.AWS_S3_BUCKET_NAME)
+            status["s3"]["connection"] = "✅ Connected"
+        except Exception as e:
+            status["s3"]["connection"] = f"❌ Error: {str(e)}"
+    
+    # Test SNS connectivity if enabled
+    if sns_manager.enabled:
+        try:
+            sns_manager.sns_client.get_topic_attributes(TopicArn=settings.AWS_SNS_TOPIC_ARN)
+            status["sns"]["connection"] = "✅ Connected"
+        except Exception as e:
+            status["sns"]["connection"] = f"❌ Error: {str(e)}"
+    
+    # Test DB connectivity
+    try:
+        from sqlalchemy import text
+        from app.core.database import SessionLocal
+        db = SessionLocal()
+        db.execute(text("SELECT 1"))
+        db.close()
+        status["database"]["connection"] = "✅ Connected"
+    except Exception as e:
+        status["database"]["connection"] = f"❌ Error: {str(e)}"
+    
+    return {"status": "ok", "services": status}
+
 @app.get("/auth/google/callback")
 async def google_callback_fallback(request: Request):
     """Fallback for stale Google OAuth redirect URIs."""

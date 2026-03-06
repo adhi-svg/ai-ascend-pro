@@ -12,8 +12,9 @@ export default function AdminDashboard() {
   const [activeFilter, setActiveFilter] = useState('PENDING')
   const [technicians, setTechnicians] = useState([])
 
-  const loadData = () => {
-    setTechnicians(getAllTechnicians())
+  const loadData = async () => {
+    const data = await getAllTechnicians()
+    setTechnicians(data)
   }
 
   useEffect(() => {
@@ -21,7 +22,7 @@ export default function AdminDashboard() {
   }, [location.key])
 
   useEffect(() => {
-    const interval = setInterval(loadData, 2000)
+    const interval = setInterval(loadData, 15000)
     return () => clearInterval(interval)
   }, [])
 
@@ -105,11 +106,10 @@ export default function AdminDashboard() {
               key={status}
               type="button"
               onClick={() => setActiveFilter(status)}
-              className={`rounded-full px-4 py-2 text-sm font-semibold transition-all ${
-                activeFilter === status
+              className={`rounded-full px-4 py-2 text-sm font-semibold transition-all ${activeFilter === status
                   ? 'bg-[#E6A11A] text-white shadow-md'
                   : 'border border-[#1E3A5F]/20 text-[#1E3A5F]'
-              }`}
+                }`}
             >
               {status.charAt(0) + status.slice(1).toLowerCase()}
             </button>

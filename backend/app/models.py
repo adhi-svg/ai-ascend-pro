@@ -168,6 +168,24 @@ class Booking(Base):
     refund_status = Column(Enum(RefundStatusEnum), default=RefundStatusEnum.PENDING, nullable=True)
     refund_amount = Column(Numeric(10, 2), nullable=True)
     
+    # OTP Verification
+    otp_code = Column(String(10), nullable=True)
+    otp_expiry = Column(DateTime, nullable=True)
+    otp_verified_at = Column(DateTime, nullable=True)
+    
+    # Rating & Feedback
+    rating = Column(Float, nullable=True)
+    feedback = Column(Text, nullable=True)
+    rated_by_customer = Column(Boolean, default=False)
+    
+    # Payment detail updates
+    payment_mode = Column(String(50), nullable=True)
+    payment_status = Column(String(50), default="PENDING")
+    
+    # Trackings
+    technician_latitude = Column(Float, nullable=True)
+    technician_longitude = Column(Float, nullable=True)
+    
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     

@@ -1,24 +1,42 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import Button from '../components/ui/Button'
 import TextArea from '../components/ui/TextArea'
 import EmptyState from '../components/ui/EmptyState'
 import { useApp } from '../context/AppContext'
+import { submitRating } from '../services/api'
 
 const RatingFeedback = () => {
-  const { jobs } = useApp()
+  const { jobs, setToast } = useApp()
+  const navigate = useNavigate()
   const completed = jobs.filter((j) => j.status === 'completed')
   const latest = completed.slice(-1)[0]
   const [rating, setRating] = useState(5)
   const [feedback, setFeedback] = useState('')
+  const [submitting, setSubmitting] = useState(false)
 
   if (!latest)
     return <EmptyState title="No completed job" description="Complete a job to rate." action={<span className="text-brand-accent">Back to home</span>} />
+
+  const handleSubmit = async () => {
+    if (submitting) return
+    setSubmitting(true)
+    try {
+      await submitRating(latest.id, rating, feedback)
+      setToast({ type: 'success', message: 'Thank you for your feedback!' })
+      navigate('/customer/home')
+    } catch (error) {
+      setToast({ type: 'error', message: error.message || 'Failed to submit rating' })
+    } finally {
+      setSubmitting(false)
+    }
+  }
 
   return (
     <div className="space-y-4">
       <div className="rounded-2xl bg-white p-5 shadow-sm">
         <p className="text-xs uppercase tracking-[0.2em] text-brand-muted">Rate service</p>
-        <p className="text-sm text-slate-600">{latest.technicianName}</p>
+        <p className="text-sm text-slate-600">{latest.technicianName || latest.technician_name || 'Technician'}</p>
       </div>
       <div className="flex items-center gap-2">
         {[1, 2, 3, 4, 5].map((star) => (
@@ -39,7 +57,9 @@ const RatingFeedback = () => {
         value={feedback}
         onChange={(e) => setFeedback(e.target.value)}
       />
-      <Button className="w-full">Submit feedback</Button>
+      <Button className="w-full" onClick={handleSubmit} disabled={submitting}>
+        {submitting ? 'Submitting...' : 'Submit feedback'}
+      </Button>
     </div>
   )
 }

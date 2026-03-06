@@ -97,7 +97,7 @@ export const logout = () => {
 
 export const exchangeGoogleCode = async (code) => {
   console.log('[API] Exchanging Google code for token')
-  
+
   const response = await fetch(`${API_BASE_URL}/auth/google/exchange`, {
     method: 'POST',
     headers: {
@@ -108,17 +108,17 @@ export const exchangeGoogleCode = async (code) => {
   })
 
   const data = await response.json()
-  
+
   console.log('[API] Exchange response status:', response.status)
   console.log('[API] Exchange response data:', JSON.stringify(data, null, 2))
-  
+
   // Check for error response first (success: false)
   if (data.success === false) {
     const errorMsg = data.message || data.error?.details || data.error?.code || 'Google login failed'
     console.error('[API] Backend returned error:', errorMsg, 'Details:', data.error)
     throw new Error(errorMsg)
   }
-  
+
   // Check HTTP status
   if (!response.ok) {
     const errorMsg = data.message || data.error?.details || `HTTP ${response.status}`
@@ -127,7 +127,7 @@ export const exchangeGoogleCode = async (code) => {
   }
 
   console.log('[API] Response success:', data.success, 'Has data:', !!data.data)
-  
+
   // Validate required fields
   if (!data.data) {
     console.error('[API] API returned no data object:', data)
@@ -230,6 +230,13 @@ export const submitRating = async (bookingId, rating, feedback) => {
   })
 }
 
+export const postPayment = async (bookingId, method, amount) => {
+  return await fetchAPI(`/bookings/${bookingId}/payment`, {
+    method: 'POST',
+    body: JSON.stringify({ method, amount }),
+  })
+}
+
 // Complaint APIs
 export const fetchComplaints = async () => {
   return await fetchAPI('/complaints/me')
@@ -279,26 +286,26 @@ export const searchFAQs = async (query) => {
 // WebSocket for real-time tracking
 export const createTrackingWebSocket = (bookingId, onLocationUpdate) => {
   const ws = new WebSocket(`ws://localhost:8000/ws/bookings/${bookingId}`)
-  
+
   ws.onopen = () => {
     console.log('WebSocket connected for booking:', bookingId)
   }
-  
+
   ws.onmessage = (event) => {
     const data = JSON.parse(event.data)
     if (data.type === 'location_update') {
       onLocationUpdate(data.location)
     }
   }
-  
+
   ws.onerror = (error) => {
     console.error('WebSocket error:', error)
   }
-  
+
   ws.onclose = () => {
     console.log('WebSocket disconnected')
   }
-  
+
   return ws
 }
 

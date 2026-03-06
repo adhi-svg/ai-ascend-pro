@@ -1,183 +1,138 @@
-const STORAGE_KEY = 'fixora_technicians'
+// FIXORA Admin Panel — Backend API Service
+// Replaces localStorage-based data with real backend API calls
+
+const API_BASE_URL = 'http://localhost:8000/api/v1'
 const SESSION_KEY = 'fixora_admin_session'
 
-const safeParse = (value, fallback) => {
-  if (!value) return fallback
+const getAdminToken = () => {
   try {
-    const parsed = JSON.parse(value)
-    return parsed ?? fallback
+    const session = JSON.parse(localStorage.getItem(SESSION_KEY) || '{}')
+    return session.token || localStorage.getItem('auth_token') || ''
   } catch {
-    return fallback
+    return localStorage.getItem('auth_token') || ''
   }
 }
 
-const normalizeRecord = (record = {}) => {
-  const createdAt = record.createdAt || new Date().toISOString()
-  return {
-    id: record.id || `tech_${Date.now()}`,
-    fullName: record.fullName || record.name || '',
-    phone: record.phone || record.mobile || '',
-    email: record.email || '',
-    profilePhotoUrl: record.profilePhotoUrl || record.profilePhoto || '/logo.png',
-    skill: record.skill || record.primarySkill || '',
-    experience: record.experience || '',
-    radiusKm: record.radiusKm || record.serviceRadius || '',
-    baseVisitFee: record.baseVisitFee || record.baseFee || '',
-    hasShop: Boolean(record.hasShop),
-    shopName: record.shopName || '',
-    shopAddress: record.shopAddress || '',
-    shopLocationText: record.shopLocationText || record.shopLocation || '',
-    aadhaarNumber: record.aadhaarNumber || '',
-    aadhaarFrontUrl: record.aadhaarFrontUrl || '',
-    aadhaarBackUrl: record.aadhaarBackUrl || '',
-    selfieUrl: record.selfieUrl || '',
-    status: record.status || 'PENDING',
-    rejectionReason: record.rejectionReason || '',
-    createdAt,
+const fetchAPI = async (endpoint, options = {}) => {
+  const token = getAdminToken()
+  const headers = {
+    'Content-Type': 'application/json',
+    ...(token && { Authorization: `Bearer ${token}` }),
+    ...options.headers,
+  }
+
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    ...options,
+    headers,
+  })
+
+  const data = await response.json()
+
+  if (!response.ok) {
+    throw new Error(data.message || data.error?.details || 'API request failed')
+  }
+
+  return data.success !== undefined ? data.data : data
+}
+
+// ─── Technician Management ────────────────────────────────────
+export const getAllTechnicians = async (statusFilter) => {
+  try {
+    const query = statusFilter ? `?status=${statusFilter}` : ''
+    const data = await fetchAPI(`/technician/applications${query}`)
+    return Array.isArray(data) ? data : []
+  } catch (error) {
+    console.error('Failed to fetch technicians:', error)
+    return []
   }
 }
 
-const loadExistingSignupData = () => {
-  const candidateKeys = [
-    'fixora_technician_applications',
-    'fixora_technician_signup',
-    'technician_applications',
-    'tech_user_info',
-  ]
-
-  for (const key of candidateKeys) {
-    const raw = localStorage.getItem(key)
-    if (!raw) continue
-    const parsed = safeParse(raw, null)
-    if (Array.isArray(parsed)) {
-      const normalized = parsed.map(normalizeRecord)
-      if (normalized.length > 0) return normalized
-    }
-    if (parsed && typeof parsed === 'object') {
-      return [normalizeRecord(parsed)]
-    }
+export const getTechnicianById = async (id) => {
+  try {
+    const list = await getAllTechnicians()
+    return list.find((tech) => tech.id === id) || null
+  } catch {
+    return null
   }
-
-  return []
 }
 
-export const seedIfEmpty = () => {
-  const existing = safeParse(localStorage.getItem(STORAGE_KEY), null)
-  if (Array.isArray(existing) && existing.length > 0) return
-
-  const migrated = loadExistingSignupData()
-  if (migrated.length > 0) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(migrated))
-    return
+export const approveTechnician = async (id) => {
+  try {
+    await fetchAPI(`/technician/${id}/approve`, { method: 'PATCH' })
+    return await getAllTechnicians()
+  } catch (error) {
+    console.error('Approve failed:', error)
+    throw error
   }
-
-  const now = new Date()
-  const seed = [
-    {
-      id: `tech_${now.getTime()}`,
-      fullName: 'Ravi Sharma',
-      phone: '9876543210',
-      email: 'ravi.sharma@example.com',
-      profilePhotoUrl: '/logo.png',
-      skill: 'Electrical',
-      experience: '5 years',
-      radiusKm: '8',
-      baseVisitFee: '199',
-      hasShop: true,
-      shopName: 'Ravi Electricals',
-      shopAddress: '22 Green Park, Mumbai',
-      shopLocationText: 'Near City Mall',
-      aadhaarNumber: '123412341234',
-      aadhaarFrontUrl: '/logo.png',
-      aadhaarBackUrl: '/logo.png',
-      selfieUrl: '/logo.png',
-      status: 'PENDING',
-      rejectionReason: '',
-      createdAt: now.toISOString(),
-    },
-    {
-      id: `tech_${now.getTime() + 1}`,
-      fullName: 'Priya Nair',
-      phone: '9123456780',
-      email: 'priya.nair@example.com',
-      profilePhotoUrl: '/logo.png',
-      skill: 'Plumbing',
-      experience: '3 years',
-      radiusKm: '10',
-      baseVisitFee: '149',
-      hasShop: false,
-      shopName: '',
-      shopAddress: '',
-      shopLocationText: '',
-      aadhaarNumber: '234523452345',
-      aadhaarFrontUrl: '/logo.png',
-      aadhaarBackUrl: '/logo.png',
-      selfieUrl: '/logo.png',
-      status: 'APPROVED',
-      rejectionReason: '',
-      createdAt: new Date(now.getTime() - 86400000).toISOString(),
-    },
-    {
-      id: `tech_${now.getTime() + 2}`,
-      fullName: 'Imran Khan',
-      phone: '9988776655',
-      email: 'imran.khan@example.com',
-      profilePhotoUrl: '/logo.png',
-      skill: 'HVAC',
-      experience: '7 years',
-      radiusKm: '12',
-      baseVisitFee: '249',
-      hasShop: true,
-      shopName: 'Cool Air Services',
-      shopAddress: '7 Lake Road, Pune',
-      shopLocationText: 'Opposite Metro Station',
-      aadhaarNumber: '345634563456',
-      aadhaarFrontUrl: '/logo.png',
-      aadhaarBackUrl: '/logo.png',
-      selfieUrl: '/logo.png',
-      status: 'REJECTED',
-      rejectionReason: 'Aadhaar image is unclear',
-      createdAt: new Date(now.getTime() - 172800000).toISOString(),
-    },
-  ]
-
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(seed))
 }
 
-export const getAllTechnicians = () => {
-  seedIfEmpty()
-  return safeParse(localStorage.getItem(STORAGE_KEY), [])
+export const rejectTechnician = async (id, reason) => {
+  try {
+    await fetchAPI(`/technician/${id}/reject?reason=${encodeURIComponent(reason || '')}`, {
+      method: 'PATCH',
+    })
+    return await getAllTechnicians()
+  } catch (error) {
+    console.error('Reject failed:', error)
+    throw error
+  }
 }
 
-export const getTechnicianById = (id) => {
-  const list = getAllTechnicians()
-  return list.find((tech) => tech.id === id) || null
+export const suspendTechnician = async (id, reason) => {
+  try {
+    await fetchAPI(`/technician/${id}/suspend?reason=${encodeURIComponent(reason || '')}`, {
+      method: 'PATCH',
+    })
+    return await getAllTechnicians()
+  } catch (error) {
+    console.error('Suspend failed:', error)
+    throw error
+  }
 }
 
-export const saveTechnicians = (list) => {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(list))
+// ─── Bookings (Admin) ─────────────────────────────────────────
+export const getAllBookings = async () => {
+  try {
+    return await fetchAPI('/bookings')
+  } catch (error) {
+    console.error('Failed to fetch bookings:', error)
+    return []
+  }
 }
 
-export const approveTechnician = (id) => {
-  const list = getAllTechnicians()
-  const updated = list.map((tech) =>
-    tech.id === id
-      ? { ...tech, status: 'APPROVED', rejectionReason: '' }
-      : tech,
-  )
-  saveTechnicians(updated)
-  return updated
+// ─── Refunds (Admin) ──────────────────────────────────────────
+export const getAllRefunds = async (statusFilter) => {
+  try {
+    const query = statusFilter ? `?status=${statusFilter}` : ''
+    return await fetchAPI(`/bookings/refunds${query}`)
+  } catch (error) {
+    console.error('Failed to fetch refunds:', error)
+    return []
+  }
 }
 
-export const rejectTechnician = (id, reason) => {
-  const list = getAllTechnicians()
-  const updated = list.map((tech) =>
-    tech.id === id
-      ? { ...tech, status: 'REJECTED', rejectionReason: reason }
-      : tech,
-  )
-  saveTechnicians(updated)
-  return updated
+// ─── Support Tickets (Admin) ──────────────────────────────────
+export const getAllTickets = async (statusFilter) => {
+  try {
+    const query = statusFilter ? `?status=${statusFilter}` : ''
+    return await fetchAPI(`/support/all${query}`)
+  } catch (error) {
+    console.error('Failed to fetch tickets:', error)
+    return []
+  }
 }
 
+export const resolveTicket = async (ticketId, resolution) => {
+  return await fetchAPI(`/support/ticket/${ticketId}/resolve?resolution=${encodeURIComponent(resolution)}`, {
+    method: 'PATCH',
+  })
+}
+
+export const closeTicket = async (ticketId) => {
+  return await fetchAPI(`/support/ticket/${ticketId}/close`, {
+    method: 'PATCH',
+  })
+}
+
+// ─── Admin Session ────────────────────────────────────────────
 export const adminSessionKey = SESSION_KEY

@@ -7,7 +7,7 @@ class InMemoryTechnicianStore:
         self.technicians: Dict[str, Dict] = {}
         self.user_id_index: Dict[str, str] = {}
     
-    def create(self, user_id: str, skills: Optional[List[str]] = None) -> Dict:
+    def create(self, user_id: str, **kwargs) -> Dict:
         # One technician profile per user
         if user_id in self.user_id_index:
             return None
@@ -18,18 +18,21 @@ class InMemoryTechnicianStore:
         technician = {
             "id": tech_id,
             "user_id": user_id,
-            "skills": skills or [],
+            "skills": kwargs.get("skills", []),
             "rating": 0.0,
             "rating_count": 0,
             "total_jobs": 0,
-            "city": None,
-            "area": None,
-            "latitude": None,
-            "longitude": None,
-            "shop_available": False,
+            "city": kwargs.get("city"),
+            "area": kwargs.get("area"),
+            "latitude": kwargs.get("latitude"),
+            "longitude": kwargs.get("longitude"),
+            "shop_available": kwargs.get("shop_available", False),
             "is_online": False,
             "created_at": now,
         }
+        
+        # Merge all other metadata (Aadhaar, shop details, photos)
+        technician.update(kwargs)
         
         self.technicians[tech_id] = technician
         self.user_id_index[user_id] = tech_id

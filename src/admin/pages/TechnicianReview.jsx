@@ -23,7 +23,7 @@ export default function TechnicianReview() {
   const [notice, setNotice] = useState('')
 
   useEffect(() => {
-    setTechnician(getTechnicianById(id))
+    getTechnicianById(id).then(setTechnician)
   }, [id])
 
   const maskedAadhaar = useMemo(() => {
@@ -36,20 +36,28 @@ export default function TechnicianReview() {
     navigate('/admin/login', { replace: true })
   }
 
-  const handleApprove = () => {
-    approveTechnician(id)
-    setNotice('Approved successfully')
-    setTimeout(() => navigate('/admin/dashboard'), 800)
+  const handleApprove = async () => {
+    try {
+      await approveTechnician(id)
+      setNotice('Approved successfully')
+      setTimeout(() => navigate('/admin/dashboard'), 800)
+    } catch (err) {
+      setError(err.message || 'Approval failed')
+    }
   }
 
-  const handleReject = () => {
+  const handleReject = async () => {
     if (!reason.trim()) {
       setError('Reason for rejection is required')
       return
     }
-    rejectTechnician(id, reason.trim())
-    setNotice('Rejected')
-    setTimeout(() => navigate('/admin/dashboard'), 800)
+    try {
+      await rejectTechnician(id, reason.trim())
+      setNotice('Rejected')
+      setTimeout(() => navigate('/admin/dashboard'), 800)
+    } catch (err) {
+      setError(err.message || 'Rejection failed')
+    }
   }
 
   if (!technician) {

@@ -1,10 +1,10 @@
-import { useState } from 'react'
-import Button from './ui/Button'
+import { postPayment } from '../services/api'
 
 const PaymentModal = ({ booking, onPaymentSuccess, onClose }) => {
   const [selectedMethod, setSelectedMethod] = useState(null)
   const [isProcessing, setIsProcessing] = useState(false)
   const [paymentSuccess, setPaymentSuccess] = useState(false)
+  const [error, setError] = useState('')
 
   const paymentMethods = [
     {
@@ -37,17 +37,21 @@ const PaymentModal = ({ booking, onPaymentSuccess, onClose }) => {
     if (!selectedMethod) return
 
     setIsProcessing(true)
+    setError('')
 
-    // Simulate payment processing
-    await new Promise(resolve => setTimeout(resolve, 2000))
+    try {
+      await postPayment(booking.id, selectedMethod, booking.amount)
+      setIsProcessing(false)
+      setPaymentSuccess(true)
 
-    setIsProcessing(false)
-    setPaymentSuccess(true)
-
-    // Call parent callback after 2 seconds to show success message
-    setTimeout(() => {
-      onPaymentSuccess()
-    }, 2000)
+      // Call parent callback after 2 seconds to show success message
+      setTimeout(() => {
+        onPaymentSuccess()
+      }, 2000)
+    } catch (err) {
+      setError(err.message || 'Payment failed. Please try again.')
+      setIsProcessing(false)
+    }
   }
 
   if (paymentSuccess) {
@@ -154,8 +158,8 @@ const PaymentModal = ({ booking, onPaymentSuccess, onClose }) => {
                   key={method.id}
                   onClick={() => setSelectedMethod(method.id)}
                   className={`p-4 rounded-xl border-2 transition transform hover:scale-105 ${selectedMethod === method.id
-                      ? `border-blue-500 bg-blue-50`
-                      : 'border-slate-200 bg-white hover:border-slate-300'
+                    ? `border-blue-500 bg-blue-50`
+                    : 'border-slate-200 bg-white hover:border-slate-300'
                     }`}
                 >
                   <div className="text-3xl mb-2">{method.icon}</div>
@@ -165,12 +169,15 @@ const PaymentModal = ({ booking, onPaymentSuccess, onClose }) => {
             </div>
           </div>
 
-          {/* Info */}
-          <div className="bg-blue-50 rounded-xl p-4 border border-blue-200">
-            <p className="text-sm text-blue-900">
-              💡 <span className="font-semibold">Demo Mode:</span> This is a demo payment. Click below to complete the payment.
-            </p>
-          </div>
+          {/* Info/Error */}
+          {error && (
+            <div className="bg-red-50 rounded-xl p-4 border border-red-200">
+              <p className="text-sm text-red-900 font-semibold flex items-center gap-2">
+                <span>⚠️</span>
+                {error}
+              </p>
+            </div>
+          )}
 
           {/* Action Buttons */}
           <div className="space-y-2">
@@ -178,8 +185,8 @@ const PaymentModal = ({ booking, onPaymentSuccess, onClose }) => {
               onClick={handlePayment}
               disabled={!selectedMethod || isProcessing}
               className={`w-full py-3 px-4 rounded-xl font-bold text-white transition transform ${!selectedMethod || isProcessing
-                  ? 'bg-slate-400 cursor-not-allowed'
-                  : 'bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 hover:scale-105'
+                ? 'bg-slate-400 cursor-not-allowed'
+                : 'bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 hover:scale-105'
                 }`}
             >
               {isProcessing ? (

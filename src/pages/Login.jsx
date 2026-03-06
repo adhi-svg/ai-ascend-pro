@@ -59,14 +59,9 @@ const Login = () => {
           'Content-Type': 'application/json',
         },
       })
-<<<<<<< HEAD
 
-      const data = await response.json()
-
-=======
-      
       console.log('[Login] Response status:', response.status, response.statusText)
-      
+
       if (!response.ok) {
         console.error('[Login] Backend returned error status:', response.status)
         const errorText = await response.text()
@@ -75,11 +70,10 @@ const Login = () => {
         setLoading(false)
         return
       }
-      
+
       const data = await response.json()
-      
+
       console.log('[Login] Response data:', JSON.stringify(data, null, 2))
->>>>>>> 2da95bd2491a1c22ac89627021e5a2dfd4e349c3
       console.log('[Login] Got auth URL from backend:', data?.data?.auth_url ? 'YES' : 'NO')
 
       if (!data?.data?.auth_url) {
@@ -306,8 +300,8 @@ const Login = () => {
           <button
             onClick={() => setShowRegister(false)}
             className={`flex-1 py-3 rounded-xl font-semibold text-sm transition-all duration-200 ${!showRegister
-                ? 'bg-gradient-to-r from-[#E6A11A] to-[#F0B329] text-white shadow-md'
-                : 'text-[#4B5563] hover:text-[#1E3A5F]'
+              ? 'bg-gradient-to-r from-[#E6A11A] to-[#F0B329] text-white shadow-md'
+              : 'text-[#4B5563] hover:text-[#1E3A5F]'
               }`}
           >
             Sign In
@@ -315,8 +309,8 @@ const Login = () => {
           <button
             onClick={() => setShowRegister(true)}
             className={`flex-1 py-3 rounded-xl font-semibold text-sm transition-all duration-200 ${showRegister
-                ? 'bg-gradient-to-r from-[#E6A11A] to-[#F0B329] text-white shadow-md'
-                : 'text-[#4B5563] hover:text-[#1E3A5F]'
+              ? 'bg-gradient-to-r from-[#E6A11A] to-[#F0B329] text-white shadow-md'
+              : 'text-[#4B5563] hover:text-[#1E3A5F]'
               }`}
           >
             Create Account

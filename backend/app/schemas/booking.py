@@ -25,6 +25,10 @@ class BookingRating(BaseModel):
     rating: int  # 1-5
     feedback: Optional[str] = None
 
+class BookingPayment(BaseModel):
+    method: str
+    amount: float
+
 class BookingResponse(BaseModel):
     id: str
     customer_id: str

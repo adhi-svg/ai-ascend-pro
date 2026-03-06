@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from 'react-router-dom'
-import { MdHome, MdLocationPin, MdNotes, MdHelpOutline } from 'react-icons/md'
+import { MdHome, MdLocationPin, MdNotes, MdHelpOutline, MdHistory } from 'react-icons/md'
 
 const BottomNav = () => {
   const location = useLocation()
@@ -9,6 +9,7 @@ const BottomNav = () => {
   const items = [
     { to: '/customer/home', label: 'Home', icon: MdHome },
     { to: '/customer/technicians', label: 'Nearby', icon: MdLocationPin },
+    { to: '/customer/bookings', label: 'History', icon: MdHistory },
     { to: '/customer/status', label: 'Status', icon: MdNotes },
     { to: '/customer/complaints', label: 'Support', icon: MdHelpOutline },
   ]
@@ -23,10 +24,9 @@ const BottomNav = () => {
               key={item.to}
               to={item.to}
               className={({ isActive }) =>
-                `flex flex-col items-center gap-1 px-3 py-2 flex-1 rounded-lg transition-all duration-200 ${
-                  isActive 
-                    ? 'text-[#E6A11A] bg-[#E6A11A]/10 shadow-[0_4px_12px_rgba(230,161,26,0.2)]' 
-                    : 'text-[#4B5563] hover:text-[#1E3A5F] hover:bg-[#CFEDEE]/30'
+                `flex flex-col items-center gap-1 px-3 py-2 flex-1 rounded-lg transition-all duration-200 ${isActive
+                  ? 'text-[#E6A11A] bg-[#E6A11A]/10 shadow-[0_4px_12px_rgba(230,161,26,0.2)]'
+                  : 'text-[#4B5563] hover:text-[#1E3A5F] hover:bg-[#CFEDEE]/30'
                 }`
               }
             >

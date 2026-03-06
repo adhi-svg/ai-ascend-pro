@@ -11,6 +11,20 @@ class RegisterRequest(BaseModel):
     email: Optional[str] = None
     password: str
     role: str = Field(..., description="'customer' or 'technician'")
+    # Extra technician fields (optional)
+    skill: Optional[str] = None
+    experience: Optional[str] = None
+    radius_km: Optional[str] = None
+    base_visit_fee: Optional[str] = None
+    has_shop: Optional[bool] = False
+    shop_name: Optional[str] = None
+    shop_address: Optional[str] = None
+    shop_location: Optional[str] = None
+    aadhaar_number: Optional[str] = None
+    profile_photo_url: Optional[str] = None
+    aadhaar_front_url: Optional[str] = None
+    aadhaar_back_url: Optional[str] = None
+    selfie_url: Optional[str] = None
 
 class LoginRequest(BaseModel):
     phone: str

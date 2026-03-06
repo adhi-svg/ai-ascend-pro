@@ -18,6 +18,7 @@ import JobCompletion from './pages/JobCompletion'
 import RatingFeedback from './pages/RatingFeedback'
 import TechnicianTracking from './pages/TechnicianTracking'
 import CustomerComplaints from './pages/CustomerComplaints'
+import MyBookings from './pages/MyBookings'
 import SupportContact from './pages/SupportContact'
 import HelpCenter from './pages/HelpCenter'
 import SupportTerms from './pages/SupportTerms'
@@ -52,7 +53,7 @@ const RequireAuth = ({ children }) => {
   // Check both context user and localStorage as fallback
   const token = localStorage.getItem('auth_token')
   const userInfoStr = localStorage.getItem('user_info')
-  
+
   let user = contextUser
   if (!user && userInfoStr && token) {
     try {
@@ -63,13 +64,13 @@ const RequireAuth = ({ children }) => {
       user = null
     }
   }
-  
+
   if (!user && contextUser) {
     user = contextUser
   }
-  
+
   console.log('[RequireAuth] Final auth check - user:', !!user, 'path:', location.pathname)
-  
+
   if (!user) {
     console.log('[RequireAuth] No user found, redirecting to /login')
     return <Navigate to="/login" state={{ from: location.pathname }} replace />
@@ -88,7 +89,7 @@ const AppFrame = () => {
     <div className="min-h-screen bg-white text-[#1E3A5F]">
       <Header />
       {/* Don't block the entire page with loader - show it inline instead */}
-      
+
       <main className="w-full flex flex-col gap-6 pb-20 pt-4 px-0 md:gap-8 md:pb-10 md:pt-6 md:px-0">
         {loading && (
           <div className="fixed top-20 right-4 z-50 rounded-lg bg-white/95 backdrop-blur-sm shadow-lg p-3 border border-brand-accent/20">
@@ -165,6 +166,14 @@ const AppFrame = () => {
             element={
               <RequireAuth>
                 <RatingFeedback />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/customer/bookings"
+            element={
+              <RequireAuth>
+                <MyBookings />
               </RequireAuth>
             }
           />

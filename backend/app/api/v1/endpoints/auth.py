@@ -4,11 +4,11 @@ from app.core.security import create_access_token
 from app.core.config import settings
 from app.core.deps import get_current_user as deps_get_current_user
 from app.schemas.auth import RegisterRequest, LoginRequest, TokenResponse, AuthUser, GoogleCodeExchangeRequest
-from app.stores.user_store import user_store
-from app.stores.technician_store import technician_store
 from app.utils.responses import success_response, error_response
-from app.utils.exceptions import DuplicatePhoneException, InvalidCredentialsException
 import requests
+from app.core.database import get_db
+from app.models import User, Technician, UserRoleEnum, TechnicianStatusEnum
+from sqlalchemy.orm import Session
 import json
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
@@ -62,10 +62,11 @@ def _exchange_google_code_for_user(code: str, redirect_uri: str) -> dict:
     return user_data
 
 @router.post("/register", response_model=dict)
-async def register(req: RegisterRequest):
+async def register(req: RegisterRequest, db: Session = Depends(get_db)):
     """Register a new user (customer or technician)."""
     # Validate role
-    if req.role.lower() not in ["customer", "technician"]:
+    role_map = {"customer": UserRoleEnum.CUSTOMER, "technician": UserRoleEnum.TECHNICIAN}
+    if req.role.lower() not in role_map:
         return error_response(
             code="INVALID_ROLE",
             details="Role must be 'customer' or 'technician'",
@@ -73,7 +74,7 @@ async def register(req: RegisterRequest):
         )
     
     # Check if phone already exists
-    existing = user_store.get_by_phone(req.phone)
+    existing = db.query(User).filter(User.phone == req.phone).first()
     if existing:
         return error_response(
             code="DUPLICATE_PHONE",
@@ -81,23 +82,52 @@ async def register(req: RegisterRequest):
             message="This phone number is already in use"
         )
     
+    from app.core.security import hash_password
+    
     # Create user
-    user = user_store.create(
+    new_user = User(
         phone=req.phone,
-        password=req.password,
+        password_hash=hash_password(req.password) if req.password else None,
         name=req.name,
         email=req.email,
-        role=req.role.lower()
+        role=role_map[req.role.lower()]
     )
+    db.add(new_user)
+    db.flush() # Get user ID
     
-    # If technician, create technician profile
+    # If technician, create technician profile with all provided details
     if req.role.lower() == "technician":
-        technician_store.create(user["id"])
+        # Store metadata in documents as JSON for simplicity in this schema
+        docs = {
+            "aadhaar_number": req.aadhaar_number,
+            "aadhaar_front_url": req.aadhaar_front_url,
+            "aadhaar_back_url": req.aadhaar_back_url,
+            "selfie_url": req.selfie_url,
+            "base_visit_fee": req.base_visit_fee,
+        }
+        
+        new_tech = Technician(
+            user_id=new_user.id,
+            status=TechnicianStatusEnum.PENDING,
+            skills=json.dumps([req.skill]) if req.skill else "[]",
+            experience=req.experience, # Assuming we add this to model or docs
+            radius_km=req.radius_km, # Assuming we add this to model or docs
+            shop_available=req.has_shop or False,
+            shop_name=req.shop_name,
+            shop_address=req.shop_address,
+            shop_location_text=req.shop_location,
+            profile_image_url=req.profile_photo_url,
+            documents=json.dumps(docs)
+        )
+        db.add(new_tech)
+    
+    db.commit()
+    db.refresh(new_user)
     
     # Generate token
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     token = create_access_token(
-        data={"sub": user["id"], "role": user["role"]},
+        data={"sub": new_user.id, "role": new_user.role.value},
         expires_delta=access_token_expires
     )
     
@@ -106,20 +136,22 @@ async def register(req: RegisterRequest):
             "access_token": token,
             "token_type": "bearer",
             "user": {
-                "id": user["id"],
-                "phone": user["phone"],
-                "name": user["name"],
-                "role": user["role"],
+                "id": new_user.id,
+                "phone": new_user.phone,
+                "name": new_user.name,
+                "role": new_user.role.value,
             }
         },
         message="User registered successfully"
     )
 
 @router.post("/login", response_model=dict)
-async def login(req: LoginRequest):
+async def login(req: LoginRequest, db: Session = Depends(get_db)):
     """Login with phone and password."""
-    user = user_store.get_by_phone(req.phone)
-    if not user or not user_store.verify_password(user, req.password):
+    user = db.query(User).filter(User.phone == req.phone).first()
+    
+    from app.core.security import verify_password
+    if not user or not user.password_hash or not verify_password(req.password, user.password_hash):
         return error_response(
             code="INVALID_CREDENTIALS",
             details="Invalid phone or password",
@@ -128,7 +160,7 @@ async def login(req: LoginRequest):
     
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     token = create_access_token(
-        data={"sub": user["id"], "role": user["role"]},
+        data={"sub": user.id, "role": user.role.value},
         expires_delta=access_token_expires
     )
     
@@ -137,10 +169,10 @@ async def login(req: LoginRequest):
             "access_token": token,
             "token_type": "bearer",
             "user": {
-                "id": user["id"],
-                "phone": user["phone"],
-                "name": user["name"],
-                "role": user["role"],
+                "id": user.id,
+                "phone": user.phone,
+                "name": user.name,
+                "role": user.role.value,
             }
         },
         message="Login successful"
@@ -177,7 +209,7 @@ async def google_login():
     )
 
 @router.get("/google/callback")
-async def google_callback(code: str = Query(...)):
+async def google_callback(code: str = Query(...), db: Session = Depends(get_db)):
     """Google OAuth callback endpoint."""
     import logging
     logger = logging.getLogger(__name__)
@@ -208,25 +240,28 @@ async def google_callback(code: str = Query(...)):
         )
         logger.info(f"User info received: {user_info.get('email')}")
 
-        existing_user = user_store.get_by_email(user_info["email"])
+        existing_user = db.query(User).filter(User.email == user_info["email"]).first()
         if not existing_user:
             logger.info(f"Creating new user for email: {user_info['email']}")
-            existing_user = user_store.create(
+            existing_user = User(
                 phone=f"google_{user_info['id']}",
-                password="",
+                password_hash=None,
                 name=user_info.get("name", ""),
                 email=user_info["email"],
-                role="customer"
+                role=UserRoleEnum.CUSTOMER
             )
+            db.add(existing_user)
+            db.commit()
+            db.refresh(existing_user)
         else:
-            logger.info(f"User already exists: {existing_user['id']}")
+            logger.info(f"User already exists: {existing_user.id}")
 
         access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
         jwt_token = create_access_token(
-            data={"sub": existing_user["id"], "role": existing_user["role"]},
+            data={"sub": existing_user.id, "role": existing_user.role.value},
             expires_delta=access_token_expires
         )
-        logger.info(f"JWT token created for user: {existing_user['id']}")
+        logger.info(f"JWT token created for user: {existing_user.id}")
 
         return success_response(
             data={
@@ -252,7 +287,7 @@ async def google_callback(code: str = Query(...)):
         )
 
 @router.post("/google/exchange", response_model=dict)
-async def google_exchange(req: GoogleCodeExchangeRequest):
+async def google_exchange(req: GoogleCodeExchangeRequest, db: Session = Depends(get_db)):
     """Exchange Google OAuth code for a local session."""
     import logging
     logger = logging.getLogger(__name__)
@@ -276,27 +311,30 @@ async def google_exchange(req: GoogleCodeExchangeRequest):
         
         logger.info(f"Got user info from Google: {user_info.get('email')}")
 
-        existing_user = user_store.get_by_email(user_info["email"])
+        existing_user = db.query(User).filter(User.email == user_info["email"]).first()
         if not existing_user:
             logger.info(f"Creating new user for: {user_info['email']}")
-            existing_user = user_store.create(
+            existing_user = User(
                 phone=f"google_{user_info['id']}",
-                password="",
+                password_hash=None,
                 name=user_info.get("name", ""),
                 email=user_info["email"],
-                role="customer"
+                role=UserRoleEnum.CUSTOMER
             )
-            logger.info(f"New user created with id: {existing_user['id']}")
+            db.add(existing_user)
+            db.commit()
+            db.refresh(existing_user)
+            logger.info(f"New user created with id: {existing_user.id}")
         else:
-            logger.info(f"Existing user found: {existing_user['id']}")
+            logger.info(f"Existing user found: {existing_user.id}")
 
         access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
         jwt_token = create_access_token(
-            data={"sub": existing_user["id"], "role": existing_user["role"]},
+            data={"sub": existing_user.id, "role": existing_user.role.value},
             expires_delta=access_token_expires
         )
         
-        logger.info(f"JWT token created, returning user: {existing_user['email']}")
+        logger.info(f"JWT token created, returning user: {existing_user.email}")
 
         return success_response(
             data={

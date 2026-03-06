@@ -1,4 +1,4 @@
- import { useState } from 'react'
+import { useState } from 'react'
 
 export default function StepAgreement({ formData, updateFormData, errors, onSubmit }) {
   const [acceptTerms, setAcceptTerms] = useState(false)
@@ -29,7 +29,7 @@ export default function StepAgreement({ formData, updateFormData, errors, onSubm
       {/* Terms & Conditions */}
       <div className="rounded-lg border border-gray-200 bg-white p-6 space-y-4">
         <h3 className="text-lg font-semibold text-[#1E3A5F]">Partner Terms & Conditions</h3>
-        
+
         <div className="max-h-64 overflow-y-auto rounded border border-gray-200 bg-gray-50 p-4 text-sm text-gray-700 space-y-3">
           <div>
             <h4 className="font-semibold text-[#1E3A5F] mb-2">1. Service Commitment</h4>
@@ -93,7 +93,7 @@ export default function StepAgreement({ formData, updateFormData, errors, onSubm
       {/* Professional Conduct Agreement */}
       <div className="rounded-lg border border-gray-200 bg-white p-6 space-y-4">
         <h3 className="text-lg font-semibold text-[#1E3A5F]">Professional Conduct & Safety</h3>
-        
+
         <div className="space-y-3 text-sm text-gray-700">
           <div className="flex items-start gap-2">
             <svg className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -101,28 +101,28 @@ export default function StepAgreement({ formData, updateFormData, errors, onSubm
             </svg>
             <p className="text-xs">Maintain professional behavior and respect customer privacy at all times</p>
           </div>
-          
+
           <div className="flex items-start gap-2">
             <svg className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
             <p className="text-xs">Follow all safety protocols and guidelines while providing services</p>
           </div>
-          
+
           <div className="flex items-start gap-2">
             <svg className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
             <p className="text-xs">Provide complete and accurate information about service charges before starting work</p>
           </div>
-          
+
           <div className="flex items-start gap-2">
             <svg className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
             <p className="text-xs">Respond to service requests promptly and communicate any delays</p>
           </div>
-          
+
           <div className="flex items-start gap-2">
             <svg className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -200,13 +200,23 @@ export default function StepAgreement({ formData, updateFormData, errors, onSubm
         <button
           type="button"
           onClick={onSubmit}
-          disabled={!canSubmit}
-          className="w-full rounded-full px-6 py-4 text-lg font-semibold text-white transition-all hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-          style={{ background: canSubmit ? '#E6A11A' : '#9CA3AF' }}
+          disabled={!canSubmit || loading}
+          className="w-full rounded-full px-6 py-4 text-lg font-semibold text-white transition-all hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          style={{ background: canSubmit && !loading ? '#E6A11A' : '#9CA3AF' }}
         >
-          Submit for Admin Approval
+          {loading ? (
+            <>
+              <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Submitting...
+            </>
+          ) : (
+            'Submit for Admin Approval'
+          )}
         </button>
-        
+
         {!canSubmit && (
           <p className="text-center text-xs text-red-500">
             Please accept both checkboxes above to submit your application

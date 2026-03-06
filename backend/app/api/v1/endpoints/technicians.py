@@ -1,126 +1,87 @@
 from fastapi import APIRouter, Depends, Query
-from typing import Optional
-from app.core.deps import get_current_user, require_role
-from app.schemas.technician import TechnicianUpdate, TechnicianResponse
-from app.stores.user_store import user_store
-from app.stores.technician_store import technician_store
+from typing import Optional, List
+from sqlalchemy.orm import Session
+from app.core.database import get_db
+from app.core.deps import get_current_user
+from app.models import Technician, User, TechnicianStatusEnum
 from app.utils.responses import success_response, error_response
-from app.utils.geo import haversine_distance
+import json
 
 router = APIRouter(prefix="/technicians", tags=["Technicians"])
 
 @router.get("", response_model=dict)
 async def list_technicians(
     skill: Optional[str] = Query(None),
-    lat: Optional[float] = Query(None),
-    lng: Optional[float] = Query(None),
-    radius_km: Optional[float] = Query(5),
     online: Optional[bool] = Query(None),
+    status: Optional[str] = Query("approved"),
+    db: Session = Depends(get_db)
 ):
     """Get technicians with filtering options."""
-    technicians = technician_store.get_all()
+    query = db.query(Technician).join(User)
     
-    # Filter by skill
-    if skill:
-        technicians = [t for t in technicians if skill in t["skills"]]
-    
-    # Filter by online status
+    if status:
+        try:
+            query = query.filter(Technician.status == TechnicianStatusEnum[status.upper()])
+        except (KeyError, AttributeError):
+            pass
+            
     if online is not None:
-        technicians = [t for t in technicians if t["is_online"] == online]
+        query = query.filter(Technician.is_online == online)
     
-    # Filter by location (Haversine distance)
-    if lat is not None and lng is not None:
-        filtered = []
-        for tech in technicians:
-            if tech.get("latitude") is not None and tech.get("longitude") is not None:
-                dist = haversine_distance(lat, lng, tech["latitude"], tech["longitude"])
-                if dist <= radius_km:
-                    filtered.append(tech)
-        technicians = filtered
+    technicians = query.all()
     
-    # Enrich with user info
+    # Filter by skill (JSON search)
     result = []
     for tech in technicians:
-        user = user_store.get_by_id(tech["user_id"])
-        if user:
-            tech["name"] = user["name"]
-            tech["phone"] = user["phone"]
-            result.append(tech)
+        skills = json.loads(tech.skills or "[]")
+        if skill and skill not in skills:
+            continue
+            
+        # Manually enrich with user info for response matching frontend expectation
+        tech_dict = {
+            "id": tech.id,
+            "user_id": tech.user_id,
+            "name": tech.user.name,
+            "phone": tech.user.phone,
+            "skills": skills,
+            "rating": tech.rating,
+            "rating_count": tech.rating_count,
+            "is_online": tech.is_online,
+            "status": tech.status.value,
+            "profile_image_url": tech.profile_image_url
+        }
+        result.append(tech_dict)
     
-    return success_response(
-        data=result,
-        message="Technicians retrieved successfully"
-    )
+    return success_response(data=result, message="Technicians retrieved")
 
 @router.get("/{technician_id}", response_model=dict)
-async def get_technician(technician_id: str):
+async def get_technician(technician_id: str, db: Session = Depends(get_db)):
     """Get a specific technician profile."""
-    tech = technician_store.get_by_id(technician_id)
+    tech = db.query(Technician).filter(Technician.id == technician_id).first()
     if not tech:
-        return error_response(
-            code="NOT_FOUND",
-            details="Technician not found"
-        )
-    
-    user = user_store.get_by_id(tech["user_id"])
-    if user:
-        tech["name"] = user["name"]
-        tech["phone"] = user["phone"]
+        return error_response(code="NOT_FOUND", details="Technician not found")
     
     return success_response(
-        data=tech,
-        message="Technician retrieved successfully"
-    )
-
-@router.patch("/me", response_model=dict)
-async def update_my_profile(
-    update: TechnicianUpdate,
-    current_user: dict = Depends(get_current_user)
-):
-    """Update my technician profile."""
-    if current_user["role"] != "technician":
-        return error_response(
-            code="FORBIDDEN",
-            details="Only technicians can update their profile"
-        )
-    
-    tech = technician_store.get_by_user_id(current_user["id"])
-    if not tech:
-        return error_response(
-            code="NOT_FOUND",
-            details="Technician profile not found"
-        )
-    
-    update_data = update.model_dump(exclude_unset=True)
-    tech = technician_store.update(tech["id"], **update_data)
-    
-    return success_response(
-        data=tech,
-        message="Profile updated successfully"
+        data={
+            "id": tech.id,
+            "name": tech.user.name,
+            "skills": json.loads(tech.skills or "[]"),
+            "rating": tech.rating,
+            "is_online": tech.is_online
+        }
     )
 
 @router.patch("/me/online", response_model=dict)
 async def toggle_online_status(
     is_online: bool = Query(...),
+    db: Session = Depends(get_db),
     current_user: dict = Depends(get_current_user)
 ):
     """Toggle technician online status."""
-    if current_user["role"] != "technician":
-        return error_response(
-            code="FORBIDDEN",
-            details="Only technicians can update online status"
-        )
-    
-    tech = technician_store.get_by_user_id(current_user["id"])
+    tech = db.query(Technician).filter(Technician.user_id == current_user["id"]).first()
     if not tech:
-        return error_response(
-            code="NOT_FOUND",
-            details="Technician profile not found"
-        )
+        return error_response(code="NOT_FOUND", details="Technician not found")
     
-    tech = technician_store.update(tech["id"], is_online=is_online)
-    
-    return success_response(
-        data={"is_online": tech["is_online"]},
-        message=f"Now {'online' if is_online else 'offline'}"
-    )
+    tech.is_online = is_online
+    db.commit()
+    return success_response(data={"is_online": tech.is_online})

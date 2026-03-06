@@ -6,22 +6,32 @@ import ErrorBanner from '../components/ui/ErrorBanner'
 import { useApp } from '../context/AppContext'
 
 const JobCompletion = () => {
-  const { jobs, completeJob } = useApp()
+  const { jobs, completeJob, setToast } = useApp()
   const latest = jobs.slice(-1)[0]
   const [otp, setOtp] = useState('')
   const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
 
   if (!latest) return <ErrorBanner message="No active job to complete" />
 
   const submit = async (e) => {
     e.preventDefault()
-    if (otp !== latest.otp) {
-      setError('OTP does not match')
+    if (!otp.trim()) {
+      setError('Please enter the OTP')
       return
     }
-    await completeJob(latest.id, otp)
-    navigate('/customer/rating')
+    setError('')
+    setLoading(true)
+    try {
+      await completeJob(latest.id, otp)
+      setToast({ type: 'success', message: 'Job completed successfully!' })
+      navigate('/customer/rating')
+    } catch (err) {
+      setError(err.message || 'Invalid OTP. Please try again.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -40,8 +50,8 @@ const JobCompletion = () => {
           onChange={(e) => setOtp(e.target.value)}
           maxLength={6}
         />
-        <Button type="submit" className="w-full">
-          Mark job completed
+        <Button type="submit" className="w-full" disabled={loading}>
+          {loading ? 'Verifying...' : 'Mark job completed'}
         </Button>
       </form>
     </div>

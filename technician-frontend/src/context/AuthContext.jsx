@@ -1,4 +1,5 @@
-import { createContext, useContext, useMemo, useState } from 'react'
+import { createContext, useContext, useEffect, useMemo, useState } from 'react'
+import { techLogin, techRegister, techLogout, getStoredUser, fetchTechProfile, updateTechProfile } from '../services/techApi'
 
 const AuthContext = createContext(null)
 
@@ -7,77 +8,101 @@ const storageKeys = {
   user: 'tech_user_info',
 }
 
-const defaultTechnician = {
-  id: 'tech-001',
-  name: 'Aisha Rahman',
-  role: 'technician',
-  phone: '555-201-3344',
-  skills: ['HVAC', 'Electrical', 'Plumbing'],
-  serviceArea: 'North District',
-  experience: '5 years',
-  rating: 4.8,
-}
-
-const loadUser = () => {
-  try {
-    const storedUser = localStorage.getItem(storageKeys.user)
-    return storedUser ? JSON.parse(storedUser) : null
-  } catch {
-    return null
-  }
-}
-
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(loadUser)
+  const [user, setUser] = useState(() => getStoredUser())
   const [token, setToken] = useState(() => localStorage.getItem(storageKeys.token) || '')
+  const [loading, setLoading] = useState(false)
 
-  const login = (overrides = {}) => {
-    const nextUser = {
-      id: overrides.applicationId || `tech-${Date.now()}`,
-      name: overrides.name || 'Technician',
-      role: 'technician',
-      phone: overrides.phone || '',
-      skills: overrides.skills || ['General'],
-      serviceArea: overrides.serviceArea || 'Local',
-      experience: overrides.experience || '0 years',
-      rating: overrides.rating || 0,
-      ...overrides,
+  // On mount, try to load profile from backend if we have a token
+  useEffect(() => {
+    if (!token) return
+    fetchTechProfile()
+      .then((profile) => {
+        if (profile) {
+          const merged = { ...user, ...profile }
+          setUser(merged)
+          localStorage.setItem(storageKeys.user, JSON.stringify(merged))
+        }
+      })
+      .catch(() => {
+        // Token invalid — clear auth
+        setUser(null)
+        setToken('')
+        localStorage.removeItem(storageKeys.token)
+        localStorage.removeItem(storageKeys.user)
+      })
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const login = async (phone, password) => {
+    setLoading(true)
+    try {
+      const data = await techLogin(phone, password)
+      const nextUser = data.user || data
+      const nextToken = data.access_token || ''
+
+      setUser(nextUser)
+      setToken(nextToken)
+
+      return { success: true, user: nextUser }
+    } catch (error) {
+      return { success: false, error: error.message }
+    } finally {
+      setLoading(false)
     }
-    const nextToken = 'tech_mock_token_12345'
+  }
 
-    setUser(nextUser)
-    setToken(nextToken)
+  const register = async (userData) => {
+    setLoading(true)
+    try {
+      const data = await techRegister(userData)
+      const nextUser = data.user || data
+      const nextToken = data.access_token || ''
 
-    localStorage.setItem(storageKeys.token, nextToken)
-    localStorage.setItem(storageKeys.user, JSON.stringify(nextUser))
+      setUser(nextUser)
+      setToken(nextToken)
+
+      return { success: true, user: nextUser }
+    } catch (error) {
+      return { success: false, error: error.message }
+    } finally {
+      setLoading(false)
+    }
   }
 
   const logout = () => {
+    techLogout()
     setUser(null)
     setToken('')
-    localStorage.removeItem(storageKeys.token)
-    localStorage.removeItem(storageKeys.user)
   }
 
-  const updateProfile = (updates) => {
-    setUser((prev) => {
-      if (!prev) return prev
-      const nextUser = { ...prev, ...updates }
+  const updateProfile = async (updates) => {
+    try {
+      const result = await updateTechProfile(updates)
+      const nextUser = { ...user, ...updates, ...result }
+      setUser(nextUser)
       localStorage.setItem(storageKeys.user, JSON.stringify(nextUser))
-      return nextUser
-    })
+      return { success: true }
+    } catch (error) {
+      // Fallback: update locally even if API fails
+      const nextUser = { ...user, ...updates }
+      setUser(nextUser)
+      localStorage.setItem(storageKeys.user, JSON.stringify(nextUser))
+      return { success: false, error: error.message }
+    }
   }
 
   const value = useMemo(
     () => ({
       user,
       token,
+      loading,
       isAuthenticated: Boolean(token),
       login,
+      register,
       logout,
       updateProfile,
     }),
-    [user, token],
+    [user, token, loading],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

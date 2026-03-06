@@ -6,42 +6,16 @@ import StepProfessional from './steps/StepProfessional'
 import StepAadhaar from './steps/StepAadhaar'
 import StepAgreement from './steps/StepAgreement'
 
-const TECHNICIANS_STORAGE_KEY = 'fixora_technicians'
+// Removed localStorage application logic — now using real backend API via AuthContext
 
-const saveTechnicianApplication = (applicationData) => {
-  const list = JSON.parse(localStorage.getItem(TECHNICIANS_STORAGE_KEY) || '[]')
-  const newApp = {
-    id: `tech_${Date.now()}`,
-    fullName: applicationData.fullName,
-    phone: applicationData.mobile,
-    email: applicationData.email,
-    profilePhotoUrl: applicationData.profilePhoto || '/logo.png',
-    skill: applicationData.primarySkill,
-    experience: applicationData.experience,
-    radiusKm: applicationData.serviceRadius,
-    baseVisitFee: applicationData.baseVisitFee,
-    hasShop: applicationData.hasShop,
-    shopName: applicationData.shopName,
-    shopAddress: applicationData.shopAddress,
-    shopLocationText: applicationData.shopLocation,
-    aadhaarNumber: applicationData.aadhaarNumber,
-    aadhaarFrontUrl: applicationData.aadhaarFront || '/logo.png',
-    aadhaarBackUrl: applicationData.aadhaarBack || '/logo.png',
-    selfieUrl: applicationData.selfie || '/logo.png',
-    status: 'PENDING',
-    rejectionReason: '',
-    createdAt: new Date().toISOString(),
-  }
-  list.push(newApp)
-  localStorage.setItem(TECHNICIANS_STORAGE_KEY, JSON.stringify(list))
-  return newApp
-}
 
 export default function TechnicianRegister() {
   const navigate = useNavigate()
-  const { login } = useAuth()
+  const { register } = useAuth()
   const [currentStep, setCurrentStep] = useState(1)
   const [submitted, setSubmitted] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
   const [formData, setFormData] = useState({
     // Step 1
     fullName: '',
@@ -143,32 +117,50 @@ export default function TechnicianRegister() {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
-  const handleSubmit = () => {
-    if (validateStep(4)) {
-      const application = saveTechnicianApplication(formData)
-      login({
-        applicationId: application.id,
-        name: application.fullName,
-        phone: application.phone,
-        email: application.email,
-        skills: [application.skill],
-        serviceArea: application.shopLocationText || 'Local',
-        experience: application.experience,
-        radiusKm: application.radiusKm,
-        baseVisitFee: application.baseVisitFee,
-        hasShop: application.hasShop,
-        shopName: application.shopName,
-        shopAddress: application.shopAddress,
-        aadhaarNumber: application.aadhaarNumber,
-        aadhaarFrontUrl: application.aadhaarFrontUrl,
-        aadhaarBackUrl: application.aadhaarBackUrl,
-        selfieUrl: application.selfieUrl,
-        profilePhotoUrl: application.profilePhotoUrl,
-        status: application.status,
-        rejectionReason: application.rejectionReason,
-        createdAt: application.createdAt,
-      })
-      navigate('/dashboard')
+  const handleSubmit = async () => {
+    if (!validateStep(4)) return
+
+    setLoading(true)
+    setError('')
+
+    // Map frontend fields (mobile, fullName) to backend fields (phone, name)
+    const payload = {
+      phone: formData.mobile,
+      name: formData.fullName,
+      email: formData.email,
+      password: formData.password,
+      role: 'technician',
+      // Include technician specific metadata
+      skill: formData.primarySkill,
+      experience: formData.experience,
+      radius_km: formData.serviceRadius,
+      base_visit_fee: formData.baseVisitFee,
+      has_shop: formData.hasShop,
+      shop_name: formData.shopName,
+      shop_address: formData.shopAddress,
+      shop_location: formData.shopLocation ? JSON.stringify(formData.shopLocation) : null,
+      aadhaar_number: formData.aadhaarNumber,
+      // For images, we would ideally upload them first or send URLs if they were already uploaded
+      profile_photo_url: formData.profilePhoto,
+      aadhaar_front_url: formData.aadhaarFront,
+      aadhaar_back_url: formData.aadhaarBack,
+      selfie_url: formData.selfie,
+    }
+
+    try {
+      const result = await register(payload)
+      if (result.success) {
+        setSubmitted(true)
+        // Auto-navigate to dashboard or let user read the success screen
+        setTimeout(() => navigate('/dashboard'), 3000)
+      } else {
+        setError(result.error || 'Registration failed. Please check your details.')
+        setCurrentStep(1) // Go back to first step to check
+      }
+    } catch (err) {
+      setError('Connection error. Is the backend server running?')
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -189,7 +181,7 @@ export default function TechnicianRegister() {
       case 3:
         return <StepAadhaar formData={formData} updateFormData={updateFormData} errors={errors} />
       case 4:
-        return <StepAgreement formData={formData} updateFormData={updateFormData} errors={errors} onSubmit={handleSubmit} />
+        return <StepAgreement formData={formData} updateFormData={updateFormData} errors={errors} onSubmit={handleSubmit} loading={loading} />
       default:
         return null
     }
@@ -200,7 +192,7 @@ export default function TechnicianRegister() {
       <div className="relative isolate mx-auto flex min-h-screen w-full flex-col items-center justify-center px-4 py-10 bg-gradient-to-br from-[#CFEDEE] via-[#E8F8F9] to-[#D4F0F2]">
         <div className="pointer-events-none absolute -left-16 top-10 h-96 w-96 rounded-full bg-[#E6A11A]/15 blur-[140px]" />
         <div className="pointer-events-none absolute -right-10 bottom-4 h-96 w-96 rounded-full bg-[#14B8A6]/15 blur-[140px]" />
-        
+
         <div className="relative w-full max-w-2xl">
           <div className="rounded-2xl bg-white/95 backdrop-blur-sm border border-[#E6A11A]/20 shadow-xl p-8 text-center space-y-6">
             {/* Success Icon */}
@@ -323,13 +315,12 @@ export default function TechnicianRegister() {
                 <div key={stepNumber} className="flex items-center flex-1">
                   <div className="flex flex-col items-center flex-1">
                     <div
-                      className={`flex h-10 w-10 items-center justify-center rounded-full border-2 font-semibold transition-all ${
-                        isCompleted
-                          ? 'bg-green-500 border-green-500 text-white'
-                          : isActive
+                      className={`flex h-10 w-10 items-center justify-center rounded-full border-2 font-semibold transition-all ${isCompleted
+                        ? 'bg-green-500 border-green-500 text-white'
+                        : isActive
                           ? 'bg-[#E6A11A] border-[#E6A11A] text-white'
                           : 'bg-white border-gray-300 text-gray-400'
-                      }`}
+                        }`}
                     >
                       {isCompleted ? (
                         <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -340,25 +331,23 @@ export default function TechnicianRegister() {
                       )}
                     </div>
                     <span
-                      className={`mt-2 text-xs font-semibold text-center hidden md:block ${
-                        isActive ? 'text-[#1E3A5F]' : 'text-gray-500'
-                      }`}
+                      className={`mt-2 text-xs font-semibold text-center hidden md:block ${isActive ? 'text-[#1E3A5F]' : 'text-gray-500'
+                        }`}
                     >
                       {title}
                     </span>
                   </div>
                   {stepNumber < totalSteps && (
                     <div
-                      className={`h-0.5 flex-1 mx-2 transition-all ${
-                        stepNumber < currentStep ? 'bg-green-500' : 'bg-gray-300'
-                      }`}
+                      className={`h-0.5 flex-1 mx-2 transition-all ${stepNumber < currentStep ? 'bg-green-500' : 'bg-gray-300'
+                        }`}
                     />
                   )}
                 </div>
               )
             })}
           </div>
-          
+
           {/* Mobile step title */}
           <div className="md:hidden text-center mt-4">
             <span className="text-sm font-semibold text-[#1E3A5F]">
@@ -369,6 +358,11 @@ export default function TechnicianRegister() {
 
         {/* Step Content */}
         <div className="rounded-2xl bg-white/95 backdrop-blur-sm border border-[#E6A11A]/20 shadow-xl p-8">
+          {error && (
+            <div className="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              {error}
+            </div>
+          )}
           {renderStep()}
         </div>
 
@@ -385,9 +379,8 @@ export default function TechnicianRegister() {
             )}
             <button
               onClick={handleNext}
-              className={`rounded-full px-6 py-4 text-lg font-semibold text-white transition-all hover:shadow-lg ${
-                currentStep === 1 ? 'w-full' : 'flex-1'
-              }`}
+              className={`rounded-full px-6 py-4 text-lg font-semibold text-white transition-all hover:shadow-lg ${currentStep === 1 ? 'w-full' : 'flex-1'
+                }`}
               style={{ background: '#E6A11A' }}
             >
               Next Step

@@ -2,38 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
 
-const TECHNICIANS_STORAGE_KEY = 'fixora_technicians'
 const DEMO_TECH_PHOTO = 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=320&h=320&q=80'
-
-const ensureDemoAccount = () => {
-  const list = JSON.parse(localStorage.getItem(TECHNICIANS_STORAGE_KEY) || '[]')
-  const demoExists = list.some((tech) => tech.phone === '8888888888')
-  if (!demoExists) {
-    list.push({
-      id: 'tech_demo_verified',
-      fullName: 'Demo Technician',
-      phone: '8888888888',
-      email: 'demo@techflow.com',
-      profilePhotoUrl: DEMO_TECH_PHOTO,
-      skill: 'AC Mechanic',
-      experience: '5 years',
-      radiusKm: '10',
-      baseVisitFee: '199',
-      hasShop: true,
-      shopName: 'Demo Shop',
-      shopAddress: '123 Main Street',
-      shopLocationText: 'City Center',
-      aadhaarNumber: '888888888888',
-      aadhaarFrontUrl: DEMO_TECH_PHOTO,
-      aadhaarBackUrl: DEMO_TECH_PHOTO,
-      selfieUrl: DEMO_TECH_PHOTO,
-      status: 'APPROVED',
-      rejectionReason: '',
-      createdAt: new Date(Date.now() - 86400000).toISOString(),
-    })
-    localStorage.setItem(TECHNICIANS_STORAGE_KEY, JSON.stringify(list))
-  }
-}
 
 export default function Login() {
   const { login } = useAuth()
@@ -42,10 +11,6 @@ export default function Login() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-
-  useEffect(() => {
-    ensureDemoAccount()
-  }, [])
 
   const normalizePhone = (value) => value.replace(/\D/g, '').slice(0, 10)
   const handleBack = () => {
@@ -56,41 +21,25 @@ export default function Login() {
     }
   }
 
-  const handleDemoLogin = () => {
+  const handleDemoLogin = async () => {
     setPhone('8888888888')
-    setPassword('demo123')
-    setTimeout(() => {
-      const technicians = JSON.parse(localStorage.getItem(TECHNICIANS_STORAGE_KEY) || '[]')
-      const application = technicians.find((tech) => tech.phone === '8888888888')
-      if (application) {
-        login({
-          name: application.fullName,
-          phone: application.phone,
-          applicationId: application.id,
-          email: application.email,
-          skills: [application.skill],
-          serviceArea: application.shopLocationText || 'Local',
-          experience: application.experience,
-          radiusKm: application.radiusKm,
-          baseVisitFee: application.baseVisitFee,
-          hasShop: application.hasShop,
-          shopName: application.shopName,
-          shopAddress: application.shopAddress,
-          aadhaarNumber: application.aadhaarNumber,
-          aadhaarFrontUrl: application.aadhaarFrontUrl,
-          aadhaarBackUrl: application.aadhaarBackUrl,
-          selfieUrl: application.selfieUrl,
-          profilePhotoUrl: application.profilePhotoUrl,
-          status: application.status,
-          rejectionReason: application.rejectionReason,
-          createdAt: application.createdAt,
-        })
+    setPassword('demo1234') // Standard demo password
+    setLoading(true)
+    try {
+      const result = await login('8888888888', 'demo1234')
+      if (result.success) {
         navigate('/dashboard')
+      } else {
+        setError(result.error || 'Demo login failed')
       }
-    }, 300)
+    } catch (err) {
+      setError('An unexpected error occurred during demo login')
+    } finally {
+      setLoading(false)
+    }
   }
 
-  const handleSignIn = (event) => {
+  const handleSignIn = async (event) => {
     event.preventDefault()
     setError('')
 
@@ -105,41 +54,18 @@ export default function Login() {
     }
 
     setLoading(true)
-    
-    setTimeout(() => {
-      const technicians = JSON.parse(localStorage.getItem(TECHNICIANS_STORAGE_KEY) || '[]')
-      const application = technicians.find((tech) => tech.phone === phone)
-
-      if (!application) {
-        setError('No application found for this phone number. Please create an account first.')
-        setLoading(false)
-        return
+    try {
+      const result = await login(phone, password)
+      if (result.success) {
+        navigate('/dashboard')
+      } else {
+        setError(result.error || 'Invalid phone or password')
       }
-
-      login({
-        name: application.fullName,
-        phone,
-        applicationId: application.id,
-        email: application.email,
-        skills: [application.skill],
-        serviceArea: application.shopLocationText || 'Local',
-        experience: application.experience,
-        radiusKm: application.radiusKm,
-        baseVisitFee: application.baseVisitFee,
-        hasShop: application.hasShop,
-        shopName: application.shopName,
-        shopAddress: application.shopAddress,
-        aadhaarNumber: application.aadhaarNumber,
-        aadhaarFrontUrl: application.aadhaarFrontUrl,
-        aadhaarBackUrl: application.aadhaarBackUrl,
-        selfieUrl: application.selfieUrl,
-        profilePhotoUrl: application.profilePhotoUrl,
-        status: application.status,
-        rejectionReason: application.rejectionReason,
-        createdAt: application.createdAt,
-      })
-      navigate('/dashboard')
-    }, 500)
+    } catch (err) {
+      setError('Connection failed. Please check if the server is running.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (

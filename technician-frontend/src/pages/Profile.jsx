@@ -23,16 +23,21 @@ export default function Profile() {
     setForm((prev) => ({ ...prev, [event.target.name]: event.target.value }))
   }
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault()
-    updateProfile({
+    const result = await updateProfile({
       name: form.name,
       phone: form.phone,
       skills: form.skills.split(',').map((item) => item.trim()),
       serviceArea: form.serviceArea,
       experience: form.experience,
     })
-    addToast({ title: 'Profile saved', message: 'Local profile updated.' })
+
+    if (result.success) {
+      addToast({ title: 'Profile saved', message: 'Your changes have been saved to the server.' })
+    } else {
+      addToast({ title: 'Error', message: result.error || 'Failed to save profile changes.', tone: 'danger' })
+    }
   }
 
   return (
