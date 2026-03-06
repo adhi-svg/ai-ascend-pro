@@ -46,12 +46,12 @@ const Toast = ({ toast, onClear }) => {
           <div className={`w-10 h-10 bg-gradient-to-br ${config.gradient} rounded-full flex items-center justify-center flex-shrink-0 text-white text-lg font-bold shadow-lg animate-success-pulse`}>
             {config.icon}
           </div>
-          
+
           {/* Content */}
           <div className="flex-1 pt-1">
             <p className="text-[#1E3A5F] font-semibold text-sm leading-tight">{toast.message}</p>
           </div>
-          
+
           {/* Close Button */}
           <button
             onClick={onClear}

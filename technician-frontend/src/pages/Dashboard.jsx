@@ -317,7 +317,7 @@ export default function Dashboard() {
                 className={`rounded-full px-3 py-1 text-xs font-semibold whitespace-nowrap ${approvalStatusStyles[user.status]}`}
               >
                 {user.status === 'APPROVED' && '✓ Approved'}
-                {user.status === 'PENDING' && '⏳ Pending Review'}
+                {user.status === 'PENDING' && '<Hourglass size={16} className="inline mr-1" /> Pending Review'}
                 {user.status === 'REJECTED' && '✕ Rejected'}
               </div>
             )}
@@ -329,9 +329,8 @@ export default function Dashboard() {
               <button
                 type="button"
                 onClick={() => setOnline((prev) => !prev)}
-                className={`rounded-full px-4 py-2 text-xs font-semibold transition ${
-                  online ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-200 text-gray-700'
-                }`}
+                className={`rounded-full px-4 py-2 text-xs font-semibold transition ${online ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-200 text-gray-700'
+                  }`}
               >
                 {online ? 'Online' : 'Offline'}
               </button>
@@ -367,7 +366,7 @@ export default function Dashboard() {
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h3 className="text-base font-semibold text-brand-primary">Your Application Details</h3>
             <span className="rounded-full bg-yellow-50 px-3 py-1 text-xs font-semibold text-yellow-700">
-              {user?.status === 'REJECTED' ? '✕ Rejected' : '⏳ Pending Approval'}
+              {user?.status === 'REJECTED' ? '✕ Rejected' : '<Hourglass size={16} className="inline mr-1" /> Pending Approval'}
             </span>
           </div>
           {user?.status === 'REJECTED' && user?.rejectionReason ? (
@@ -463,9 +462,8 @@ export default function Dashboard() {
           <button
             type="button"
             onClick={() => setActiveStatus('all')}
-            className={`rounded-full px-4 py-2 text-xs font-semibold transition ${
-              activeStatus === 'all' ? 'bg-brand-accent/20 text-brand-primary' : 'bg-white/70'
-            }`}
+            className={`rounded-full px-4 py-2 text-xs font-semibold transition ${activeStatus === 'all' ? 'bg-brand-accent/20 text-brand-primary' : 'bg-white/70'
+              }`}
           >
             All ({bookings.length})
           </button>
@@ -474,9 +472,8 @@ export default function Dashboard() {
               key={status}
               type="button"
               onClick={() => setActiveStatus(status)}
-              className={`rounded-full px-4 py-2 text-xs font-semibold transition ${
-                activeStatus === status ? 'bg-brand-accent/20 text-brand-primary' : 'bg-white/70'
-              }`}
+              className={`rounded-full px-4 py-2 text-xs font-semibold transition ${activeStatus === status ? 'bg-brand-accent/20 text-brand-primary' : 'bg-white/70'
+                }`}
             >
               {statusLabels[status]} ({statusCounts[status] || 0})
             </button>

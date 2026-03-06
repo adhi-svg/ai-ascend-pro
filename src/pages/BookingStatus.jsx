@@ -18,7 +18,7 @@ const BookingStatus = () => {
   const { jobs, setJobs, setToast } = useApp()
   const navigate = useNavigate()
   const active = jobs.slice(-1)[0]
-  
+
   // Countdown timer state (10 minutes = 600 seconds)
   const [timeLeft, setTimeLeft] = useState(600)
   const [isCancelled, setIsCancelled] = useState(false)
@@ -96,11 +96,11 @@ const BookingStatus = () => {
     setJobs((prev) => prev.map((job) => (
       job.id === active.id
         ? {
-            ...job,
-            paymentStatus: 'paid',
-            journeyStatus: 'enroute',
-            status: job.status === 'waiting' ? 'accepted' : job.status,
-          }
+          ...job,
+          paymentStatus: 'paid',
+          journeyStatus: 'enroute',
+          status: job.status === 'waiting' ? 'accepted' : job.status,
+        }
         : job
     )))
     setToast({ message: '💳 Payment successful! Tracking technician...', type: 'success' })
@@ -135,7 +135,7 @@ const BookingStatus = () => {
             <div className="w-20 h-20 mx-auto bg-gradient-to-br from-yellow-400 to-orange-400 rounded-full flex items-center justify-center animate-pulse">
               <span className="text-4xl">⏳</span>
             </div>
-            
+
             <div>
               <h2 className="text-2xl font-bold text-brand-text-primary mb-2">Booking Sent!</h2>
               <p className="text-lg text-brand-text-secondary mb-1">Waiting for {active.technicianName} to accept</p>
@@ -160,7 +160,7 @@ const BookingStatus = () => {
                 {timeLeft === 0 ? 'Request expired' : 'Request will expire automatically'}
               </p>
               {timeLeft === 0 && (
-                <Button 
+                <Button
                   onClick={() => navigate('/customer/home')}
                   className="mt-4"
                 >
@@ -190,8 +190,8 @@ const BookingStatus = () => {
 
             {/* Cancel Button */}
             {timeLeft > 0 && (
-              <Button 
-                variant="secondary" 
+              <Button
+                variant="secondary"
                 onClick={handleCancelBooking}
                 className="w-full border border-brand-danger/50 bg-brand-danger/10 text-brand-danger hover:bg-brand-danger/20"
               >
@@ -208,7 +208,7 @@ const BookingStatus = () => {
               <div className="w-24 h-24 mx-auto bg-gradient-to-br from-green-400 to-emerald-400 rounded-full flex items-center justify-center animate-bounce">
                 <span className="text-5xl">✓</span>
               </div>
-              
+
               <div>
                 <h2 className="text-3xl font-bold text-brand-text-primary mb-2">Booking Accepted!</h2>
                 <p className="text-lg text-brand-text-secondary">Complete payment to start the service</p>
@@ -282,13 +282,13 @@ const BookingStatus = () => {
 
             {/* Action Buttons */}
             <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/30">
-              <Button 
+              <Button
                 onClick={() => navigate('/customer/home')}
                 className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
               >
                 Back to Home
               </Button>
-              <Button 
+              <Button
                 onClick={() => paymentDone ? navigate('/customer/tracking') : setShowPaymentModal(true)}
                 className={`${paymentDone ? 'bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700' : 'bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700'}`}
               >
@@ -304,7 +304,7 @@ const BookingStatus = () => {
             <div className="w-20 h-20 mx-auto bg-red-100 rounded-full flex items-center justify-center">
               <span className="text-4xl">✕</span>
             </div>
-            
+
             <div>
               <h2 className="text-2xl font-bold text-brand-danger mb-2">Booking Cancelled</h2>
               <p className="text-brand-text-secondary">Your booking request has been cancelled</p>
@@ -350,7 +350,7 @@ const BookingStatus = () => {
 
       {/* Payment Modal */}
       {showPaymentModal && (
-        <PaymentModal 
+        <PaymentModal
           booking={active}
           onPaymentSuccess={handlePaymentSuccess}
           onClose={() => setShowPaymentModal(false)}

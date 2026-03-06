@@ -1,3 +1,4 @@
+import { Wrench, MapPin, User, PhoneCall, Satellite, ClipboardList, HelpCircle, Bell, Hand, Star, Clock, CheckCircle2, Edit2, Smartphone, Lock, Trash2, LogOut, Menu, Lightbulb, CreditCard, Car, Calendar } from 'lucide-react'
 import { useState, useEffect, useCallback } from 'react'
 import { Link, useNavigate, useSearchParams, useLocation } from 'react-router-dom'
 import ServiceCategoryCard from '../components/cards/ServiceCategoryCard'
@@ -221,13 +222,13 @@ const CustomerHome = () => {
   }
 
   const navItems = [
-    { key: 'services', label: 'Services', icon: '🛠️' },
-    { key: 'nearby', label: 'Nearby Technicians', icon: '📍' },
-    { key: 'account', label: 'Account', icon: '👤' },
-    { key: 'relatives', label: 'Book for Others', icon: '📞' },
-    { key: 'ongoing', label: 'Ongoing Booking', icon: '🛰️' },
-    { key: 'previousBookings', label: 'Previous Bookings', icon: '📋' },
-    { key: 'support', label: 'Support', icon: '❓' },
+    { key: 'services', label: 'Services', icon: '<Wrench size={20} />' },
+    { key: 'nearby', label: 'Nearby Technicians', icon: '<MapPin size={20} />' },
+    { key: 'account', label: 'Account', icon: '<User size={20} />' },
+    { key: 'relatives', label: 'Book for Others', icon: '<PhoneCall size={20} />' },
+    { key: 'ongoing', label: 'Ongoing Booking', icon: '<Satellite size={20} />' },
+    { key: 'previousBookings', label: 'Previous Bookings', icon: '<ClipboardList size={20} />' },
+    { key: 'support', label: 'Support', icon: '<HelpCircle size={20} />' },
   ]
 
   // Book for relatives state
@@ -312,7 +313,7 @@ const CustomerHome = () => {
             className="text-[#1E3A5F] text-xl"
             onClick={() => setIsMobileNavOpen(true)}
           >
-            ☰
+            <Menu size={24} />
           </button>
           <div className="flex items-center gap-2">
             <span className="flex items-center justify-center rounded-lg bg-[#CFEDEE] p-1 shadow-sm">
@@ -321,7 +322,7 @@ const CustomerHome = () => {
             <div className="text-lg font-bold text-[#1E3A5F]">FIXORA</div>
           </div>
           <button aria-label="Notifications" className="text-[#E6A11A] text-lg">
-            🔔
+            <Bell size={20} />
           </button>
         </div>
         {/* Welcome Section */}
@@ -332,7 +333,7 @@ const CustomerHome = () => {
             </span>
             <div className="flex-1 space-y-3 text-left">
               <p className="text-xs font-semibold uppercase tracking-[0.5em] text-[#4B5563]">FIXORA</p>
-              <h1 className="text-4xl font-bold leading-tight text-[#1E3A5F]">Welcome, {userName}! 👋</h1>
+              <h1 className="text-4xl font-bold leading-tight text-[#1E3A5F]">Welcome, {userName}! <Hand size={36} className="inline text-yellow-400" /></h1>
               <p className="text-base text-[#4B5563]">Connect with local technicians for all your home service needs.</p>
             </div>
           </div>
@@ -444,7 +445,7 @@ const CustomerHome = () => {
                         onClick={handleOpenMapPicker}
                         className="w-full bg-blue-500 hover:bg-blue-600 text-white"
                       >
-                        📍 Open Map to Select Location
+                        <MapPin size={20} /> Open Map to Select Location
                       </Button>
                       <p className="text-xs text-white/60">Click the map to pin your exact location</p>
                     </div>
@@ -523,7 +524,7 @@ const CustomerHome = () => {
                                 {/* Rating */}
                                 <div className="flex items-center gap-2 mb-2">
                                   <div className="flex items-center gap-1">
-                                    <span className="text-yellow-500">⭐</span>
+                                    <span className="text-yellow-500"><Star size={16} className="fill-current text-yellow-500" /></span>
                                     <span className="text-sm font-semibold text-[#1E3A5F]">{tech.rating}</span>
                                   </div>
                                   <span className="text-xs text-[#9CA3AF]">({tech.totalRatings} ratings)</span>
@@ -531,7 +532,7 @@ const CustomerHome = () => {
                                 
                                 {/* Distance */}
                                 <div className="flex items-center gap-2 text-sm text-[#4B5563] mb-2">
-                                  <span>📍</span>
+                                  <span><MapPin size={20} /></span>
                                   <span>{tech.distance} km away</span>
                                 </div>
                                 
@@ -546,8 +547,8 @@ const CustomerHome = () => {
                                 
                                 {/* Experience & Status */}
                                 <div className="flex items-center gap-4 text-xs text-[#9CA3AF]">
-                                  <span>⏱️ {tech.experience || '5+'} years exp</span>
-                                  <span>✅ Verified</span>
+                                  <span><Clock size={14} className="inline mr-1" /> {tech.experience || '5+'} years exp</span>
+                                  <span><CheckCircle2 size={14} className="inline mr-1" /> Verified</span>
                                 </div>
                               </div>
                             </div>
@@ -607,7 +608,7 @@ const CustomerHome = () => {
                     <div className="rounded-xl border border-[#E6A11A]/20 bg-white/90 p-4 hover:bg-white cursor-pointer transition hover:border-[#E6A11A]/40 hover:shadow-lg" onClick={() => { setShowChangeName((prev) => !prev); setAccountError('') }}>
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="font-semibold text-[#1E3A5F]">✏️ Edit Name</p>
+                          <p className="font-semibold text-[#1E3A5F]"><Edit2 size={16} className="inline mr-2" /> Edit Name</p>
                           <p className="text-sm text-[#4B5563]">Update your name</p>
                           <p className="mt-1 text-xs text-[#9CA3AF]">Current: {user?.name || 'Not set'}</p>
                         </div>
@@ -621,7 +622,7 @@ const CustomerHome = () => {
                     >
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="font-semibold text-[#1E3A5F]">📍 Change Location</p>
+                          <p className="font-semibold text-[#1E3A5F]"><MapPin size={20} /> Change Location</p>
                           <p className="text-sm text-[#4B5563]">Update your service area</p>
                         </div>
                         <span className="text-xl text-[#E6A11A]">→</span>
@@ -631,7 +632,7 @@ const CustomerHome = () => {
                     <div className="rounded-xl border border-[#E6A11A]/20 bg-white/90 p-4 hover:bg-white cursor-pointer transition hover:border-[#E6A11A]/40 hover:shadow-lg" onClick={() => { setShowChangeNumber((prev) => !prev); setAccountError('') }}>
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="font-semibold text-[#1E3A5F]">📱 Change Mobile Number</p>
+                          <p className="font-semibold text-[#1E3A5F]"><Smartphone size={16} className="inline mr-2" /> Change Mobile Number</p>
                           <p className="text-sm text-[#4B5563]">Update your phone number</p>
                           <p className="mt-1 text-xs text-[#9CA3AF]">Current: {user?.phone || 'Not set'}</p>
                         </div>
@@ -642,7 +643,7 @@ const CustomerHome = () => {
                     <div className="rounded-xl border border-[#E6A11A]/20 bg-white/90 p-4 hover:bg-white cursor-pointer transition hover:border-[#E6A11A]/40 hover:shadow-lg" onClick={() => { setShowChangePassword((prev) => !prev); setAccountError('') }}>
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="font-semibold text-[#1E3A5F]">🔐 Change Password</p>
+                          <p className="font-semibold text-[#1E3A5F]"><Lock size={16} className="inline mr-2" /> Change Password</p>
                           <p className="text-sm text-[#4B5563]">Update your password</p>
                           <p className="mt-1 text-xs text-[#9CA3AF]">Recovery email: {user?.email || 'Add email in profile'}</p>
                         </div>
@@ -653,7 +654,7 @@ const CustomerHome = () => {
                     <div className="rounded-xl border border-red-300 bg-red-50 p-4 hover:bg-red-100 cursor-pointer transition" onClick={handleDeleteAccount}>
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="font-semibold text-red-900">🗑️ Delete Account</p>
+                          <p className="font-semibold text-red-900"><Trash2 size={16} className="inline mr-2" /> Delete Account</p>
                           <p className="text-sm text-red-700">Permanently delete your account</p>
                         </div>
                         <span className="text-xl text-red-600">→</span>
@@ -663,7 +664,7 @@ const CustomerHome = () => {
                     <div className="rounded-xl border border-[#E6A11A]/20 bg-white/90 p-4 hover:bg-white cursor-pointer transition" onClick={handleLogout}>
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="font-semibold text-[#1E3A5F]">🚪 Log Out</p>
+                          <p className="font-semibold text-[#1E3A5F]"><LogOut size={16} className="inline mr-2" /> Log Out</p>
                           <p className="text-sm text-[#4B5563]">Sign out of this account</p>
                         </div>
                         <span className="text-xl text-[#E6A11A]">→</span>
@@ -861,7 +862,7 @@ const CustomerHome = () => {
                               className="flex-1"
                               onClick={handleRelativesGetLocation}
                             >
-                              📍 Use Current Location
+                              <MapPin size={20} /> Use Current Location
                             </Button>
                           </div>
                           <div className="flex gap-2">
@@ -934,28 +935,28 @@ const CustomerHome = () => {
                       className="rounded-xl border border-slate-200 p-4 hover:bg-blue-50 cursor-pointer transition hover:border-brand-accent hover:shadow-md"
                       onClick={() => navigate('/support/contact')}
                     >
-                      <p className="font-semibold text-slate-900">📞 Contact Support</p>
+                      <p className="font-semibold text-slate-900"><PhoneCall size={20} /> Contact Support</p>
                       <p className="text-sm text-slate-600 mt-1">Reach out to our support team</p>
                     </div>
                     <div
                       className="rounded-xl border border-slate-200 p-4 hover:bg-blue-50 cursor-pointer transition hover:border-brand-accent hover:shadow-md"
                       onClick={() => navigate('/support/help')}
                     >
-                      <p className="font-semibold text-slate-900">💡 Help Center</p>
+                      <p className="font-semibold text-slate-900"><Lightbulb size={16} className="inline mr-1" /> Help Center</p>
                       <p className="text-sm text-slate-600 mt-1">Browse FAQs and guides</p>
                     </div>
                     <div
                       className="rounded-xl border border-slate-200 p-4 hover:bg-blue-50 cursor-pointer transition hover:border-brand-accent hover:shadow-md"
                       onClick={() => navigate('/support/privacy')}
                     >
-                      <p className="font-semibold text-slate-900">🔒 Privacy Policy</p>
+                      <p className="font-semibold text-slate-900"><Lock size={16} className="inline mr-1" /> Privacy Policy</p>
                       <p className="text-sm text-slate-600 mt-1">Read our privacy policy</p>
                     </div>
                     <div
                       className="rounded-xl border border-slate-200 p-4 hover:bg-blue-50 cursor-pointer transition hover:border-brand-accent hover:shadow-md"
                       onClick={() => navigate('/support/terms')}
                     >
-                      <p className="font-semibold text-slate-900">📋 Terms & Conditions</p>
+                      <p className="font-semibold text-slate-900"><ClipboardList size={20} /> Terms & Conditions</p>
                       <p className="text-sm text-slate-600 mt-1">Review our terms of service</p>
                     </div>
                   </div>
@@ -998,10 +999,10 @@ const CustomerHome = () => {
                               ✓ {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
                             </span>
                             <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
-                              💳 Payment {booking.paymentStatus}
+                              <CreditCard size={16} className="inline mr-1" /> Payment {booking.paymentStatus}
                             </span>
                             <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800">
-                              ⭐ {booking.rating}
+                              <Star size={16} className="fill-current text-yellow-500" /> {booking.rating}
                             </span>
                           </div>
                           
@@ -1065,12 +1066,12 @@ const CustomerHome = () => {
                               : 'bg-yellow-100 text-yellow-800'
                           }`}>
                             {ongoingJob.status === 'accepted' && '✓ Accepted'}
-                            {ongoingJob.status === 'enroute' && '🚗 On the way'}
-                            {ongoingJob.status === 'arrived' && '📍 Arrived'}
+                            {ongoingJob.status === 'enroute' && '<Car size={16} className="inline mr-1" /> On the way'}
+                            {ongoingJob.status === 'arrived' && '<MapPin size={20} /> Arrived'}
                             {ongoingJob.status !== 'accepted' && ongoingJob.status !== 'enroute' && ongoingJob.status !== 'arrived' && ongoingJob.status}
                           </span>
                           <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
-                            💳 Paid
+                            <CreditCard size={16} className="inline mr-1" /> Paid
                           </span>
                         </div>
 
@@ -1095,7 +1096,7 @@ const CustomerHome = () => {
                             className="flex-1"
                             onClick={() => navigate('/customer/tracking')}
                           >
-                            📍 Track Technician
+                            <MapPin size={20} /> Track Technician
                           </Button>
                           <Button 
                             variant="secondary"
@@ -1150,7 +1151,7 @@ const CustomerHome = () => {
                       ✓ Completed
                     </span>
                     <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
-                      💳 Payment successful
+                      <CreditCard size={16} className="inline mr-1" /> Payment successful
                     </span>
                   </div>
                 </div>
@@ -1158,7 +1159,7 @@ const CustomerHome = () => {
                 {/* Technician Details */}
                 <div className="space-y-3">
                   <h4 className="font-semibold text-slate-900 flex items-center gap-2">
-                    <span className="text-xl">👤</span> Technician Details
+                    <span className="text-xl"><User size={20} /></span> Technician Details
                   </h4>
                   <div className="bg-slate-50 rounded-xl p-4 space-y-2">
                     <div className="flex justify-between">
@@ -1181,7 +1182,7 @@ const CustomerHome = () => {
                     </div>
                     <div className="flex justify-between">
                       <span className="text-sm text-slate-600">Rating:</span>
-                      <span className="text-sm font-semibold text-yellow-600">⭐ {selectedBookingDetails.rating}</span>
+                      <span className="text-sm font-semibold text-yellow-600"><Star size={16} className="fill-current text-yellow-500" /> {selectedBookingDetails.rating}</span>
                     </div>
                   </div>
                 </div>
@@ -1189,12 +1190,12 @@ const CustomerHome = () => {
                 {/* Service Timeline */}
                 <div className="space-y-3">
                   <h4 className="font-semibold text-slate-900 flex items-center gap-2">
-                    <span className="text-xl">⏰</span> Service Timeline
+                    <span className="text-xl"><Clock size={16} className="inline mr-1" /></span> Service Timeline
                   </h4>
                   <div className="bg-slate-50 rounded-xl p-4 space-y-3">
                     <div className="flex items-start gap-3">
                       <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-                        <span className="text-sm">📅</span>
+                        <span className="text-sm"><Calendar size={16} className="inline mr-1" /></span>
                       </div>
                       <div className="flex-1">
                         <p className="text-sm font-semibold text-slate-900">Booking Date</p>
@@ -1203,7 +1204,7 @@ const CustomerHome = () => {
                     </div>
                     <div className="flex items-start gap-3">
                       <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                        <span className="text-sm">🚗</span>
+                        <span className="text-sm"><Car size={16} className="inline mr-1" /></span>
                       </div>
                       <div className="flex-1">
                         <p className="text-sm font-semibold text-slate-900">Scheduled Time</p>
@@ -1212,7 +1213,7 @@ const CustomerHome = () => {
                     </div>
                     <div className="flex items-start gap-3">
                       <div className="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center flex-shrink-0">
-                        <span className="text-sm">📍</span>
+                        <span className="text-sm"><MapPin size={20} /></span>
                       </div>
                       <div className="flex-1">
                         <p className="text-sm font-semibold text-slate-900">Technician Arrived</p>
@@ -1221,7 +1222,7 @@ const CustomerHome = () => {
                     </div>
                     <div className="flex items-start gap-3">
                       <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
-                        <span className="text-sm">✅</span>
+                        <span className="text-sm"><CheckCircle2 size={14} className="inline mr-1" /></span>
                       </div>
                       <div className="flex-1">
                         <p className="text-sm font-semibold text-slate-900">Work Completed</p>
@@ -1234,7 +1235,7 @@ const CustomerHome = () => {
                 {/* OTP & Location Details */}
                 <div className="space-y-3">
                   <h4 className="font-semibold text-slate-900 flex items-center gap-2">
-                    <span className="text-xl">🔐</span> Verification & Location
+                    <span className="text-xl"><Lock size={16} className="inline mr-2" /></span> Verification & Location
                   </h4>
                   <div className="bg-slate-50 rounded-xl p-4 space-y-3">
                     <div className="bg-white rounded-lg p-3 border border-slate-200">

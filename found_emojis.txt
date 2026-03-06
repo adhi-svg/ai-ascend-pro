@@ -1,0 +1,23 @@
+src\components\AIHelpChat.jsx: 👋 ❌ 🤖 🔍 ✅ 📱 📤 📸 ⚡
+src\components\BookingProgressBar.jsx: 🛠 👨 🔧 💳 📍 ⭐
+src\components\cards\TechnicianCard.jsx: ⭐ 📍 🏪 ⏱ ✅
+src\components\DemoCredentials.jsx: 🎯 👤 📋 🔧 💡 🎬 🚀
+src\components\NotificationModal.jsx: 🔔 👤 📍 🔧
+src\components\PaymentModal.jsx: 📱 🔵 🟦 💳 🚗 🔒 📋 💡
+src\components\Toast.jsx: ⚠ ℹ
+src\components\ui\Toast.jsx: ℹ ⚠
+src\data\mockData.js: ⚡ 🔧 ❄ 🧊 📺 🌀 🍽 📶
+src\pages\BookingDetails.jsx: ⭐ 🤖 🔄 🔍 ✨
+src\pages\BookingStatus.jsx: 🎉 💳 ⏳ 🚫 ★ 🟢 🟡 ⚠ 🗺
+src\pages\CustomerHome.jsx: 🛠 📍 👤 📞 🛰 📋 ❓ ☰ 🔔 👋 ⭐ ⏱ ✅ ✏ 📱 🔐 🗑 🚪 💡 🔒 💳 🚗 ⏰ 📅
+src\pages\LocationPicker.jsx: 📍
+src\pages\Login.jsx: 🎯
+src\pages\OAuthCallback.jsx: ⏳
+src\pages\RatingFeedback.jsx: ★
+src\pages\Register.jsx: ✅ ☐
+src\pages\Splash.jsx: 📱 💼 ★ 🎯 👥 🔒 🔍 💬 📅 ✅ ⭐
+src\pages\TechnicianDashboard.jsx: ⚡ 🔧 ❄ 🪚 👋
+src\pages\TechnicianList.jsx: 📍 🔍
+src\pages\TechnicianTracking.jsx: 📍 🎯 ✅ 🚗 ⏱ 🟢 📞
+technician-frontend\src\pages\Dashboard.jsx: ⏳
+technician-frontend\src\pages\LandingPage.jsx: ⚡ ★ 🔧 ❄ 🪚 🎨 🔌 🐛 🧹

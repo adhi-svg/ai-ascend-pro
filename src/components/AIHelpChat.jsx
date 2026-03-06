@@ -208,18 +208,17 @@ const AIHelpChat = () => {
                 className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 <div
-                  className={`max-w-[80%] rounded-lg p-3 ${
-                    msg.role === 'user'
+                  className={`max-w-[80%] rounded-lg p-3 ${msg.role === 'user'
                       ? 'bg-[#14B8A6] text-white'
                       : 'bg-white border border-[#14B8A6]/20 text-[#1E3A5F]'
-                  }`}
+                    }`}
                 >
                   {/* User Image Preview */}
                   {msg.image && msg.role === 'user' && (
                     <div className="mb-2 rounded overflow-hidden max-w-[200px]">
-                      <img 
-                        src={msg.image} 
-                        alt="uploaded" 
+                      <img
+                        src={msg.image}
+                        alt="uploaded"
                         className="w-full h-auto object-cover"
                       />
                     </div>
@@ -281,13 +280,12 @@ const AIHelpChat = () => {
                       )}
                       {msg.urgency && (
                         <span
-                          className={`text-xs px-2 py-0.5 rounded-full font-semibold ${
-                            msg.urgency === 'HIGH'
+                          className={`text-xs px-2 py-0.5 rounded-full font-semibold ${msg.urgency === 'HIGH'
                               ? 'bg-red-100 text-red-700'
                               : msg.urgency === 'MEDIUM'
-                              ? 'bg-orange-100 text-orange-700'
-                              : 'bg-green-100 text-green-700'
-                          }`}
+                                ? 'bg-orange-100 text-orange-700'
+                                : 'bg-green-100 text-green-700'
+                            }`}
                         >
                           {msg.urgency}
                         </span>
@@ -337,9 +335,9 @@ const AIHelpChat = () => {
           {imagePreview && (
             <div className="px-4 pt-2 pb-0">
               <div className="relative inline-block">
-                <img 
-                  src={imagePreview} 
-                  alt="preview" 
+                <img
+                  src={imagePreview}
+                  alt="preview"
                   className="h-20 rounded border border-[#14B8A6]/30"
                 />
                 <button

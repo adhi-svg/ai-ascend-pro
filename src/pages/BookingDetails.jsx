@@ -27,10 +27,10 @@ const BookingDetails = () => {
       setError('Please enter a complaint description to analyze')
       return
     }
-    
+
     setAnalyzingAI(true)
     setError('')
-    
+
     try {
       const response = await fetch('http://localhost:8000/api/v1/ai/analyze', {
         method: 'POST',
@@ -39,9 +39,9 @@ const BookingDetails = () => {
         },
         body: JSON.stringify({ complaint_text: complaintText }),
       })
-      
+
       const result = await response.json()
-      
+
       if (result.success && result.data) {
         setAiAnalysis(result.data)
         setManualCategory(result.data.category)
@@ -60,18 +60,18 @@ const BookingDetails = () => {
 
   const proceed = async (e) => {
     e.preventDefault()
-    
+
     // Check if user is logged in
     if (!user) {
       navigate('/login', { state: { from: `/customer/booking/${techId}` } })
       return
     }
-    
+
     if (!form.description && !complaintText) {
       setError('Please add a short description or complaint')
       return
     }
-    
+
     await createBooking({
       technicianId: tech.id,
       technicianName: tech.name,
@@ -147,7 +147,7 @@ const BookingDetails = () => {
         {/* Booking Form - Compact */}
         <form className="space-y-3" onSubmit={proceed}>
           {error && <ErrorBanner message={error} />}
-          
+
           {/* AI-Powered Complaint Analysis */}
           <div className="rounded-xl border-2 border-[#14B8A6]/30 bg-gradient-to-br from-[#14B8A6]/5 to-white/95 p-4 shadow-md">
             <div className="flex items-center gap-2 mb-2">
@@ -171,7 +171,7 @@ const BookingDetails = () => {
             >
               {analyzingAI ? '🔄 Analyzing...' : '🔍 Analyze with AI'}
             </Button>
-            
+
             {aiAnalysis && (
               <div className="mt-3 p-3 bg-white rounded-lg border border-[#14B8A6]/20 shadow-sm">
                 <p className="text-xs font-bold text-[#14B8A6] mb-2">✨ AI Analysis Results</p>
@@ -196,13 +196,12 @@ const BookingDetails = () => {
                     <select
                       value={manualUrgency}
                       onChange={(e) => setManualUrgency(e.target.value)}
-                      className={`px-2 py-1 border rounded font-semibold ${
-                        manualUrgency === 'urgent'
+                      className={`px-2 py-1 border rounded font-semibold ${manualUrgency === 'urgent'
                           ? 'bg-red-50 text-red-700 border-red-200'
                           : manualUrgency === 'high'
-                          ? 'bg-orange-50 text-orange-700 border-orange-200'
-                          : 'bg-green-50 text-green-700 border-green-200'
-                      }`}
+                            ? 'bg-orange-50 text-orange-700 border-orange-200'
+                            : 'bg-green-50 text-green-700 border-green-200'
+                        }`}
                     >
                       <option value={aiAnalysis.urgency}>{aiAnalysis.urgency}</option>
                       <option value="urgent">Urgent</option>

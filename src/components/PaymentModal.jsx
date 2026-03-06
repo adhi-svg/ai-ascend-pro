@@ -153,11 +153,10 @@ const PaymentModal = ({ booking, onPaymentSuccess, onClose }) => {
                 <button
                   key={method.id}
                   onClick={() => setSelectedMethod(method.id)}
-                  className={`p-4 rounded-xl border-2 transition transform hover:scale-105 ${
-                    selectedMethod === method.id
+                  className={`p-4 rounded-xl border-2 transition transform hover:scale-105 ${selectedMethod === method.id
                       ? `border-blue-500 bg-blue-50`
                       : 'border-slate-200 bg-white hover:border-slate-300'
-                  }`}
+                    }`}
                 >
                   <div className="text-3xl mb-2">{method.icon}</div>
                   <div className="text-sm font-semibold text-slate-900">{method.name}</div>
@@ -178,11 +177,10 @@ const PaymentModal = ({ booking, onPaymentSuccess, onClose }) => {
             <button
               onClick={handlePayment}
               disabled={!selectedMethod || isProcessing}
-              className={`w-full py-3 px-4 rounded-xl font-bold text-white transition transform ${
-                !selectedMethod || isProcessing
+              className={`w-full py-3 px-4 rounded-xl font-bold text-white transition transform ${!selectedMethod || isProcessing
                   ? 'bg-slate-400 cursor-not-allowed'
                   : 'bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 hover:scale-105'
-              }`}
+                }`}
             >
               {isProcessing ? (
                 <div className="flex items-center justify-center gap-2">

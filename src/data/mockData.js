@@ -1,12 +1,12 @@
 export const serviceCategories = [
-  { id: 'electrical', name: 'Electrician', emoji: '⚡', tagline: 'Repairs & installations' },
-  { id: 'plumbing', name: 'Plumber', emoji: '🔧', tagline: 'Leaks & installations' },
-  { id: 'ac', name: 'AC', emoji: '❄️', tagline: 'Service & repair' },
-  { id: 'fridge', name: 'Fridge', emoji: '🧊', tagline: 'Repair & maintenance' },
-  { id: 'tv', name: 'TV', emoji: '📺', tagline: 'Repair & installation' },
-  { id: 'washing', name: 'Washing Machine', emoji: '🌀', tagline: 'Service & repair' },
-  { id: 'dishwasher', name: 'Dishwasher', emoji: '🍽️', tagline: 'Repair & service' },
-  { id: 'wifi', name: 'WiFi Repairs', emoji: '📶', tagline: 'Setup & troubleshooting' },
+  { id: 'electrical', name: 'Electrician', emoji: 'Zap', tagline: 'Repairs & installations' },
+  { id: 'plumbing', name: 'Plumber', emoji: 'Wrench', tagline: 'Leaks & installations' },
+  { id: 'ac', name: 'AC', emoji: 'Snowflake', tagline: 'Service & repair' },
+  { id: 'fridge', name: 'Fridge', emoji: 'Snowflake', tagline: 'Repair & maintenance' },
+  { id: 'tv', name: 'TV', emoji: 'Tv', tagline: 'Repair & installation' },
+  { id: 'washing', name: 'Washing Machine', emoji: 'Wind', tagline: 'Service & repair' },
+  { id: 'dishwasher', name: 'Dishwasher', emoji: 'Coffee', tagline: 'Repair & service' },
+  { id: 'wifi', name: 'WiFi Repairs', emoji: 'Wifi', tagline: 'Setup & troubleshooting' },
 ]
 
 export const technicians = [

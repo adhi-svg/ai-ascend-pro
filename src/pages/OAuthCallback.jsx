@@ -19,9 +19,9 @@ const OAuthCallback = () => {
     const error = params.get('error')
     const storedState = sessionStorage.getItem('oauth_state')
 
-    console.log('[OAuthCallback] Received OAuth callback', { 
-      code: code?.substring(0, 10) + '...', 
-      state, 
+    console.log('[OAuthCallback] Received OAuth callback', {
+      code: code?.substring(0, 10) + '...',
+      state,
       storedState,
       error
     })
@@ -47,23 +47,23 @@ const OAuthCallback = () => {
         sessionStorage.removeItem('oauth_state')
 
         console.log('[OAuthCallback] Exchanging code for token...')
-        
+
         // Add timeout
-        const timeoutPromise = new Promise((_, reject) => 
+        const timeoutPromise = new Promise((_, reject) =>
           setTimeout(() => reject(new Error('Exchange request timed out - backend not responding')), 10000)
         )
-        
+
         const exchangePromise = exchangeGoogleCode(code)
         const data = await Promise.race([exchangePromise, timeoutPromise])
-        
+
         console.log('[OAuthCallback] Code exchanged successfully, user:', data?.user?.email)
-        
+
         // Verify localStorage was actually set
         const token = localStorage.getItem('auth_token')
         const userInfo = localStorage.getItem('user_info')
-        
+
         console.log('[OAuthCallback] localStorage check - token:', !!token, 'user:', !!userInfo)
-        
+
         if (!token || !userInfo) {
           throw new Error('Failed to save authentication data')
         }
@@ -95,7 +95,7 @@ const OAuthCallback = () => {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-[#CFEDEE] via-[#E8F8F9] to-[#D4F0F2]">
       <div className="text-center">
-        <div className="animate-spin mb-4 text-4xl">⏳</div>
+        <div className="animate-spin mb-4 text-4xl"><Hourglass size={16} className="inline mr-1" /></div>
         <p className="text-[#1E3A5F] font-semibold">Processing your login...</p>
         <p className="text-[#1E3A5F]/60 text-sm mt-2">Please wait</p>
         <p className="text-[#FF6B6B]/60 text-xs mt-4">If this takes more than 10 seconds, please try again.</p>

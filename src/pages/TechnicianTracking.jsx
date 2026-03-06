@@ -63,7 +63,7 @@ const TechnicianTracking = () => {
         }),
         title: 'Your Location',
       })
-        .bindPopup('📍 Your Location')
+        .bindPopup('<MapPin size={16} className="inline mr-1" /> Your Location')
         .addTo(mapInstance.current)
 
       // Technician marker (green)
@@ -124,17 +124,17 @@ const TechnicianTracking = () => {
         )
       )
       // Show arrival notification
-      setToast({ message: `🎯 ${active?.technicianName} has arrived at your location!`, type: 'success' })
+      setToast({ message: `<Target size={16} className="inline mr-1" /> ${active?.technicianName} has arrived at your location!`, type: 'success' })
     }
   }, [eta, distance, hasArrived, active?.id, active?.technicianName, setJobs, setToast])
 
   // Handle OTP submission
   const handleOtpSubmit = (e) => {
     e.preventDefault()
-    
+
     // Mock OTP verification (in real app, this would be an API call)
     const correctOtp = active?.otp || '1234'
-    
+
     if (otp === correctOtp) {
       setOtpError('')
       // Update job to completed
@@ -146,7 +146,7 @@ const TechnicianTracking = () => {
         )
       )
       // Show success notification
-      setToast({ message: '✅ Service started successfully! Technician is working on your issue.', type: 'success' })
+      setToast({ message: '<CheckSquare size={16} className="inline mr-1" /> Service started successfully! Technician is working on your issue.', type: 'success' })
       // Navigate to rating/feedback page
       setTimeout(() => {
         navigate('/customer/rating')
@@ -233,7 +233,7 @@ const TechnicianTracking = () => {
                   <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                     <div className="relative animate-pulse">
                       <div className="w-6 h-6 bg-green-500 rounded-full border-4 border-green-300 shadow-xl flex items-center justify-center">
-                        <span className="text-white text-sm">🚗</span>
+                        <span className="text-white text-sm"><Car size={16} className="inline mr-1" /></span>
                       </div>
                       <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 bg-green-600 text-white text-xs px-3 py-1 rounded whitespace-nowrap font-semibold">
                         {active.technicianName}
@@ -253,7 +253,7 @@ const TechnicianTracking = () => {
 
                   {/* Map Attribution */}
                   <div className="absolute bottom-2 right-2 text-xs text-white/80 bg-black/30 px-2 py-1 rounded">
-                    📍 Mock Location Map
+                    <MapPin size={16} className="inline mr-1" /> Mock Location Map
                   </div>
                 </div>
               </div>
@@ -264,7 +264,7 @@ const TechnicianTracking = () => {
             <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-6 border-2 border-blue-300 shadow-md">
               <div className="flex items-center gap-3 mb-2">
                 <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
-                  <span className="text-xl">📍</span>
+                  <span className="text-xl"><MapPin size={16} className="inline mr-1" /></span>
                 </div>
                 <div>
                   <p className="text-xs text-blue-700 font-semibold uppercase tracking-wide">Distance</p>
@@ -276,7 +276,7 @@ const TechnicianTracking = () => {
             <div className="bg-gradient-to-br from-green-50 to-emerald-100 rounded-2xl p-6 border-2 border-green-300 shadow-md">
               <div className="flex items-center gap-3 mb-2">
                 <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
-                  <span className="text-xl">⏱️</span>
+                  <span className="text-xl"><Clock size={16} className="inline mr-1" />️</span>
                 </div>
                 <div>
                   <p className="text-xs text-green-700 font-semibold uppercase tracking-wide">ETA</p>
@@ -302,7 +302,7 @@ const TechnicianTracking = () => {
               <div className="flex justify-between">
                 <span className="text-[#4B5563]">Status:</span>
                 <span className="inline-block bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-semibold">
-                  🟢 On the Way
+                  <CircleDot size={16} className="inline mr-1 text-green-500" /> On the Way
                 </span>
               </div>
             </div>
@@ -355,7 +355,7 @@ const TechnicianTracking = () => {
                     onClick={() => alert(`Calling ${active.technicianName}...`)}
                     className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold py-3 px-4 rounded-lg transition"
                   >
-                    📞 Call Technician
+                    <Phone size={16} className="inline mr-1" /> Call Technician
                   </button>
                   <button
                     onClick={() => navigate('/customer/home')}

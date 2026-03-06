@@ -24,17 +24,15 @@ const NotificationModal = ({ notification, onDismiss, onAccept }) => {
     <>
       {/* Overlay */}
       <div
-        className={`fixed inset-0 z-40 bg-black/40 transition-opacity duration-300 ${
-          autoHide ? 'opacity-0 pointer-events-none' : 'opacity-100'
-        }`}
+        className={`fixed inset-0 z-40 bg-black/40 transition-opacity duration-300 ${autoHide ? 'opacity-0 pointer-events-none' : 'opacity-100'
+          }`}
         onClick={onDismiss}
       />
 
       {/* Modal */}
       <div
-        className={`fixed inset-x-4 top-20 z-50 max-w-md mx-auto bg-white rounded-3xl shadow-2xl transform transition-all duration-300 ${
-          autoHide ? 'scale-95 opacity-0' : 'scale-100 opacity-100'
-        }`}
+        className={`fixed inset-x-4 top-20 z-50 max-w-md mx-auto bg-white rounded-3xl shadow-2xl transform transition-all duration-300 ${autoHide ? 'scale-95 opacity-0' : 'scale-100 opacity-100'
+          }`}
       >
         {/* Header with accent */}
         <div className="bg-gradient-to-r from-brand-primary to-brand-accent p-6 text-white rounded-t-3xl">

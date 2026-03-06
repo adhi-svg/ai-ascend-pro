@@ -31,7 +31,7 @@ const TechnicianList = () => {
   const [searchRadius, setSearchRadius] = useState(1.5)
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
-  
+
   const selectedService = searchParams.get('service')
   const serviceName = searchParams.get('name')
 
@@ -46,7 +46,7 @@ const TechnicianList = () => {
       .map((t) => ({ ...t, confirmationCharge: getPricing(t.distance, t.rating) }))
       .filter((t) => {
         if (t.distance > searchRadius) return false
-        
+
         if (selectedService) {
           const searchTerm = serviceName?.toLowerCase() || selectedService.toLowerCase()
           return t.skills.some((skill) => skill.toLowerCase().includes(searchTerm))
@@ -76,8 +76,8 @@ const TechnicianList = () => {
               <p className="text-sm font-semibold text-gray-900">Local {serviceName} technicians near you</p>
               <p className="text-xs text-gray-600 mt-1">Within {searchRadius} km • Independent local professionals</p>
             </div>
-            <Button 
-              variant="secondary" 
+            <Button
+              variant="secondary"
               onClick={() => {
                 navigate('/customer/home')
               }}
@@ -88,7 +88,7 @@ const TechnicianList = () => {
           </div>
         </div>
       )}
-      
+
       <div className="bg-white rounded-xl border border-gray-200 p-4">
         <p className="text-xs uppercase tracking-widest font-semibold text-gray-500 mb-1">Local Professionals</p>
         <p className="text-sm text-gray-600">Independent technicians in your neighborhood</p>
@@ -104,26 +104,26 @@ const TechnicianList = () => {
       {filtered.length === 0 ? (
         <div className="bg-white border border-gray-200 rounded-xl p-8 text-center space-y-4">
           <div>
-            <p className="text-lg font-semibold text-gray-900 mb-2">📍 No local technicians found</p>
+            <p className="text-lg font-semibold text-gray-900 mb-2"><MapPin size={16} className="inline mr-1" /> No local technicians found</p>
             <p className="text-sm text-gray-600 mb-4">
-              {selectedService 
+              {selectedService
                 ? `No local ${serviceName} technicians available within ${searchRadius} km`
                 : 'No technicians match your search in this area'}
             </p>
           </div>
           <div className="flex gap-3 flex-col sm:flex-row justify-center">
-            <Button 
+            <Button
               onClick={handleExtendRadius}
               className="flex-1 sm:flex-none"
             >
-              🔍 Extend search to {(searchRadius + 0.5).toFixed(1)} km
+              <Search size={16} className="inline mr-1" /> Extend search to {(searchRadius + 0.5).toFixed(1)} km
             </Button>
-            <Button 
+            <Button
               variant="secondary"
               onClick={handleTryAnotherLocation}
               className="flex-1 sm:flex-none"
             >
-              📍 Try another location
+              <MapPin size={16} className="inline mr-1" /> Try another location
             </Button>
           </div>
         </div>
@@ -141,12 +141,12 @@ const TechnicianList = () => {
           ))}
           {filtered.length > 0 && searchRadius < 10 && (
             <div className="text-center pt-2">
-              <Button 
+              <Button
                 variant="secondary"
                 onClick={handleExtendRadius}
                 className="text-sm"
               >
-                🔍 Extend search to {(searchRadius + 0.5).toFixed(1)} km
+                <Search size={16} className="inline mr-1" /> Extend search to {(searchRadius + 0.5).toFixed(1)} km
               </Button>
             </div>
           )}

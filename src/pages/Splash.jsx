@@ -79,7 +79,7 @@ const Splash = () => {
     navigate('/customer/technicians', { state: { category: category.id } })
   }
 
-  const filteredCategories = categories.filter(cat => 
+  const filteredCategories = categories.filter(cat =>
     cat.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     cat.tagline.toLowerCase().includes(searchQuery.toLowerCase())
   )
@@ -114,8 +114,8 @@ const Splash = () => {
       )}
       {/* Animated gradient orbs */}
       <div className="glow-orb -left-32 top-10 h-96 w-96 bg-[#E6A11A]/15 animate-pulse" />
-      <div className="glow-orb -right-16 bottom-20 h-96 w-96 bg-[#14B8A6]/15 animate-pulse" style={{animationDelay: '1s'}} />
-      
+      <div className="glow-orb -right-16 bottom-20 h-96 w-96 bg-[#14B8A6]/15 animate-pulse" style={{ animationDelay: '1s' }} />
+
       {/* HERO SECTION */}
       <section className="relative z-10 pt-16 pb-12 px-4 md:px-8">
         <div className="max-w-6xl mx-auto">
@@ -134,7 +134,7 @@ const Splash = () => {
               <br className="hidden md:block" />
               <span className="text-[#1E3A5F]">Near You</span>
             </h1>
-            
+
             <p className="text-lg md:text-xl text-[#4B5563] max-w-2xl mx-auto">
               Book trusted local professionals for electrical, plumbing, AC and more. Your neighborhood experts, just a tap away.
             </p>
@@ -161,7 +161,7 @@ const Splash = () => {
                     title="Use my current location"
                   >
                     <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
                     </svg>
                   </button>
                   <button
@@ -170,7 +170,7 @@ const Splash = () => {
                     title="Select on map"
                   >
                     <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5z"/>
+                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5z" />
                     </svg>
                   </button>
                 </div>
@@ -202,14 +202,14 @@ const Splash = () => {
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-            <Button 
-              variant="primary" 
+            <Button
+              variant="primary"
               className="px-8 py-4 text-base"
               onClick={() => navigate('/customer/technicians')}
             >
               📱 Find Local Technicians
             </Button>
-            <button 
+            <button
               onClick={() => window.open('http://localhost:5174', '_blank')}
               className="px-8 py-4 text-base bg-white text-[#1E3A5F] font-bold rounded-full shadow-[0_4px_15px_rgba(230,161,26,0.3)] hover:shadow-[0_6px_25px_rgba(230,161,26,0.4)] hover:-translate-y-0.5 transition-all duration-300 border-2 border-[#E6A11A]"
             >
@@ -320,8 +320,8 @@ const Splash = () => {
 
           {/* Additional CTA */}
           <div className="text-center mt-12">
-            <Button 
-              variant="primary" 
+            <Button
+              variant="primary"
               className="px-10 py-4 text-lg shadow-xl hover:shadow-2xl"
               onClick={() => navigate('/customer/technicians')}
             >

@@ -1,15 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { 
-  TrendingUp, 
-  Star, 
-  Briefcase, 
-  Clock,
-  MapPin,
-  Wrench,
-  CheckCircle2,
-  AlertCircle,
-  Tool
-} from 'lucide-react'
+import { TrendingUp, Star, Briefcase, Clock, MapPin, Wrench, CheckCircle2, AlertCircle, Tool, Zap, Snowflake, Hammer, Hand } from 'lucide-react'
 
 const TechnicianDashboard = () => {
   const navigate = useNavigate()
@@ -22,10 +12,10 @@ const TechnicianDashboard = () => {
   ]
 
   const services = [
-    { id: 1, name: 'Electrician', icon: '⚡', activeJobs: 2, enabled: true },
-    { id: 2, name: 'Plumber', icon: '🔧', activeJobs: 1, enabled: true },
-    { id: 3, name: 'AC Repair', icon: '❄️', activeJobs: 0, enabled: false },
-    { id: 4, name: 'Carpenter', icon: '🪚', activeJobs: 0, enabled: false },
+    { id: 1, name: 'Electrician', icon: '<Zap size={16} className="inline mr-1" />', activeJobs: 2, enabled: true },
+    { id: 2, name: 'Plumber', icon: '<Wrench size={16} className="inline mr-1" />', activeJobs: 1, enabled: true },
+    { id: 3, name: 'AC Repair', icon: '<Snowflake size={16} className="inline mr-1" />️', activeJobs: 0, enabled: false },
+    { id: 4, name: 'Carpenter', icon: '<Hammer size={16} className="inline mr-1" />', activeJobs: 0, enabled: false },
   ]
 
   const nearbyRequests = [
@@ -43,7 +33,7 @@ const TechnicianDashboard = () => {
     <div className="p-4 md:p-6 max-w-7xl mx-auto">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Welcome back, Arjun! 👋</h1>
+        <h1 className="text-3xl font-bold mb-2">Welcome back, Arjun! <Hand size={16} className="inline mr-1" /></h1>
         <p className="text-white/60">Here's your daily overview</p>
       </div>
 

@@ -7,7 +7,7 @@ const TechnicianCard = ({ tech, onSelect }) => {
     <div className="group relative bg-white rounded-xl p-5 hover:shadow-lg transition-all duration-300 border border-[#E6A11A]/20 hover:border-[#E6A11A]/40">
       {/* Gradient overlay on hover */}
       <div className="absolute inset-0 bg-gradient-to-br from-[#E6A11A]/0 to-transparent group-hover:from-[#E6A11A]/5 transition-all duration-300 pointer-events-none rounded-xl" />
-      
+
       {/* Main Content */}
       <div className="relative flex items-start justify-between gap-4">
         {/* Left: Avatar and Info */}
@@ -24,7 +24,7 @@ const TechnicianCard = ({ tech, onSelect }) => {
               {tech.name.charAt(0)}
             </div>
           )}
-          
+
           <div className="flex-1">
             {/* Name and Online Status */}
             <div className="flex items-center gap-2 mb-1">
@@ -33,7 +33,7 @@ const TechnicianCard = ({ tech, onSelect }) => {
                 <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">Online</span>
               )}
             </div>
-            
+
             {/* Rating */}
             <div className="flex items-center gap-2 mb-2">
               <div className="flex items-center gap-1">
@@ -42,7 +42,7 @@ const TechnicianCard = ({ tech, onSelect }) => {
               </div>
               <span className="text-xs text-[#9CA3AF]">({tech.totalRatings || '100+'} ratings)</span>
             </div>
-            
+
             {/* Distance and Shop */}
             <div className="flex items-center gap-3 text-sm text-[#4B5563] mb-2">
               <span className="flex items-center gap-1">
@@ -59,7 +59,7 @@ const TechnicianCard = ({ tech, onSelect }) => {
                 </>
               )}
             </div>
-            
+
             {/* Services */}
             <div className="flex flex-wrap gap-2 mb-3">
               {tech.skills?.slice(0, 3).map((skill, idx) => (
@@ -68,7 +68,7 @@ const TechnicianCard = ({ tech, onSelect }) => {
                 </span>
               ))}
             </div>
-            
+
             {/* Experience and Verified */}
             <div className="flex items-center gap-4 text-xs text-[#9CA3AF]">
               <span className="flex items-center gap-1">
