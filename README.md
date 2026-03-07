@@ -1,4 +1,4 @@
-﻿# FYXION - Professional Technician Services
+# FYXION - Professional Technician Services
 
 Production-ready React application for **FYXION**, a modern technician service platform connecting customers with verified local professionals. Built with React 18, Vite, and Tailwind CSS.
 

@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { exchangeGoogleCode } from '../services/techApi'
 
 const OAuthCallback = () => {
   const navigate = useNavigate()
@@ -12,54 +11,44 @@ const OAuthCallback = () => {
     authCompleteRef.current = true
 
     const params = new URLSearchParams(window.location.search)
-    const code = params.get('code')
-    const state = params.get('state')
+    const token = params.get('token')
+    const userParam = params.get('user')
     const error = params.get('error')
-    const storedState = sessionStorage.getItem('oauth_state')
 
+    // ── Handle error redirects from backend ──
     if (error) {
-      sessionStorage.removeItem('oauth_state')
-      setErrorStatus(`Google OAuth error: ${error}`)
+      setErrorStatus(`Login error: ${error}`)
       setTimeout(() => navigate('/login', { replace: true }), 2000)
       return
     }
 
-    if (!code || !state || !storedState || state !== storedState) {
-      sessionStorage.removeItem('oauth_state')
-      setErrorStatus('Authentication validation failed - state mismatch')
-      setTimeout(() => navigate('/login', { replace: true }), 2000)
-      return
-    }
-
-    const finalize = async () => {
+    // ── Cognito flow: backend redirected here with token + user in URL ──
+    if (token && userParam) {
       try {
-        sessionStorage.removeItem('oauth_state')
-        const exchangePromise = exchangeGoogleCode(code)
-        const timeoutPromise = new Promise((_, reject) =>
-          setTimeout(() => reject(new Error('Exchange request timed out - backend not responding')), 10000)
-        )
+        const userData = JSON.parse(userParam)
 
-        await Promise.race([exchangePromise, timeoutPromise])
+        // Store in localStorage (same keys the technician app expects)
+        localStorage.setItem('tech_auth_token', token)
+        localStorage.setItem('tech_user_info', JSON.stringify(userData))
 
-        // Verify localStorage was actually set
-        const token = localStorage.getItem('tech_auth_token')
-        const userInfo = localStorage.getItem('tech_user_info')
+        // Security: remove auth params from the URL
+        window.history.replaceState({}, document.title, window.location.pathname)
 
-        if (!token || !userInfo) {
-          throw new Error('Failed to save authentication data')
-        }
+        console.log('[OAuthCallback] Cognito login complete for technician, navigating to /dashboard')
 
-        // Navigate with reload to initialize AuthContext
+        // Full page reload so AuthContext picks up the new token
         window.location.href = '/dashboard'
       } catch (err) {
-        console.error('[OAuthCallback] Authentication error:', err)
-        authCompleteRef.current = false
-        setErrorStatus(err.message || 'Login failed')
+        console.error('[OAuthCallback] Failed to process Cognito login data:', err)
+        setErrorStatus('Failed to process login data')
         setTimeout(() => navigate('/login', { replace: true }), 2000)
       }
+      return
     }
 
-    finalize()
+    // ── No valid params — redirect to login ──
+    console.warn('[OAuthCallback] No token found in URL, redirecting to login')
+    setTimeout(() => navigate('/login', { replace: true }), 1000)
   }, [navigate])
 
   return (

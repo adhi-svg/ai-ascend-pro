@@ -1,4 +1,4 @@
-﻿import { NavLink } from 'react-router-dom'
+import { NavLink } from 'react-router-dom'
 import { useTechApp } from '../context/TechAppContext.jsx'
 
 const navItems = [

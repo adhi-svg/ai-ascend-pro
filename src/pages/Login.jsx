@@ -1,4 +1,4 @@
-﻿import { useState } from 'react'
+import { useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
@@ -45,86 +45,15 @@ const Login = () => {
     setOtp(value)
   }
 
-  const handleGoogleLogin = async () => {
-    try {
-      setError('')
-      setLoading(true)
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
-      console.log('[Login] Google login initiated via backend')
-
-      // Call backend to get Google OAuth URL with correct redirect_uri
-      const response = await fetch('http://localhost:8000/api/v1/auth/google/login', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
-
-      console.log('[Login] Response status:', response.status, response.statusText)
-
-      if (!response.ok) {
-        console.error('[Login] Backend returned error status:', response.status)
-        const errorText = await response.text()
-        console.error('[Login] Error response:', errorText)
-        setError(`Server error: ${response.status}. Please check if backend is running.`)
-        setLoading(false)
-        return
-      }
-
-      const data = await response.json()
-
-      console.log('[Login] Response data:', JSON.stringify(data, null, 2))
-      console.log('[Login] Got auth URL from backend:', data?.data?.auth_url ? 'YES' : 'NO')
-
-      if (!data?.data?.auth_url) {
-        console.error('[Login] No auth_url in response. Full data:', data)
-        setError('Google OAuth is not configured. Please contact support.')
-        setLoading(false)
-        return
-      }
-
-      // Security: bind login to a one-time state value to prevent CSRF
-      const state = crypto.randomUUID()
-      sessionStorage.setItem('oauth_state', state)
-
-      console.log('[Login] OAuth state set for CSRF protection')
-
-      // Add state to the Google OAuth URL and redirect
-      const googleAuthUrl = `${data.data.auth_url}&state=${encodeURIComponent(state)}`
-
-      console.log('[Login] Redirecting to Google OAuth with state')
-
-      window.location.href = googleAuthUrl
-    } catch (err) {
-      console.error('[Login] Google login error:', err)
-      console.error('[Login] Error stack:', err.stack)
-      setError(`Failed to start Google login: ${err.message}. Please try again.`)
-      setLoading(false)
-    }
+  const handleGoogleLogin = () => {
+    // Redirect to backend Cognito route which handles the entire OAuth flow
+    window.location.href = `${API_URL}/api/v1/auth/cognito/login?provider=Google&role=customer`
   }
 
-  const handleFacebookLogin = async () => {
-    try {
-      setError('')
-      setLoading(true)
-
-      const facebookAppId = import.meta.env.VITE_FACEBOOK_APP_ID
-
-      if (!facebookAppId) {
-        setError('Facebook OAuth is not configured. Please contact support.')
-        setLoading(false)
-        return
-      }
-
-      // Redirect to Facebook OAuth
-      const redirectUri = encodeURIComponent(window.location.origin + '/auth/facebook/callback')
-      const facebookAuthUrl = `https://www.facebook.com/v18.0/dialog/oauth?client_id=${facebookAppId}&redirect_uri=${redirectUri}&scope=public_profile,email`
-
-      window.location.href = facebookAuthUrl
-    } catch (err) {
-      setError('Failed to start Facebook login. Please try again.')
-      setLoading(false)
-    }
+  const handleFacebookLogin = () => {
+    window.location.href = `${API_URL}/api/v1/auth/cognito/login?provider=Facebook&role=customer`
   }
 
   const sendOtp = (e) => {
@@ -241,8 +170,8 @@ const Login = () => {
     e.stopPropagation()
     setError('')
 
-    if (!validatePhone(phone)) {
-      setError('Please enter a valid 10-digit Indian mobile number starting with 6-9')
+    if (!validateEmail(email)) {
+      setError('Please enter a valid email address')
       return
     }
     if (!password || password.length < 6) {
@@ -256,7 +185,7 @@ const Login = () => {
 
     try {
       // Execute login with backend
-      const userData = await login({ phone, password, email })
+      const userData = await login({ email, password })
 
       // Request location in background
       if (requestLocation) {
@@ -452,19 +381,16 @@ const Login = () => {
               ) : step === 'email' ? (
                 <form className="space-y-4" onSubmit={handleEmailLogin}>
                   <div className="rounded-2xl border border-[#E6A11A]/20 bg-[#CFEDEE]/30 p-4 text-sm">
-                    <p className="font-semibold text-[#1E3A5F]">Sign in with phone</p>
-                    <p className="text-xs text-[#4B5563] mt-1">Use your phone and password to login</p>
+                    <p className="font-semibold text-[#1E3A5F]">Sign in with Email</p>
+                    <p className="text-xs text-[#4B5563] mt-1">Use your email and password to login</p>
                   </div>
                   <Input
-                    label="Phone Number"
-                    type="tel"
+                    label="Email Address"
+                    type="email"
                     required
-                    value={phone}
-                    onChange={handlePhoneChange}
-                    placeholder="10-digit mobile number"
-                    maxLength={10}
-                    inputMode="numeric"
-                    helper="Enter Indian mobile starting with 6-9"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="you@email.com"
                   />
                   <Input
                     label="Password"
@@ -476,7 +402,7 @@ const Login = () => {
                     helper="Use the password set during sign up"
                   />
                   <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? 'Signing in...' : 'Login with Phone'}
+                    {loading ? 'Signing in...' : 'Login with Email'}
                   </Button>
                 </form>
               ) : step === 'phone' ? (
@@ -552,12 +478,11 @@ const Login = () => {
                   </button>
                 </form>
               )}
-
               <div className="space-y-3">
                 <div className="flex items-center gap-3">
-                  <div className="h-px flex-1 bg-white/10" />
-                  <span className="text-xs text-white/60">OR</span>
-                  <div className="h-px flex-1 bg-white/10" />
+                  <div className="h-px flex-1 bg-[#1E3A5F]/10" />
+                  <span className="text-xs text-[#4B5563]">OR</span>
+                  <div className="h-px flex-1 bg-[#1E3A5F]/10" />
                 </div>
 
                 <div className="space-y-2">
@@ -568,16 +493,17 @@ const Login = () => {
                       <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
                       <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
                     </svg>
-                    {loading ? 'Signing in...' : 'Continue with Google'}
+                    Continue with Google
                   </Button>
                   <Button variant="ghost" className="w-full" onClick={handleFacebookLogin}>
                     <svg className="h-5 w-5" fill="#1877F2" viewBox="0 0 24 24">
                       <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                     </svg>
-                    {loading ? 'Signing in...' : 'Continue with Facebook'}
+                    Continue with Facebook
                   </Button>
                 </div>
               </div>
+
 
               <div className="border-t border-[#E6A11A]/10 pt-4 text-center">
                 <p className="text-sm text-[#4B5563]">

@@ -1,4 +1,4 @@
-﻿"""
+"""
 SMS Service for OTP Delivery
 Supports multiple providers: MSG91, Twilio, AWS SNS
 """

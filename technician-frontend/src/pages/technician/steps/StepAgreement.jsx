@@ -1,4 +1,4 @@
-﻿import { useState } from 'react'
+import { useState } from 'react'
 
 export default function StepAgreement({ formData, updateFormData, errors, onSubmit }) {
   const [acceptTerms, setAcceptTerms] = useState(false)

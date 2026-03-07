@@ -1,4 +1,4 @@
-﻿# FYXION — AWS Services Setup Guide
+# FYXION — AWS Services Setup Guide
 
 **Purpose**: Step-by-step guide to configure all AWS services for FYXION.  
 **Date**: March 2026  

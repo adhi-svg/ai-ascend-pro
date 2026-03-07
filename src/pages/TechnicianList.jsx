@@ -1,4 +1,4 @@
-﻿import { useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import TechnicianCard from '../components/cards/TechnicianCard'
 import EmptyState from '../components/ui/EmptyState'

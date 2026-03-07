@@ -10,7 +10,7 @@ import Card from '../components/ui/Card.jsx'
 import Badge from '../components/ui/Badge.jsx'
 import Modal from '../components/ui/Modal.jsx'
 import Loader from '../components/ui/Loader.jsx'
-
+import { Hourglass } from 'lucide-react'
 const statusLabels = {
   requested: 'Requested',
   queued: 'Queued',
@@ -317,7 +317,7 @@ export default function Dashboard() {
                 className={`rounded-full px-3 py-1 text-xs font-semibold whitespace-nowrap ${approvalStatusStyles[user.status]}`}
               >
                 {user.status === 'APPROVED' && '✓ Approved'}
-                {user.status === 'PENDING' && '<Hourglass size={16} className="inline mr-1" /> Pending Review'}
+                {user.status === 'PENDING' && <span className="flex items-center"><Hourglass size={16} className="inline mr-1" /> Pending Review</span>}
                 {user.status === 'REJECTED' && '✕ Rejected'}
               </div>
             )}
@@ -365,8 +365,8 @@ export default function Dashboard() {
         <div className="rounded-2xl border border-brand-accent/20 bg-white/80 p-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h3 className="text-base font-semibold text-brand-primary">Your Application Details</h3>
-            <span className="rounded-full bg-yellow-50 px-3 py-1 text-xs font-semibold text-yellow-700">
-              {user?.status === 'REJECTED' ? '✕ Rejected' : '<Hourglass size={16} className="inline mr-1" /> Pending Approval'}
+            <span className="rounded-full bg-yellow-50 px-3 py-1 text-xs font-semibold text-yellow-700 flex items-center">
+              {user?.status === 'REJECTED' ? '✕ Rejected' : <><Hourglass size={16} className="inline mr-1" /> Pending Approval</>}
             </span>
           </div>
           {user?.status === 'REJECTED' && user?.rejectionReason ? (

@@ -1,4 +1,4 @@
-﻿# ✅ OTP Verification Platform - Complete Guide
+# ✅ OTP Verification Platform - Complete Guide
 
 ## 📋 What I've Prepared for You
 

@@ -1,4 +1,4 @@
-﻿# SMS/OTP Integration Quick Start Guide
+# SMS/OTP Integration Quick Start Guide
 
 ## 🚀 Quick Setup (5 Minutes)
 

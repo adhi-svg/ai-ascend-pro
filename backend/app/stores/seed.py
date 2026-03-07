@@ -1,4 +1,4 @@
-﻿from app.core.database import SessionLocal, init_db
+from app.core.database import SessionLocal, init_db
 from app.models import Category, User, Technician, UserRoleEnum, TechnicianStatusEnum, Booking, BookingStatusEnum
 from app.core.security import hash_password
 import json

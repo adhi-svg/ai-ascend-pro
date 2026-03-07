@@ -1,4 +1,4 @@
-﻿# ✅ Technician Applications Data Flow - FIXED
+# ✅ Technician Applications Data Flow - FIXED
 
 ## 🎉 Problem Solved!
 

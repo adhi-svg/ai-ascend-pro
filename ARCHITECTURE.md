@@ -1,4 +1,4 @@
-﻿# FYXION — Architecture & System Design
+# FYXION — Architecture & System Design
 
 **Version**: 2.0.0 | **Last Updated**: March 2026
 

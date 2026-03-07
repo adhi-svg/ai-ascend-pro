@@ -1,4 +1,4 @@
-﻿# AWS Cognito Migration Guide
+# AWS Cognito Migration Guide
 
 ## ✅ Migration Complete
 

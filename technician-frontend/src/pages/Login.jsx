@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
 
@@ -7,12 +7,10 @@ const DEMO_TECH_PHOTO = 'https://images.unsplash.com/photo-1500648767791-00dcc99
 export default function Login() {
   const { login } = useAuth()
   const navigate = useNavigate()
-  const [phone, setPhone] = useState('')
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-
-  const normalizePhone = (value) => value.replace(/\D/g, '').slice(0, 10)
   const handleBack = () => {
     if (window.history.length > 1) {
       navigate(-1)
@@ -21,48 +19,20 @@ export default function Login() {
     }
   }
 
-  const handleGoogleLogin = async () => {
-    try {
-      setError('')
-      setLoading(true)
+  const handleGoogleLogin = () => {
+    window.location.href = 'http://localhost:8000/api/v1/auth/cognito/login?provider=Google&role=technician'
+  }
 
-      const response = await fetch('http://localhost:8000/api/v1/auth/google/login?role=technician', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
-
-      if (!response.ok) {
-        setError(`Server error: ${response.status}. Please check if backend is running.`)
-        setLoading(false)
-        return
-      }
-
-      const data = await response.json()
-
-      if (!data?.data?.auth_url) {
-        setError('Google OAuth is not configured. Please contact support.')
-        setLoading(false)
-        return
-      }
-
-      const state = crypto.randomUUID()
-      sessionStorage.setItem('oauth_state', state)
-
-      window.location.href = `${data.data.auth_url}&state=${encodeURIComponent(state)}`
-    } catch (err) {
-      setError(`Failed to start Google login: ${err.message}. Please try again.`)
-      setLoading(false)
-    }
+  const handleFacebookLogin = () => {
+    window.location.href = 'http://localhost:8000/api/v1/auth/cognito/login?provider=Facebook&role=technician'
   }
 
   const handleDemoLogin = async () => {
-    setPhone('8888888888')
+    setEmail('technician@demo.com')
     setPassword('demo1234') // Standard demo password
     setLoading(true)
     try {
-      const result = await login('8888888888', 'demo1234')
+      const result = await login('technician@demo.com', 'demo1234')
       if (result.success) {
         navigate('/dashboard')
       } else {
@@ -79,8 +49,8 @@ export default function Login() {
     event.preventDefault()
     setError('')
 
-    if (phone.length !== 10) {
-      setError('Please enter a valid 10-digit mobile number')
+    if (!email || !email.includes('@')) {
+      setError('Please enter a valid email address')
       return
     }
 
@@ -91,11 +61,11 @@ export default function Login() {
 
     setLoading(true)
     try {
-      const result = await login(phone, password)
+      const result = await login(email, password)
       if (result.success) {
         navigate('/dashboard')
       } else {
-        setError(result.error || 'Invalid phone or password')
+        setError(result.error || 'Invalid email or password')
       }
     } catch (err) {
       setError('Connection failed. Please check if the server is running.')
@@ -152,16 +122,16 @@ export default function Login() {
 
             <form className="space-y-4" onSubmit={handleSignIn}>
               <div className="rounded-2xl border border-[#E6A11A]/20 bg-[#CFEDEE]/30 p-4 text-sm">
-                <p className="font-semibold text-[#1E3A5F]">Sign in with phone</p>
-                <p className="text-xs text-[#4B5563] mt-1">Use your phone and password to access your technician dashboard.</p>
+                <p className="font-semibold text-[#1E3A5F]">Sign in with email</p>
+                <p className="text-xs text-[#4B5563] mt-1">Use your email and password to access your technician dashboard.</p>
               </div>
               <div>
-                <label className="mb-2 block text-sm font-semibold text-[#1E3A5F]">Phone number</label>
+                <label className="mb-2 block text-sm font-semibold text-[#1E3A5F]">Email address</label>
                 <input
-                  type="tel"
-                  value={phone}
-                  onChange={(event) => setPhone(normalizePhone(event.target.value))}
-                  placeholder="10-digit mobile number"
+                  type="email"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  placeholder="you@email.com"
                   className="w-full rounded-lg border px-4 py-3 transition-colors focus:outline-none focus:ring-2"
                   style={{ borderColor: '#D1D5DB', color: '#1E3A5F' }}
                 />
@@ -183,7 +153,7 @@ export default function Login() {
                 className="w-full rounded-full px-6 py-4 text-sm font-semibold text-white transition-all hover:shadow-lg disabled:opacity-50"
                 style={{ background: '#E6A11A' }}
               >
-                {loading ? 'Signing in...' : 'Login with Phone'}
+                {loading ? 'Signing in...' : 'Login with Email'}
               </button>
 
               <div className="flex items-center gap-3">
@@ -207,6 +177,7 @@ export default function Login() {
               </button>
               <button
                 type="button"
+                onClick={handleFacebookLogin}
                 className="flex w-full items-center justify-center gap-3 rounded-full border border-gray-200 px-6 py-3 text-sm font-semibold text-[#1E3A5F] transition-all hover:border-[#E6A11A]"
               >
                 <svg className="h-5 w-5" fill="#1877F2" viewBox="0 0 24 24" aria-hidden="true">
@@ -225,7 +196,7 @@ export default function Login() {
                 >
                   Quick Demo Login
                 </button>
-                <p className="text-xs text-gray-500 mt-2">Phone: 8888888888 | Status: Pre-approved</p>
+                <p className="text-xs text-gray-500 mt-2">Email: technician@demo.com | Status: Pre-approved</p>
               </div>
             </form>
           </div>

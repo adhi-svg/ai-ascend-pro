@@ -1,4 +1,4 @@
-﻿# FYXION — Remaining Work & Balance Items Checklist
+# FYXION — Remaining Work & Balance Items Checklist
 
 **Project:** FYXION – Professional Technician Services Platform  
 **Date:** March 6, 2026  

@@ -1,4 +1,4 @@
-﻿import { Wrench, MapPin, User, PhoneCall, Satellite, ClipboardList, HelpCircle, Bell, Hand, Star, Clock, CheckCircle2, Edit2, Smartphone, Lock, Trash2, LogOut, Menu, Lightbulb, CreditCard, Car, Calendar } from 'lucide-react'
+import { Wrench, MapPin, User, PhoneCall, Satellite, ClipboardList, HelpCircle, Bell, Hand, Star, Clock, CheckCircle2, Edit2, Smartphone, Lock, Trash2, LogOut, Menu, Lightbulb, CreditCard, Car, Calendar } from 'lucide-react'
 import { useState, useEffect, useCallback } from 'react'
 import { Link, useNavigate, useSearchParams, useLocation } from 'react-router-dom'
 import ServiceCategoryCard from '../components/cards/ServiceCategoryCard'

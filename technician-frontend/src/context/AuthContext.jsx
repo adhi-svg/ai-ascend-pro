@@ -33,10 +33,10 @@ export function AuthProvider({ children }) {
       })
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const login = async (phone, password) => {
+  const login = async (email, password) => {
     setLoading(true)
     try {
-      const data = await techLogin(phone, password)
+      const data = await techLogin(email, password)
       const nextUser = data.user || data
       const nextToken = data.access_token || ''
 

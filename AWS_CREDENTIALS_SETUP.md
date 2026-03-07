@@ -1,4 +1,4 @@
-﻿# 🔐 FYXION — AWS Credentials Setup Guide
+# 🔐 FYXION — AWS Credentials Setup Guide
 
 This guide describes the exact steps required to obtain and configure your AWS credentials for the FYXION platform.
 

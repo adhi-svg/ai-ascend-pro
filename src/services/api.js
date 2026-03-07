@@ -1,4 +1,4 @@
-﻿// Fyxion Backend API Integration
+// Fyxion Backend API Integration
 const API_BASE_URL = `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/v1`
 
 // Helper function to get auth token
@@ -40,7 +40,7 @@ const fetchAPI = async (endpoint, options = {}) => {
 }
 
 // Authentication APIs
-export const login = async (phone, password) => {
+export const login = async (email, password) => {
   const response = await fetch(`${API_BASE_URL}/auth/login`, {
     method: 'POST',
     headers: {
@@ -48,7 +48,7 @@ export const login = async (phone, password) => {
     },
     credentials: 'include',
     body: JSON.stringify({
-      phone,
+      email,
       password,
     }),
   })

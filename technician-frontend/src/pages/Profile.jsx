@@ -1,4 +1,4 @@
-﻿import { useState } from 'react'
+import { useState } from 'react'
 import { useAuth } from '../context/AuthContext.jsx'
 import { useTechApp } from '../context/TechAppContext.jsx'
 import Button from '../components/ui/Button.jsx'

@@ -6,9 +6,9 @@ class TokenResponse(BaseModel):
     token_type: str = "bearer"
 
 class RegisterRequest(BaseModel):
-    phone: str = Field(..., min_length=10, max_length=15, description="Phone number (10-15 digits)")
+    email: str = Field(..., description="Email address")
+    phone: Optional[str] = None
     name: Optional[str] = None
-    email: Optional[str] = None
     password: str = Field(..., min_length=6, description="Password (min 6 characters)")
     role: str = Field(..., description="'customer' or 'technician'")
     # Extra technician fields (optional)
@@ -29,21 +29,24 @@ class RegisterRequest(BaseModel):
     @field_validator("phone")
     @classmethod
     def validate_phone(cls, v):
-        cleaned = v.strip().lstrip("+")
-        if not cleaned.replace("-", "").replace(" ", "").isdigit():
-            raise ValueError("Phone must contain only digits, spaces, hyphens, or leading +")
-        return v.strip()
+        if v is not None and v.strip():
+            cleaned = v.strip().lstrip("+")
+            if not cleaned.replace("-", "").replace(" ", "").isdigit():
+                raise ValueError("Phone must contain only digits, spaces, hyphens, or leading +")
+            return v.strip()
+        return v
 
     @field_validator("email")
     @classmethod
     def validate_email(cls, v):
-        if v is not None and v.strip():
-            if "@" not in v or "." not in v.split("@")[-1]:
-                raise ValueError("Invalid email format")
+        if not v or not v.strip():
+            raise ValueError("Email is required")
+        if "@" not in v or "." not in v.split("@")[-1]:
+            raise ValueError("Invalid email format")
         return v
 
 class LoginRequest(BaseModel):
-    phone: str = Field(..., min_length=10, max_length=15)
+    email: str = Field(..., description="Email address")
     password: str = Field(..., min_length=1)
 
 class GoogleCodeExchangeRequest(BaseModel):
@@ -52,7 +55,7 @@ class GoogleCodeExchangeRequest(BaseModel):
 
 class AuthUser(BaseModel):
     id: str
-    phone: str
+    phone: Optional[str] = None
     name: Optional[str] = None
     email: Optional[str] = None
     role: str

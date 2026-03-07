@@ -1,4 +1,4 @@
-﻿# Technician Registration Flow - Implementation Summary
+# Technician Registration Flow - Implementation Summary
 
 ## Overview
 Created a comprehensive 4-step wizard for technician account creation, following Fyxion's branding with cyan/teal backgrounds, deep blue text, and gold accents.

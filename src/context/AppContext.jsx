@@ -243,10 +243,10 @@ export const AppProvider = ({ children }) => {
     }
   }
 
-  const login = async ({ phone, password, email }) => {
+  const login = async ({ email, password }) => {
     try {
       setLoading(true)
-      const data = await apiLogin(phone, password)
+      const data = await apiLogin(email, password)
       const userData = {
         ...data.user,
         email: email || data.user.email
@@ -262,10 +262,10 @@ export const AppProvider = ({ children }) => {
     }
   }
 
-  const register = async ({ phone, email, password, name, role = 'customer', skills = [] }) => {
+  const register = async ({ email, password, name, phone, role = 'customer', skills = [] }) => {
     try {
       setLoading(true)
-      const data = await apiRegister({ phone, email, password, name, role, skills })
+      const data = await apiRegister({ email, password, name, phone, role, skills })
       setUser(data.user)
       setToast({ type: 'success', message: 'Account created successfully' })
       return data.user

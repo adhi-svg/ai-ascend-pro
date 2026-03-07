@@ -1,4 +1,4 @@
-﻿// FYXION Technician Frontend — Backend API Service
+// FYXION Technician Frontend — Backend API Service
 const API_BASE_URL = `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/v1`
 
 const getToken = () => localStorage.getItem('tech_auth_token')
@@ -35,11 +35,11 @@ const fetchAPI = async (endpoint, options = {}) => {
 }
 
 // ─── Authentication ──────────────────────────────────────────
-export const techLogin = async (phone, password) => {
+export const techLogin = async (email, password) => {
     const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone, password }),
+        body: JSON.stringify({ email, password }),
     })
 
     const data = await response.json()
@@ -128,7 +128,7 @@ export const toggleOnlineStatus = async () => {
 
 // ─── Bookings ────────────────────────────────────────────────
 export const fetchTechBookings = async () => {
-    return await fetchAPI('/bookings')
+    return await fetchAPI('/bookings/technician/me/bookings')
 }
 
 export const acceptBooking = async (bookingId) => {

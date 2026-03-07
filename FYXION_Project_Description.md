@@ -1,4 +1,4 @@
-﻿# FYXION --- Professional Technician Services Platform
+# FYXION --- Professional Technician Services Platform
 
 ## 1. Introduction
 

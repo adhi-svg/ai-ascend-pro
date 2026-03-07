@@ -20,6 +20,8 @@ class Settings(BaseSettings):
     COGNITO_REGION: str = "us-east-1"
     COGNITO_USER_POOL_ID: str = ""
     COGNITO_APP_CLIENT_ID: str = ""
+    COGNITO_APP_CLIENT_SECRET: str = ""
+    COGNITO_DOMAIN: str = ""  # e.g. us-east-1xxx.auth.us-east-1.amazoncognito.com
     COGNITO_JWKS_URL: Optional[str] = None  # Auto-generated if not provided
     
     # Google OAuth (legacy - will be federated through Cognito)

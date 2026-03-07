@@ -1,4 +1,4 @@
-﻿# ✅ AWS Cognito Migration - Complete Summary
+# ✅ AWS Cognito Migration - Complete Summary
 
 ## Status: Migration Complete ✅
 

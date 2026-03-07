@@ -1,4 +1,4 @@
-﻿import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
 import { useTechApp } from '../context/TechAppContext.jsx'
 import Button from '../components/ui/Button.jsx'

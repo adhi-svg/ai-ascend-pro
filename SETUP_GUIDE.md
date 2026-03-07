@@ -1,4 +1,4 @@
-﻿# FYXION — Setup & Deployment Guide
+# FYXION — Setup & Deployment Guide
 
 **Version**: 2.0.0 | **Last Updated**: March 2026
 

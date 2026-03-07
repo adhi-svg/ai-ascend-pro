@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, status, HTTPException, Query
+from fastapi.responses import RedirectResponse
 from datetime import timedelta
 from app.core.security import create_access_token
 from app.core.config import settings
@@ -73,14 +74,24 @@ async def register(req: RegisterRequest, db: Session = Depends(get_db)):
             message="Invalid role provided"
         )
     
-    # Check if phone already exists
-    existing = db.query(User).filter(User.phone == req.phone).first()
-    if existing:
+    # Check if email already exists
+    existing_email = db.query(User).filter(User.email == req.email).first()
+    if existing_email:
         return error_response(
-            code="DUPLICATE_PHONE",
-            details="Phone number already registered",
-            message="This phone number is already in use"
+            code="DUPLICATE_EMAIL",
+            details="Email already registered. Try logging in.",
+            message="This email is already in use"
         )
+    
+    # Check if phone already exists, if provided
+    if req.phone:
+        existing = db.query(User).filter(User.phone == req.phone).first()
+        if existing:
+            return error_response(
+                code="DUPLICATE_PHONE",
+                details="Phone number already registered",
+                message="This phone number is already in use"
+            )
     
     from app.core.security import hash_password
     
@@ -147,14 +158,14 @@ async def register(req: RegisterRequest, db: Session = Depends(get_db)):
 
 @router.post("/login", response_model=dict)
 async def login(req: LoginRequest, db: Session = Depends(get_db)):
-    """Login with phone and password."""
-    user = db.query(User).filter(User.phone == req.phone).first()
+    """Login with email and password."""
+    user = db.query(User).filter(User.email == req.email).first()
     
     from app.core.security import verify_password
     if not user or not user.password_hash or not verify_password(req.password, user.password_hash):
         return error_response(
             code="INVALID_CREDENTIALS",
-            details="Invalid phone or password",
+            details="Invalid email or password",
             message="Login failed"
         )
     
@@ -487,3 +498,206 @@ async def get_current_user(current_user: dict = Depends(deps_get_current_user)):
         },
         message="User retrieved successfully"
     )
+
+# ─── AWS Cognito OAuth Routes ───────────────────────────────────────────────
+
+@router.get("/cognito/login")
+async def cognito_login(role: str = Query("customer"), provider: str = Query(None)):
+    """
+    Initiate AWS Cognito OAuth login.
+    Redirects the browser to the Cognito Hosted UI.
+    Pass ?provider=Google or ?provider=Facebook to skip the Hosted UI
+    and go directly to the chosen identity provider.
+    Pass ?role=technician to redirect back to the technician frontend after login.
+    """
+    import base64 as _b64
+    import urllib.parse as _up
+
+    if not settings.COGNITO_DOMAIN or not settings.COGNITO_APP_CLIENT_ID:
+        raise HTTPException(status_code=500, detail="AWS Cognito is not configured")
+
+    # Encode the role in the OAuth state so the callback knows which frontend to redirect to
+    state_raw = json.dumps({"role": role})
+    state = _b64.urlsafe_b64encode(state_raw.encode()).decode()
+
+    callback_url = f"{settings.BACKEND_URL}/api/v1/auth/cognito/callback"
+
+    params = {
+        "client_id": settings.COGNITO_APP_CLIENT_ID,
+        "response_type": "code",
+        "scope": "openid email profile",
+        "redirect_uri": callback_url,
+        "state": state,
+    }
+
+    # Optional: jump straight to Google / Facebook instead of showing Hosted UI
+    if provider:
+        params["identity_provider"] = provider
+
+    authorize_url = f"https://{settings.COGNITO_DOMAIN}/oauth2/authorize?{_up.urlencode(params)}"
+
+    import logging
+    logging.getLogger(__name__).info(f"[COGNITO] Redirecting to: {authorize_url}")
+
+    return RedirectResponse(url=authorize_url)
+
+
+@router.get("/cognito/callback")
+async def cognito_callback(
+    code: str = Query(...),
+    state: str = Query(""),
+    db: Session = Depends(get_db),
+):
+    """
+    AWS Cognito callback.
+    Exchanges the authorization code for tokens, extracts user info,
+    creates/finds the user in the local DB, mints an app JWT, and
+    redirects the user back to the correct frontend with the token.
+    """
+    import base64 as _b64
+    import urllib.parse as _up
+    import logging
+
+    logger = logging.getLogger(__name__)
+    logger.info("[COGNITO] Callback received")
+
+    # ── 1. Decode state to determine target role / frontend ──────────────
+    try:
+        state_data = json.loads(_b64.urlsafe_b64decode(state + "==").decode())
+        role = state_data.get("role", "customer")
+    except Exception:
+        role = "customer"
+
+    frontend_url = (
+        settings.TECHNICIAN_FRONTEND_URL if role == "technician" else settings.FRONTEND_URL
+    )
+
+    # ── 2. Exchange the authorization code for Cognito tokens ────────────
+    token_url = f"https://{settings.COGNITO_DOMAIN}/oauth2/token"
+    callback_url = f"{settings.BACKEND_URL}/api/v1/auth/cognito/callback"
+
+    credentials = f"{settings.COGNITO_APP_CLIENT_ID}:{settings.COGNITO_APP_CLIENT_SECRET}"
+    basic_auth = _b64.b64encode(credentials.encode()).decode()
+
+    token_payload = {
+        "grant_type": "authorization_code",
+        "client_id": settings.COGNITO_APP_CLIENT_ID,
+        "code": code,
+        "redirect_uri": callback_url,
+    }
+
+    token_headers = {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Authorization": f"Basic {basic_auth}",
+    }
+
+    try:
+        token_resp = requests.post(token_url, data=token_payload, headers=token_headers)
+    except Exception as exc:
+        logger.error(f"[COGNITO] Token request failed: {exc}")
+        return RedirectResponse(url=f"{frontend_url}/login?error=token_request_failed")
+
+    if token_resp.status_code != 200:
+        logger.error(f"[COGNITO] Token exchange failed ({token_resp.status_code}): {token_resp.text}")
+        return RedirectResponse(url=f"{frontend_url}/login?error=token_exchange_failed")
+
+    tokens = token_resp.json()
+    cognito_access_token = tokens.get("access_token")
+
+    if not cognito_access_token:
+        logger.error("[COGNITO] No access_token in Cognito response")
+        return RedirectResponse(url=f"{frontend_url}/login?error=no_access_token")
+
+    # ── 3. Fetch user info from the Cognito userInfo endpoint ────────────
+    userinfo_url = f"https://{settings.COGNITO_DOMAIN}/oauth2/userInfo"
+    try:
+        ui_resp = requests.get(
+            userinfo_url, headers={"Authorization": f"Bearer {cognito_access_token}"}
+        )
+    except Exception as exc:
+        logger.error(f"[COGNITO] UserInfo request failed: {exc}")
+        return RedirectResponse(url=f"{frontend_url}/login?error=userinfo_request_failed")
+
+    if ui_resp.status_code != 200:
+        logger.error(f"[COGNITO] UserInfo failed ({ui_resp.status_code}): {ui_resp.text}")
+        return RedirectResponse(url=f"{frontend_url}/login?error=userinfo_failed")
+
+    user_info = ui_resp.json()
+    email = user_info.get("email", "")
+    name = (
+        user_info.get("name", "")
+        or f'{user_info.get("given_name", "")} {user_info.get("family_name", "")}'.strip()
+        or "User"
+    )
+    cognito_sub = user_info.get("sub", "")
+    logger.info(f"[COGNITO] User info: email={email}, name={name}, sub={cognito_sub}")
+
+    # ── 4. Find or create local DB user ──────────────────────────────────
+    user_role = UserRoleEnum.TECHNICIAN if role == "technician" else UserRoleEnum.CUSTOMER
+
+    existing_user = None
+    if email:
+        existing_user = db.query(User).filter(User.email == email).first()
+
+    if not existing_user:
+        existing_user = User(
+            phone=f"cognito_{cognito_sub}",
+            password_hash=None,
+            name=name,
+            email=email,
+            role=user_role,
+        )
+        db.add(existing_user)
+        db.commit()
+        db.refresh(existing_user)
+
+        # If technician, also create the Technician profile row
+        if user_role == UserRoleEnum.TECHNICIAN:
+            new_tech = Technician(
+                user_id=existing_user.id,
+                status=TechnicianStatusEnum.PENDING,
+                skills="[]",
+                documents="{}",
+            )
+            db.add(new_tech)
+            db.commit()
+
+        logger.info(f"[COGNITO] Created new user id={existing_user.id}")
+    else:
+        logger.info(f"[COGNITO] Found existing user id={existing_user.id}")
+
+    # ── 5. Mint our own app JWT ──────────────────────────────────────────
+    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    jwt_token = create_access_token(
+        data={
+            "sub": existing_user.id,
+            "role": existing_user.role.value,
+            "email": existing_user.email or "",
+        },
+        expires_delta=access_token_expires,
+    )
+
+    # ── 6. Redirect back to the correct frontend with token + user info ──
+    user_data = json.dumps({
+        "id": existing_user.id,
+        "phone": existing_user.phone,
+        "name": existing_user.name,
+        "email": existing_user.email,
+        "role": existing_user.role.value,
+    })
+
+    redirect_params = _up.urlencode({"token": jwt_token, "user": user_data})
+    redirect_target = f"{frontend_url}/auth/callback?{redirect_params}"
+
+    logger.info(f"[COGNITO] Redirecting to {frontend_url}/auth/callback")
+    return RedirectResponse(url=redirect_target)
+
+
+@router.post("/logout")
+async def logout_user():
+    """
+    Logout endpoint.
+    The frontend should call this and then clear localStorage / cookies.
+    """
+    return success_response(data={}, message="Logged out successfully")
+

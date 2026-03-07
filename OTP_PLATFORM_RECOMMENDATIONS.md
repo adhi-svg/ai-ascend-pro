@@ -1,4 +1,4 @@
-﻿# OTP Verification Platform Recommendations
+# OTP Verification Platform Recommendations
 
 ## 📋 Current Implementation Analysis
 

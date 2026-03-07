@@ -10,7 +10,7 @@ from app.models import User, Technician, TechnicianStatusEnum, UserRoleEnum
 from app.schemas.technician import TechnicianApplicationSchema, TechnicianSchema
 from app.utils.responses import success_response, error_response
 
-router = APIRouter(prefix="/api/v1/technician", tags=["technician"])
+router = APIRouter(prefix="/technician", tags=["technician"])
 
 
 @router.get("/applications", dependencies=[Depends(require_role(["admin"]))])

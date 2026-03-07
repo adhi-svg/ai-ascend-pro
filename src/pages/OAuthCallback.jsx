@@ -1,7 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useApp } from '../context/AppContext'
-import { exchangeGoogleCode } from '../services/api'
 import { Hourglass } from 'lucide-react'
 
 const OAuthCallback = () => {
@@ -15,87 +14,48 @@ const OAuthCallback = () => {
     authCompleteRef.current = true
 
     const params = new URLSearchParams(window.location.search)
-    const code = params.get('code')
-    const state = params.get('state')
+    const token = params.get('token')
+    const userParam = params.get('user')
     const error = params.get('error')
-    const storedState = sessionStorage.getItem('oauth_state')
 
-    console.log('[OAuthCallback] Received OAuth callback', {
-      code: code?.substring(0, 10) + '...',
-      state,
-      storedState,
-      error,
-    })
-
+    // ── Handle error redirects from backend ──
     if (error) {
-      console.error('[OAuthCallback] OAuth error from Google:', error)
-      sessionStorage.removeItem('oauth_state')
-      setToast({ type: 'error', message: `Google OAuth error: ${error}` })
+      console.error('[OAuthCallback] Error from backend:', error)
+      if (setToast) setToast({ type: 'error', message: `Login error: ${error}` })
       setTimeout(() => navigate('/login', { replace: true }), 2000)
       return
     }
 
-    if (!code || !state || !storedState || state !== storedState) {
-      console.error('[OAuthCallback] Invalid state or missing code', {
-        code: !!code,
-        state: !!state,
-        storedState: !!storedState,
-        match: state === storedState,
-      })
-      sessionStorage.removeItem('oauth_state')
-      setToast({ type: 'error', message: 'Authentication validation failed - state mismatch' })
-      setTimeout(() => navigate('/login', { replace: true }), 2000)
-      return
-    }
-
-    const finalize = async () => {
+    // ── Cognito flow: backend redirected here with token + user in URL ──
+    if (token && userParam) {
       try {
-        sessionStorage.removeItem('oauth_state')
+        const userData = JSON.parse(userParam)
 
-        console.log('[OAuthCallback] Exchanging code for token...')
+        // Store in localStorage (same keys the rest of the app expects)
+        localStorage.setItem('auth_token', token)
+        localStorage.setItem('user_info', JSON.stringify(userData))
 
-        // Add timeout
-        const timeoutPromise = new Promise((_, reject) =>
-          setTimeout(() => reject(new Error('Exchange request timed out - backend not responding')), 10000)
-        )
-
-        const exchangePromise = exchangeGoogleCode(code)
-        const data = await Promise.race([exchangePromise, timeoutPromise])
-
-        console.log('[OAuthCallback] Code exchanged successfully, user:', data?.user?.email)
-
-        // Verify localStorage was actually set
-        const token = localStorage.getItem('auth_token')
-        const userInfo = localStorage.getItem('user_info')
-
-        console.log('[OAuthCallback] localStorage check - token:', !!token, 'user:', !!userInfo)
-
-        if (!token || !userInfo) {
-          throw new Error('Failed to save authentication data')
-        }
-
-        // Update the context with the user data
-        if (data?.user) {
-          setUser(data.user)
-        }
-
-        setToast({ type: 'success', message: 'Welcome!' })
+        // Update React context
+        if (setUser) setUser(userData)
 
         // Security: remove auth params from the URL
         window.history.replaceState({}, document.title, window.location.pathname)
 
-        // Navigate to dashboard
-        console.log('[OAuthCallback] Navigating to /customer/home...')
+        if (setToast) setToast({ type: 'success', message: `Welcome, ${userData.name || 'User'}!` })
+
+        console.log('[OAuthCallback] Cognito login complete, navigating to /customer/home')
         navigate('/customer/home', { replace: true })
       } catch (err) {
-        console.error('[OAuthCallback] Authentication error:', err)
-        authCompleteRef.current = false
-        setToast({ type: 'error', message: err.message || 'Login failed' })
+        console.error('[OAuthCallback] Failed to process Cognito login data:', err)
+        if (setToast) setToast({ type: 'error', message: 'Failed to process login data' })
         setTimeout(() => navigate('/login', { replace: true }), 2000)
       }
+      return
     }
 
-    finalize()
+    // ── No valid params — redirect to login ──
+    console.warn('[OAuthCallback] No token or code found in URL, redirecting to login')
+    setTimeout(() => navigate('/login', { replace: true }), 1000)
   }, [navigate, setUser, setToast])
 
   return (

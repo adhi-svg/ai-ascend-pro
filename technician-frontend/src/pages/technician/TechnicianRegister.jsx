@@ -1,4 +1,4 @@
-﻿import { useState } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext.jsx'
 import StepBasic from './steps/StepBasic'
@@ -69,8 +69,11 @@ export default function TechnicianRegister() {
 
     switch (step) {
       case 1:
+        // eslint-disable-next-line no-case-declarations
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
         if (!formData.fullName?.trim()) newErrors.fullName = 'Full name is required'
-        if (!formData.mobile || formData.mobile.length !== 10) newErrors.mobile = 'Valid 10-digit mobile number is required'
+        if (!formData.email || !emailRegex.test(formData.email)) newErrors.email = 'Valid email address is required'
+        if (formData.mobile && formData.mobile.length !== 10) newErrors.mobile = 'Valid 10-digit mobile number is required'
         if (!formData.password || formData.password.length < 6) newErrors.password = 'Password must be at least 6 characters'
         if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = 'Passwords do not match'
         break
@@ -125,7 +128,7 @@ export default function TechnicianRegister() {
 
     // Map frontend fields (mobile, fullName) to backend fields (phone, name)
     const payload = {
-      phone: formData.mobile,
+      phone: formData.mobile || undefined,
       name: formData.fullName,
       email: formData.email,
       password: formData.password,

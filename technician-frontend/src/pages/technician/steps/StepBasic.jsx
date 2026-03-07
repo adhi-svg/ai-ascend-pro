@@ -86,7 +86,7 @@ export default function StepBasic({ formData, updateFormData, errors }) {
       {/* Mobile Number */}
       <div>
         <label className="mb-2 block text-sm font-semibold text-[#1E3A5F]">
-          Mobile Number <span className="text-red-500">*</span>
+          Mobile Number <span className="text-xs text-gray-500">(Optional)</span>
         </label>
         <div className="flex gap-2">
           <input
@@ -165,7 +165,7 @@ export default function StepBasic({ formData, updateFormData, errors }) {
       {/* Email */}
       <div>
         <label className="mb-2 block text-sm font-semibold text-[#1E3A5F]">
-          Email <span className="text-xs text-gray-500">(Optional)</span>
+          Email <span className="text-red-500">*</span>
         </label>
         <input
           type="email"
@@ -173,8 +173,9 @@ export default function StepBasic({ formData, updateFormData, errors }) {
           onChange={(e) => updateFormData({ email: e.target.value })}
           placeholder="your.email@example.com"
           className="w-full rounded-lg border px-4 py-3 transition-colors focus:outline-none focus:ring-2 focus:ring-[#E6A11A]"
-          style={{ borderColor: '#D1D5DB', color: '#1E3A5F' }}
+          style={{ borderColor: errors?.email ? '#EF4444' : '#D1D5DB', color: '#1E3A5F' }}
         />
+        {errors?.email && <p className="mt-1 text-xs text-red-500">{errors.email}</p>}
       </div>
 
       {/* Password */}

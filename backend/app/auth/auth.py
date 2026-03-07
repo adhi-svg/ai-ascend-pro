@@ -74,7 +74,7 @@ def verify_token(token: str) -> Dict[str, Any]:
                     "is_active": user_info.get("is_active", True),
                 }
             except Exception:
-                raise credentials_exception
+                pass  # Fall through to local HS256 verification
     except ImportError:
         pass  # cognito_verifier not available, use local JWT
 

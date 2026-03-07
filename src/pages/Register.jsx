@@ -1,9 +1,10 @@
-﻿import { useState } from 'react'
+import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
 import ErrorBanner from '../components/ui/ErrorBanner'
 import { useApp } from '../context/AppContext'
+import { CheckSquare, Square } from 'lucide-react'
 
 const Register = () => {
   const navigate = useNavigate()
@@ -60,7 +61,8 @@ const Register = () => {
     if (!agreed) {
       setError('Please accept the Terms & Conditions and Privacy Policy to continue')
       return
-    } if (!form.firstName.trim() || !form.lastName.trim()) {
+    } 
+    if (!form.firstName.trim() || !form.lastName.trim()) {
       setError('Please enter your first and last name')
       return
     }
@@ -68,7 +70,8 @@ const Register = () => {
       setError('Please select your date of birth')
       return
     }
-    if (!validatePhone(form.phone)) {
+    // Phone is optional now, but if provided, validate it
+    if (form.phone && !validatePhone(form.phone)) {
       setError('Please enter a valid 10-digit Indian mobile number starting with 6-9')
       return
     }
@@ -87,32 +90,15 @@ const Register = () => {
       return
     }
 
-    setLoading(true)
-    setTimeout(() => {
-      setStep('otp')
-      setLoading(false)
-    }, 500)
-  }
-
-  const submitOtp = async (e) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setError('')
-
-    if (form.otp.length !== 6) {
-      setError('Please enter the 6-digit OTP')
-      return
-    }
-
     if (loading) return
 
     setLoading(true)
 
     try {
-      // Register with backend - combine first and last name
+      // Register with backend
       const name = `${form.firstName.trim()} ${form.lastName.trim()}`
       await register({
-        phone: form.phone,
+        phone: form.phone || undefined,
         email: form.email,
         password: form.password,
         name,
@@ -146,10 +132,8 @@ const Register = () => {
             <h1 className="text-3xl font-bold text-center text-[#1E3A5F]">Create your FYXION account</h1>
 
             {error && <ErrorBanner message={error} />}
-
-            {step === 'details' ? (
-              <form className="space-y-4" onSubmit={submitDetails}>
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <form className="space-y-4" onSubmit={submitDetails}>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <Input
                     label="First name"
                     required
@@ -223,7 +207,7 @@ const Register = () => {
                   />
                   <label htmlFor="agree" className="text-sm text-brand-text-secondary leading-relaxed cursor-pointer">
                     <span className={`mr-2 font-semibold ${agreed ? 'text-brand-accent' : 'text-white/60'}`}>
-                      {agreed ? '<CheckSquare size={16} className="inline mr-1" />' : '<Square size={16} className="inline mr-1" />'} I accept the
+                      {agreed ? <CheckSquare size={16} className="inline mr-1" /> : <Square size={16} className="inline mr-1" />} I accept the
                     </span>
                     <Link to="/support/terms" className="text-brand-accent font-semibold hover:text-white">Terms &amp; Conditions</Link>
                     <span className="mx-1">and</span>
@@ -232,43 +216,9 @@ const Register = () => {
                 </div>
 
                 <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? 'Sending OTP...' : 'Send OTP'}
+                  {loading ? 'Creating Account...' : 'Create Account'}
                 </Button>
               </form>
-            ) : (
-              <form className="space-y-4" onSubmit={submitOtp}>
-                <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-brand-text-primary">
-                  <p className="font-semibold text-brand-text-primary">OTP sent to {form.phone}</p>
-                  <p className="text-xs text-brand-text-muted mt-1">Enter the 6-digit code to verify and create your account</p>
-                </div>
-                <Input
-                  label="Enter OTP"
-                  type="tel"
-                  required
-                  value={form.otp}
-                  onChange={handleOtpChange}
-                  placeholder="6-digit OTP"
-                  maxLength={6}
-                  pattern="[0-9]{6}"
-                />
-                <div className="flex gap-2">
-                  <Button type="button" variant="secondary" onClick={() => setStep('details')} className="flex-1" disabled={loading}>
-                    Back
-                  </Button>
-                  <Button type="submit" className="flex-1" disabled={loading}>
-                    {loading ? 'Creating...' : 'Create Account'}
-                  </Button>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setError('OTP resent to ' + form.phone)}
-                  className="text-sm font-semibold text-brand-accent hover:underline"
-                  disabled={loading}
-                >
-                  Resend OTP
-                </button>
-              </form>
-            )}
 
             <div className="border-t border-white/10 pt-4 text-center">
               <p className="text-sm text-brand-text-muted">
