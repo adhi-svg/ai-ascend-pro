@@ -7,7 +7,7 @@ const API_BASE_URL = `${import.meta.env.VITE_API_URL || 'http://100.27.210.231:8
 export default function AdminLogin() {
   const navigate = useNavigate()
   const [email, setEmail] = useState('admin@fyxion.com')
-  const [password, setPassword] = useState('')
+  const [password, setPassword] = useState('admin123')
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 

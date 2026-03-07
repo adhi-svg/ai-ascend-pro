@@ -7,8 +7,8 @@ const DEMO_TECH_PHOTO = 'https://images.unsplash.com/photo-1500648767791-00dcc99
 export default function Login() {
   const { login } = useAuth()
   const navigate = useNavigate()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const [email, setEmail] = useState('technician@demo.com')
+  const [password, setPassword] = useState('demo1234')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const handleBack = () => {
