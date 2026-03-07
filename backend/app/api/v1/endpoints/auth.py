@@ -65,6 +65,14 @@ def _exchange_google_code_for_user(code: str, redirect_uri: str) -> dict:
 @router.post("/register", response_model=dict)
 async def register(req: RegisterRequest, db: Session = Depends(get_db)):
     """Register a new user (customer or technician)."""
+    # Phone is required by DB schema (users.phone is NOT NULL)
+    if not req.phone or not str(req.phone).strip():
+        return error_response(
+            code="PHONE_REQUIRED",
+            details="Phone number is required",
+            message="Please provide a valid phone number"
+        )
+
     # Validate role
     role_map = {"customer": UserRoleEnum.CUSTOMER, "technician": UserRoleEnum.TECHNICIAN}
     if req.role.lower() not in role_map:

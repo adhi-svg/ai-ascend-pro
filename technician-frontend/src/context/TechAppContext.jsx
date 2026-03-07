@@ -49,12 +49,22 @@ export function TechAppProvider({ children }) {
 
   // ─── Load Bookings from Backend ─────────────────────────────
   const loadBookings = async () => {
+    const token = localStorage.getItem('tech_auth_token')
+    if (!token) {
+      setBookings([])
+      return
+    }
+
     setLoadingBookings(true)
     try {
       const data = await fetchTechBookings()
       setBookings(Array.isArray(data) ? data : [])
     } catch (error) {
       console.error('Failed to load bookings:', error)
+      if (error?.message?.toLowerCase().includes('session expired')) {
+        setBookings([])
+        return
+      }
       addToast({ title: 'Error', message: 'Failed to load bookings.', tone: 'danger' })
     } finally {
       setLoadingBookings(false)
@@ -72,7 +82,12 @@ export function TechAppProvider({ children }) {
 
   // Poll for new bookings every 30 seconds
   useEffect(() => {
-    const interval = setInterval(loadBookings, 30000)
+    const interval = setInterval(() => {
+      const token = localStorage.getItem('tech_auth_token')
+      if (token) {
+        loadBookings()
+      }
+    }, 30000)
     return () => {
       clearInterval(interval)
       if (watchId.current) navigator.geolocation.clearWatch(watchId.current)

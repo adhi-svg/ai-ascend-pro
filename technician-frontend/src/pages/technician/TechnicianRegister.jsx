@@ -126,6 +126,8 @@ export default function TechnicianRegister() {
     setLoading(true)
     setError('')
 
+    const asUrlOrNull = (value) => (typeof value === 'string' ? value : null)
+
     // Map frontend fields (mobile, fullName) to backend fields (phone, name)
     const payload = {
       phone: formData.mobile || undefined,
@@ -144,10 +146,10 @@ export default function TechnicianRegister() {
       shop_location: formData.shopLocation ? JSON.stringify(formData.shopLocation) : null,
       aadhaar_number: formData.aadhaarNumber,
       // For images, we would ideally upload them first or send URLs if they were already uploaded
-      profile_photo_url: formData.profilePhoto,
-      aadhaar_front_url: formData.aadhaarFront,
-      aadhaar_back_url: formData.aadhaarBack,
-      selfie_url: formData.selfie,
+      profile_photo_url: asUrlOrNull(formData.profilePhoto),
+      aadhaar_front_url: asUrlOrNull(formData.aadhaarFront),
+      aadhaar_back_url: asUrlOrNull(formData.aadhaarBack),
+      selfie_url: asUrlOrNull(formData.selfie),
     }
 
     try {
