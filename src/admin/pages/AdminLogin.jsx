@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { adminSessionKey } from '../services/adminStore'
 
-const API_BASE_URL = `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/v1`
+const API_BASE_URL = `${import.meta.env.VITE_API_URL || 'http://100.27.210.231:8000'}/api/v1`
 
 export default function AdminLogin() {
   const navigate = useNavigate()
@@ -20,7 +20,7 @@ export default function AdminLogin() {
       const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ phone: email, password }),
       })
 
       const data = await response.json()

@@ -45,7 +45,7 @@ const Login = () => {
     setOtp(value)
   }
 
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+  const API_URL = import.meta.env.VITE_API_URL || 'http://100.27.210.231:8000'
 
   const handleGoogleLogin = () => {
     // Redirect to backend Cognito route which handles the entire OAuth flow

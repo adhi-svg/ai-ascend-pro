@@ -98,10 +98,10 @@ export const AppProvider = ({ children }) => {
       // Using OpenStreetMap's Nominatim geocoding service (free, no API key required)
       const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`
       console.log('Fetching address from OpenStreetMap Nominatim...')
-      
+
       const response = await fetch(url)
       const data = await response.json()
-      
+
       console.log('Nominatim API response:', data)
 
       if (data.address) {
@@ -126,16 +126,16 @@ export const AppProvider = ({ children }) => {
         setLoading(false)
         return
       }
-      
+
       setLoading(true)
       console.log('[AppContext] Bootstrap started for user:', user.email || user.phone)
-      
+
       // Safety timeout - ensure loading never stays true for more than 10 seconds
       const safetyTimeout = setTimeout(() => {
         console.warn('[AppContext] Bootstrap timeout - forcing loading false')
         setLoading(false)
       }, 10000)
-      
+
       try {
         // Fetch data with individual error handling to prevent one failure from blocking everything
         const [cats, t, j, c] = await Promise.allSettled([
@@ -144,14 +144,14 @@ export const AppProvider = ({ children }) => {
           fetchNearbyJobs().catch(err => { console.error('[AppContext] Jobs error:', err); return [] }),
           fetchComplaints().catch(err => { console.error('[AppContext] Complaints error:', err); return [] }),
         ]).then(results => results.map(r => r.status === 'fulfilled' ? r.value : []))
-        
+
         console.log('[AppContext] Bootstrap data fetched:', {
           categories: cats?.length,
           technicians: t?.length,
           jobs: j?.length,
           complaints: c?.length
         })
-        
+
         setCategories(Array.isArray(cats) ? cats : [])
         setTechs(
           Array.isArray(t) ? t.map((tech, index) => ({
@@ -175,7 +175,7 @@ export const AppProvider = ({ children }) => {
         )
         setJobs(Array.isArray(j) ? j : [])
         setComplaints(Array.isArray(c) ? c : [])
-        
+
         // Fetch earnings only for technicians
         if (String(user.role || '').toLowerCase() === 'technician') {
           try {
@@ -185,7 +185,7 @@ export const AppProvider = ({ children }) => {
             console.error('[AppContext] Earnings error:', err)
           }
         }
-        
+
         console.log('[AppContext] Bootstrap complete')
       } catch (error) {
         console.error('[AppContext] Bootstrap fatal error:', error)
@@ -224,7 +224,7 @@ export const AppProvider = ({ children }) => {
 
       const lat = position.coords.latitude
       const lng = position.coords.longitude
-      
+
       console.log('Got coordinates:', { lat, lng })
       const address = await getAddressFromCoords(lat, lng)
 
@@ -233,7 +233,7 @@ export const AppProvider = ({ children }) => {
       } else {
         setToast({ type: 'success', message: 'Location coordinates detected' })
       }
-      
+
       return { lat, lng, address }
     } catch (error) {
       if (error?.code === 1) {
@@ -249,10 +249,11 @@ export const AppProvider = ({ children }) => {
     }
   }
 
-  const login = async ({ email, password }) => {
+  const login = async ({ email, phone, password }) => {
     try {
       setLoading(true)
-      const data = await apiLogin(email, password)
+      const loginId = phone || email
+      const data = await apiLogin(loginId, password)
       if (!data?.user) {
         throw new Error('Login response is missing user data')
       }

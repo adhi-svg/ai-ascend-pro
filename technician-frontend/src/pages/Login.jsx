@@ -20,11 +20,11 @@ export default function Login() {
   }
 
   const handleGoogleLogin = () => {
-    window.location.href = 'http://localhost:8000/api/v1/auth/cognito/login?provider=Google&role=technician'
+    window.location.href = 'http://100.27.210.231:8000/api/v1/auth/cognito/login?provider=Google&role=technician'
   }
 
   const handleFacebookLogin = () => {
-    window.location.href = 'http://localhost:8000/api/v1/auth/cognito/login?provider=Facebook&role=technician'
+    window.location.href = 'http://100.27.210.231:8000/api/v1/auth/cognito/login?provider=Facebook&role=technician'
   }
 
   const handleDemoLogin = async () => {

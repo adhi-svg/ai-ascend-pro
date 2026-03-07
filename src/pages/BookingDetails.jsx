@@ -32,7 +32,7 @@ const BookingDetails = () => {
     setError('')
 
     try {
-      const response = await fetch('http://localhost:8000/api/v1/ai/analyze', {
+      const response = await fetch('http://100.27.210.231:8000/api/v1/ai/analyze', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

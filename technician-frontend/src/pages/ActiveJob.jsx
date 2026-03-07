@@ -85,7 +85,7 @@ export default function ActiveJob() {
     if (wsRef.current) return
 
     const wsToken = token || 'tech_mock_token_12345'
-    wsRef.current = new WebSocket(`ws://localhost:8000/ws/technicians/me/location?token=${wsToken}`)
+    wsRef.current = new WebSocket(`ws://100.27.210.231:8000/ws/technicians/me/location?token=${wsToken}`)
 
     wsRef.current.onopen = () => {
       addToast({ title: 'Live tracking', message: 'Sharing your location with customer.' })
