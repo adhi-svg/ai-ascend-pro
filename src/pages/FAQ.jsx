@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+﻿import { useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useApp } from '../context/AppContext'
 import Button from '../components/ui/Button'
@@ -23,12 +23,12 @@ const FAQ = () => {
 
   const faqs = [
     {
-      question: 'What is Fixora?',
-      answer: 'Fixora is a platform that connects you with local, independent technicians in your area for various home services like electrical work, plumbing, AC repair, and more. We don\'t employ technicians - we help you find trusted local professionals.'
+      question: 'What is Fyxion?',
+      answer: 'Fyxion is a platform that connects you with local, independent technicians in your area for various home services like electrical work, plumbing, AC repair, and more. We don\'t employ technicians - we help you find trusted local professionals.'
     },
     {
-      question: 'Are the technicians employed by Fixora?',
-      answer: 'No, Fixora is a connecting platform. All technicians are independent local professionals in your area. We verify their credentials and ratings to ensure quality service.'
+      question: 'Are the technicians employed by Fyxion?',
+      answer: 'No, Fyxion is a connecting platform. All technicians are independent local professionals in your area. We verify their credentials and ratings to ensure quality service.'
     },
     {
       question: 'How do I book a technician?',
@@ -78,7 +78,7 @@ const FAQ = () => {
           <h1 className="text-4xl md:text-5xl font-bold text-[#1E3A5F] mb-3">
             Frequently Asked <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#E6A11A] to-[#F0B329]">Questions</span>
           </h1>
-          <p className="text-[#4B5563] text-lg">Find answers to common questions about Fixora</p>
+          <p className="text-[#4B5563] text-lg">Find answers to common questions about Fyxion</p>
         </div>
 
         {/* FAQ List */}

@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+﻿import { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
 import { Wrench, IndianRupee, Calendar, TrendingUp, ChevronRight, CheckCircle } from 'lucide-react'
@@ -108,7 +108,7 @@ export default function LandingPage() {
             <div className="rounded-lg p-2" style={{ background: '#E6A11A' }}>
               <Wrench className="h-6 w-6 text-white" />
             </div>
-            <span className="text-xl font-bold" style={{ color: '#1E3A5F' }}>FieldFix Partner</span>
+            <span className="text-xl font-bold" style={{ color: '#1E3A5F' }}>Fyxion Partner</span>
           </div>
           <div className="flex items-center gap-3">
             <button
@@ -187,7 +187,7 @@ export default function LandingPage() {
               <span style={{ color: '#E6A11A' }}> in one place.</span>
             </h2>
             <p className="text-lg text-gray-600">
-              Sign in to view assignments, accept jobs, and track earnings. New to FieldFix? Create your technician profile in minutes.
+              Sign in to view assignments, accept jobs, and track earnings. New to Fyxion? Create your technician profile in minutes.
             </p>
             <div className="grid grid-cols-3 gap-6">
               <div className="rounded-xl p-4 text-center" style={{ background: 'rgba(230, 161, 26, 0.15)' }}>
@@ -212,7 +212,7 @@ export default function LandingPage() {
                   ⚡
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold" style={{ color: '#1E3A5F' }}>Sign in as FieldFix Partner</h2>
+                  <h2 className="text-2xl font-bold" style={{ color: '#1E3A5F' }}>Sign in as Fyxion Partner</h2>
                   <p className="mt-1 text-gray-600">Access your technician dashboard and jobs.</p>
                 </div>
               </div>
@@ -306,7 +306,7 @@ export default function LandingPage() {
         <div className="mx-auto max-w-7xl px-4 md:px-8">
           <div className="mb-12 text-center">
             <h2 className="text-3xl font-bold md:text-4xl" style={{ color: '#1E3A5F' }}>
-              Why partner with FieldFix?
+              Why partner with Fyxion?
             </h2>
             <p className="mt-4 text-lg text-gray-600">
               Join thousands of professionals earning with flexibility and freedom
@@ -379,7 +379,7 @@ export default function LandingPage() {
               How does it work?
             </h2>
             <p className="mt-4 text-lg text-gray-600">
-              Simple process to start earning with FieldFix
+              Simple process to start earning with Fyxion
             </p>
           </div>
 
@@ -542,7 +542,7 @@ export default function LandingPage() {
               Frequently Asked Questions
             </h2>
             <p className="mt-4 text-lg text-gray-600">
-              Everything you need to know about partnering with FieldFix
+              Everything you need to know about partnering with Fyxion
             </p>
           </div>
 
@@ -592,7 +592,7 @@ export default function LandingPage() {
             <div className="order-2 md:order-1">
               <div className="rounded-2xl p-8 shadow-2xl" style={{ background: '#E6A11A' }}>
                 <div className="space-y-6">
-                  <h3 className="text-2xl font-bold text-white">FieldFix Partner App Features</h3>
+                  <h3 className="text-2xl font-bold text-white">Fyxion Partner App Features</h3>
                   <ul className="space-y-4 text-white">
                     <li className="flex items-start gap-3">
                       <CheckCircle className="h-6 w-6 shrink-0" />
@@ -666,7 +666,7 @@ export default function LandingPage() {
       {/* Footer */}
       <footer className="border-t border-gray-200 bg-white py-8">
         <div className="mx-auto max-w-7xl px-4 text-center text-gray-600 md:px-8">
-          <p>&copy; 2026 FieldFix. All rights reserved.</p>
+          <p>&copy; 2026 Fyxion. All rights reserved.</p>
         </div>
       </footer>
     </div>

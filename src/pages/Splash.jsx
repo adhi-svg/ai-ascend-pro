@@ -123,7 +123,7 @@ const Splash = () => {
           <div className="flex justify-center mb-6">
             <div className="inline-flex items-center gap-3 rounded-full border border-[#E6A11A]/40 bg-gradient-to-r from-[#E6A11A]/15 to-transparent px-6 py-2.5 text-xs font-semibold tracking-[0.3em] uppercase text-[#E6A11A]">
               <span className="h-2 w-2 rounded-full bg-[#E6A11A] animate-pulse shadow-[0_0_8px_rgba(230,161,26,0.6)]" />
-              FIXORA - Connecting You with Local Experts
+              FYXION - Connecting You with Local Experts
             </div>
           </div>
 

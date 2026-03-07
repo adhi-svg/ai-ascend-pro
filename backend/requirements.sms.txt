@@ -1,0 +1,18 @@
+# Optional SMS Provider Dependencies
+
+# ============================================
+# MSG91 (Recommended for India)
+# ============================================
+# No additional packages needed - uses requests (already installed)
+
+# ============================================
+# Twilio (Install only if using Twilio)
+# ============================================
+# Uncomment if using Twilio:
+# twilio>=8.0.0
+
+# ============================================
+# AWS SNS (Install only if using AWS SNS for SMS)
+# ============================================
+# boto3 is already in requirements.txt
+# Just configure AWS credentials in .env

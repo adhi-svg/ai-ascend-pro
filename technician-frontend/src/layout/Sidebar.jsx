@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router-dom'
+﻿import { NavLink } from 'react-router-dom'
 import { useTechApp } from '../context/TechAppContext.jsx'
 
 const navItems = [
@@ -47,7 +47,7 @@ export default function Sidebar() {
         ))}
       </nav>
       <div className="mt-auto flex items-center gap-2">
-        <img src="/techflow-logo.svg" alt="TechFlow" className="h-8" />
+        <img src="/Fyxion-logo.svg" alt="Fyxion" className="h-8" />
         <span className="text-xs text-brand-text-secondary">Technician Partner</span>
       </div>
     </aside>

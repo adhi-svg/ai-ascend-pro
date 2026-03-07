@@ -7,7 +7,9 @@ import {
   MdLocalLaundryService,
   MdWaterDrop,
   MdWifi,
-  MdBuild
+  MdBuild,
+  MdCleaningServices,
+  MdFormatPaint
 } from 'react-icons/md'
 
 const iconMap = {
@@ -19,6 +21,8 @@ const iconMap = {
   washing: MdLocalLaundryService,
   dishwasher: MdWaterDrop,
   wifi: MdWifi,
+  cleaning: MdCleaningServices,
+  painting: MdFormatPaint,
 }
 
 // Real service images from Unsplash - RELEVANT TO EACH SERVICE
@@ -31,11 +35,30 @@ const serviceImages = {
   washing: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=400&h=300&fit=crop&q=80', // Washing machine/laundry
   dishwasher: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&h=300&fit=crop&q=80', // Dishwasher
   wifi: 'https://images.unsplash.com/photo-1517220436465-c1efdf5a5368?w=400&h=300&fit=crop&q=80', // Router/WiFi
+  cleaning: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400&h=300&fit=crop&q=80', // Cleaning 
+  painting: 'https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=400&h=300&fit=crop&q=80', // Painting
+}
+
+const getNormalizedName = (name) => {
+  if (!name) return 'electrical'
+  const lower = name.toLowerCase()
+  if (lower.includes('electric')) return 'electrical'
+  if (lower.includes('plumb')) return 'plumbing'
+  if (lower === 'ac' || lower.includes('ac ') || lower.includes('air cond')) return 'ac'
+  if (lower.includes('fridge') || lower.includes('refrigerat')) return 'fridge'
+  if (lower.includes('tv ') || lower.includes('television')) return 'tv'
+  if (lower.includes('wash') || lower.includes('laundry')) return 'washing'
+  if (lower.includes('dish')) return 'dishwasher'
+  if (lower.includes('wifi') || lower.includes('internet')) return 'wifi'
+  if (lower.includes('clean')) return 'cleaning'
+  if (lower.includes('paint')) return 'painting'
+  return 'electrical' // fallback
 }
 
 const ServiceCategoryCard = ({ category, onSelect }) => {
-  const IconComponent = iconMap[category.id]
-  const imageUrl = serviceImages[category.id]
+  const normalizedKey = getNormalizedName(category?.name)
+  const IconComponent = iconMap[normalizedKey]
+  const imageUrl = serviceImages[normalizedKey]
   
   return (
     <button

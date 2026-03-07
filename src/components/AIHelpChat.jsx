@@ -390,9 +390,6 @@ const AIHelpChat = () => {
               </button>
             </div>
 
-            <p className="text-xs text-[#9CA3AF] mt-2 text-center">
-              ⚡ Powered by FLEX AI + Gemini Vision
-            </p>
           </div>
         </div>
       )}

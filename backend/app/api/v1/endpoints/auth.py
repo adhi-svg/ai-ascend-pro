@@ -127,7 +127,7 @@ async def register(req: RegisterRequest, db: Session = Depends(get_db)):
     # Generate token
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     token = create_access_token(
-        data={"sub": new_user.id, "role": new_user.role.value},
+        data={"sub": new_user.id, "role": new_user.role.value, "email": new_user.email or ""},
         expires_delta=access_token_expires
     )
     
@@ -160,7 +160,7 @@ async def login(req: LoginRequest, db: Session = Depends(get_db)):
     
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     token = create_access_token(
-        data={"sub": user.id, "role": user.role.value},
+        data={"sub": user.id, "role": user.role.value, "email": user.email or ""},
         expires_delta=access_token_expires
     )
     
@@ -179,7 +179,7 @@ async def login(req: LoginRequest, db: Session = Depends(get_db)):
     )
 
 @router.get("/google/login")
-async def google_login():
+async def google_login(role: str = Query("customer")):
     """Initiate Google OAuth login."""
     if not settings.GOOGLE_CLIENT_ID:
         return error_response(
@@ -189,7 +189,10 @@ async def google_login():
         )
     
     # Use frontend URL for callback - the frontend will exchange the code with the backend
-    redirect_uri = f"{settings.FRONTEND_URL}/auth/callback"
+    if role == "technician":
+        redirect_uri = f"{settings.TECHNICIAN_FRONTEND_URL}/auth/callback"
+    else:
+        redirect_uri = f"{settings.FRONTEND_URL}/auth/callback"
     
     google_auth_url = (
         f"https://accounts.google.com/o/oauth2/v2/auth?"
@@ -234,9 +237,10 @@ async def google_callback(code: str = Query(...), db: Session = Depends(get_db))
     
     try:
         logger.info("Exchanging code for Google token...")
+        backend_url = getattr(settings, 'BACKEND_URL', 'http://localhost:8000')
         user_info = _exchange_google_code_for_user(
             code=code,
-            redirect_uri="http://localhost:8000/api/v1/auth/google/callback",
+            redirect_uri=f"{backend_url}/api/v1/auth/google/callback",
         )
         logger.info(f"User info received: {user_info.get('email')}")
 
@@ -258,7 +262,7 @@ async def google_callback(code: str = Query(...), db: Session = Depends(get_db))
 
         access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
         jwt_token = create_access_token(
-            data={"sub": existing_user.id, "role": existing_user.role.value},
+            data={"sub": existing_user.id, "role": existing_user.role.value, "email": existing_user.email or ""},
             expires_delta=access_token_expires
         )
         logger.info(f"JWT token created for user: {existing_user.id}")
@@ -268,11 +272,11 @@ async def google_callback(code: str = Query(...), db: Session = Depends(get_db))
                 "access_token": jwt_token,
                 "token_type": "bearer",
                 "user": {
-                    "id": existing_user["id"],
-                    "phone": existing_user["phone"],
-                    "name": existing_user["name"],
-                    "email": existing_user["email"],
-                    "role": existing_user["role"],
+                    "id": existing_user.id,
+                    "phone": existing_user.phone,
+                    "name": existing_user.name,
+                    "email": existing_user.email,
+                    "role": existing_user.role.value,
                 }
             },
             message="Google login successful"
@@ -303,10 +307,17 @@ async def google_exchange(req: GoogleCodeExchangeRequest, db: Session = Depends(
         )
 
     try:
-        logger.info(f"Exchanging code with redirect_uri: {settings.FRONTEND_URL}/auth/callback")
+        if req.role == "technician":
+            redirect_uri = f"{settings.TECHNICIAN_FRONTEND_URL}/auth/callback"
+            user_role = UserRoleEnum.TECHNICIAN
+        else:
+            redirect_uri = f"{settings.FRONTEND_URL}/auth/callback"
+            user_role = UserRoleEnum.CUSTOMER
+
+        logger.info(f"Exchanging code with redirect_uri: {redirect_uri}")
         user_info = _exchange_google_code_for_user(
             code=req.code,
-            redirect_uri=f"{settings.FRONTEND_URL}/auth/callback",
+            redirect_uri=redirect_uri,
         )
         
         logger.info(f"Got user info from Google: {user_info.get('email')}")
@@ -319,18 +330,30 @@ async def google_exchange(req: GoogleCodeExchangeRequest, db: Session = Depends(
                 password_hash=None,
                 name=user_info.get("name", ""),
                 email=user_info["email"],
-                role=UserRoleEnum.CUSTOMER
+                role=user_role
             )
             db.add(existing_user)
             db.commit()
             db.refresh(existing_user)
+
+            if user_role == UserRoleEnum.TECHNICIAN:
+                new_tech = Technician(
+                    user_id=existing_user.id,
+                    status=TechnicianStatusEnum.PENDING,
+                    skills="[]",
+                    profile_image_url=user_info.get("picture", ""),
+                    documents="{}"
+                )
+                db.add(new_tech)
+                db.commit()
+
             logger.info(f"New user created with id: {existing_user.id}")
         else:
             logger.info(f"Existing user found: {existing_user.id}")
 
         access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
         jwt_token = create_access_token(
-            data={"sub": existing_user.id, "role": existing_user.role.value},
+            data={"sub": existing_user.id, "role": existing_user.role.value, "email": existing_user.email or ""},
             expires_delta=access_token_expires
         )
         
@@ -341,11 +364,11 @@ async def google_exchange(req: GoogleCodeExchangeRequest, db: Session = Depends(
                 "access_token": jwt_token,
                 "token_type": "bearer",
                 "user": {
-                    "id": existing_user["id"],
-                    "phone": existing_user["phone"],
-                    "name": existing_user["name"],
-                    "email": existing_user["email"],
-                    "role": existing_user["role"],
+                    "id": existing_user.id,
+                    "phone": existing_user.phone,
+                    "name": existing_user.name,
+                    "email": existing_user.email,
+                    "role": existing_user.role.value,
                 }
             },
             message="Google login successful"
@@ -359,7 +382,7 @@ async def google_exchange(req: GoogleCodeExchangeRequest, db: Session = Depends(
         )
 
 @router.post("/facebook/login")
-async def facebook_login(token: str = Query(...)):
+async def facebook_login(token: str = Query(...), db: Session = Depends(get_db)):
     """Verify Facebook OAuth token."""
     if not token:
         return error_response(
@@ -398,21 +421,26 @@ async def facebook_login(token: str = Query(...)):
         user_info_response = requests.get(user_info_url)
         user_info = user_info_response.json()
         
-        # Check if user exists, if not create one
-        existing_user = user_store.get_by_email(user_info.get("email", f"fb_{user_info['id']}@facebook.com"))
+        # Check if user exists using SQLAlchemy, if not create one
+        user_email = user_info.get("email", f"fb_{user_info['id']}@facebook.com")
+        existing_user = db.query(User).filter(User.email == user_email).first()
         if not existing_user:
-            existing_user = user_store.create(
+            existing_user = User(
                 phone=f"facebook_{user_info['id']}",
-                password="",  # Empty for OAuth users
+                password_hash=None,
                 name=user_info.get("name", ""),
-                email=user_info.get("email", f"fb_{user_info['id']}@facebook.com"),
-                role="customer"
+                email=user_email,
+                role=UserRoleEnum.CUSTOMER,
+                facebook_id=user_info.get("id")
             )
+            db.add(existing_user)
+            db.commit()
+            db.refresh(existing_user)
         
         # Create JWT token
         access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
         jwt_token = create_access_token(
-            data={"sub": existing_user["id"], "role": existing_user["role"]},
+            data={"sub": existing_user.id, "role": existing_user.role.value, "email": existing_user.email or ""},
             expires_delta=access_token_expires
         )
         
@@ -421,10 +449,10 @@ async def facebook_login(token: str = Query(...)):
                 "access_token": jwt_token,
                 "token_type": "bearer",
                 "user": {
-                    "id": existing_user["id"],
-                    "email": existing_user["email"],
-                    "name": existing_user["name"],
-                    "role": existing_user["role"],
+                    "id": existing_user.id,
+                    "email": existing_user.email,
+                    "name": existing_user.name,
+                    "role": existing_user.role.value,
                 }
             },
             message="Facebook login successful"

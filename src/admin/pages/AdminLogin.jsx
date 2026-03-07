@@ -1,4 +1,4 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { adminSessionKey } from '../services/adminStore'
 
@@ -12,7 +12,7 @@ export default function AdminLogin() {
     event.preventDefault()
     setError('')
 
-    if (username === 'admin' && password === 'fixora123') {
+    if (username === 'admin' && password === 'fyxion123') {
       localStorage.setItem(adminSessionKey, '1')
       navigate('/admin/dashboard', { replace: true })
       return
@@ -29,7 +29,7 @@ export default function AdminLogin() {
       <div className="w-full max-w-lg space-y-6">
         <div className="text-center">
           <span className="mx-auto mb-4 flex w-fit items-center justify-center rounded-3xl bg-[#CFEDEE] p-3 shadow-[0_20px_60px_rgba(30,58,95,0.15)]">
-            <img src="/logo.png" alt="Fixora" className="h-16 w-16 object-contain" />
+            <img src="/logo.png" alt="Fyxion" className="h-16 w-16 object-contain" />
           </span>
           <h1 className="text-3xl font-bold text-[#1E3A5F]">Admin Login</h1>
           <p className="mt-2 text-sm text-gray-600">Sign in to review technician applications</p>
@@ -75,7 +75,7 @@ export default function AdminLogin() {
           </form>
 
           <div className="mt-6 rounded-xl border border-[#E6A11A]/20 bg-[#CFEDEE]/40 px-4 py-3 text-xs text-[#1E3A5F]">
-            Demo credentials: admin / fixora123
+            Demo credentials: admin / fyxion123
           </div>
         </div>
       </div>

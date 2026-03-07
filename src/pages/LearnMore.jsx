@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom'
+﻿import { useNavigate } from 'react-router-dom'
 import Button from '../components/ui/Button'
 
 const LearnMore = () => {
@@ -53,10 +53,10 @@ const LearnMore = () => {
         <div className="text-center">
           <p className="text-xs uppercase tracking-[0.4em] text-[#1E3A5F]/70 font-semibold">Learn More</p>
           <h1 className="mt-3 text-4xl md:text-5xl font-bold text-[#1E3A5F]">
-            Fixora Guidelines & App Overview
+            Fyxion Guidelines & App Overview
           </h1>
           <p className="mt-4 text-[#4B5563] text-lg">
-            Everything you need to know to get the best experience with Fixora.
+            Everything you need to know to get the best experience with Fyxion.
           </p>
         </div>
 

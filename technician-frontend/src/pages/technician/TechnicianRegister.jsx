@@ -1,4 +1,4 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext.jsx'
 import StepBasic from './steps/StepBasic'
@@ -297,9 +297,9 @@ export default function TechnicianRegister() {
         {/* Header */}
         <div className="text-center">
           <span className="mx-auto mb-4 flex w-fit items-center justify-center rounded-3xl bg-[#CFEDEE] p-3 shadow-[0_20px_60px_rgba(30,58,95,0.15)]">
-            <img src="/logo.png" alt="Fixora" className="h-20 w-20 object-contain" />
+            <img src="/logo.png" alt="Fyxion" className="h-20 w-20 object-contain" />
           </span>
-          <h1 className="text-3xl font-bold text-[#1E3A5F]">Become a Fixora Partner</h1>
+          <h1 className="text-3xl font-bold text-[#1E3A5F]">Become a Fyxion Partner</h1>
           <p className="mt-2 text-sm text-gray-600">Complete the registration to start earning</p>
         </div>
 

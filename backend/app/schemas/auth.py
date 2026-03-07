@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from typing import Optional
 
 class TokenResponse(BaseModel):
@@ -6,10 +6,10 @@ class TokenResponse(BaseModel):
     token_type: str = "bearer"
 
 class RegisterRequest(BaseModel):
-    phone: str
+    phone: str = Field(..., min_length=10, max_length=15, description="Phone number (10-15 digits)")
     name: Optional[str] = None
     email: Optional[str] = None
-    password: str
+    password: str = Field(..., min_length=6, description="Password (min 6 characters)")
     role: str = Field(..., description="'customer' or 'technician'")
     # Extra technician fields (optional)
     skill: Optional[str] = None
@@ -26,12 +26,29 @@ class RegisterRequest(BaseModel):
     aadhaar_back_url: Optional[str] = None
     selfie_url: Optional[str] = None
 
+    @field_validator("phone")
+    @classmethod
+    def validate_phone(cls, v):
+        cleaned = v.strip().lstrip("+")
+        if not cleaned.replace("-", "").replace(" ", "").isdigit():
+            raise ValueError("Phone must contain only digits, spaces, hyphens, or leading +")
+        return v.strip()
+
+    @field_validator("email")
+    @classmethod
+    def validate_email(cls, v):
+        if v is not None and v.strip():
+            if "@" not in v or "." not in v.split("@")[-1]:
+                raise ValueError("Invalid email format")
+        return v
+
 class LoginRequest(BaseModel):
-    phone: str
-    password: str
+    phone: str = Field(..., min_length=10, max_length=15)
+    password: str = Field(..., min_length=1)
 
 class GoogleCodeExchangeRequest(BaseModel):
     code: str
+    role: str = "customer"
 
 class AuthUser(BaseModel):
     id: str

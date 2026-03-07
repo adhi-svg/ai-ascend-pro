@@ -12,10 +12,10 @@ const TechnicianDashboard = () => {
   ]
 
   const services = [
-    { id: 1, name: 'Electrician', icon: '<Zap size={16} className="inline mr-1" />', activeJobs: 2, enabled: true },
-    { id: 2, name: 'Plumber', icon: '<Wrench size={16} className="inline mr-1" />', activeJobs: 1, enabled: true },
-    { id: 3, name: 'AC Repair', icon: '<Snowflake size={16} className="inline mr-1" />️', activeJobs: 0, enabled: false },
-    { id: 4, name: 'Carpenter', icon: '<Hammer size={16} className="inline mr-1" />', activeJobs: 0, enabled: false },
+    { id: 1, name: 'Electrician', icon: <Zap size={16} className="inline mr-1" />, activeJobs: 2, enabled: true },
+    { id: 2, name: 'Plumber', icon: <Wrench size={16} className="inline mr-1" />, activeJobs: 1, enabled: true },
+    { id: 3, name: 'AC Repair', icon: <Snowflake size={16} className="inline mr-1" />, activeJobs: 0, enabled: false },
+    { id: 4, name: 'Carpenter', icon: <Hammer size={16} className="inline mr-1" />, activeJobs: 0, enabled: false },
   ]
 
   const nearbyRequests = [

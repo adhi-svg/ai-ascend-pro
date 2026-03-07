@@ -1,8 +1,8 @@
-// FIXORA Admin Panel — Backend API Service
+﻿// FYXION Admin Panel — Backend API Service
 // Replaces localStorage-based data with real backend API calls
 
 const API_BASE_URL = 'http://localhost:8000/api/v1'
-const SESSION_KEY = 'fixora_admin_session'
+const SESSION_KEY = 'fyxion_admin_session'
 
 const getAdminToken = () => {
   try {

@@ -1,4 +1,4 @@
-import { Link, useLocation } from 'react-router-dom'
+﻿import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
 import { useTechApp } from '../context/TechAppContext.jsx'
 import Button from '../components/ui/Button.jsx'
@@ -16,9 +16,9 @@ export default function Navbar() {
   return (
     <header className="glass-surface sticky top-0 z-40 flex h-[72px] items-center justify-between px-4 shadow-sm md:px-8">
       <Link to="/dashboard" className="flex items-center gap-3">
-        <img src={technicianPhoto} alt="TechFlow" className="h-10 w-10 rounded-full object-cover" />
+        <img src={technicianPhoto} alt="Fyxion" className="h-10 w-10 rounded-full object-cover" />
         <div>
-          <p className="text-sm font-semibold text-brand-primary">TechFlow Technician</p>
+          <p className="text-sm font-semibold text-brand-primary">Fyxion Technician</p>
           <p className="text-xs text-brand-text-secondary">{location.pathname.replace('/', '') || 'dashboard'}</p>
         </div>
       </Link>

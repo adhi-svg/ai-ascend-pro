@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+﻿import { useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import TechnicianCard from '../components/cards/TechnicianCard'
 import EmptyState from '../components/ui/EmptyState'
@@ -9,7 +9,7 @@ import { useApp } from '../context/AppContext'
 
 const getApprovedTechnicians = () => {
   try {
-    const list = JSON.parse(localStorage.getItem('fixora_technicians') || '[]')
+    const list = JSON.parse(localStorage.getItem('fyxion_technicians') || '[]')
     return list.filter((tech) => tech.status === 'APPROVED').map((tech) => ({
       id: tech.id,
       name: tech.fullName,

@@ -1,4 +1,4 @@
-import { Wrench, MapPin, User, PhoneCall, Satellite, ClipboardList, HelpCircle, Bell, Hand, Star, Clock, CheckCircle2, Edit2, Smartphone, Lock, Trash2, LogOut, Menu, Lightbulb, CreditCard, Car, Calendar } from 'lucide-react'
+﻿import { Wrench, MapPin, User, PhoneCall, Satellite, ClipboardList, HelpCircle, Bell, Hand, Star, Clock, CheckCircle2, Edit2, Smartphone, Lock, Trash2, LogOut, Menu, Lightbulb, CreditCard, Car, Calendar } from 'lucide-react'
 import { useState, useEffect, useCallback } from 'react'
 import { Link, useNavigate, useSearchParams, useLocation } from 'react-router-dom'
 import ServiceCategoryCard from '../components/cards/ServiceCategoryCard'
@@ -222,13 +222,13 @@ const CustomerHome = () => {
   }
 
   const navItems = [
-    { key: 'services', label: 'Services', icon: '<Wrench size={20} />' },
-    { key: 'nearby', label: 'Nearby Technicians', icon: '<MapPin size={20} />' },
-    { key: 'account', label: 'Account', icon: '<User size={20} />' },
-    { key: 'relatives', label: 'Book for Others', icon: '<PhoneCall size={20} />' },
-    { key: 'ongoing', label: 'Ongoing Booking', icon: '<Satellite size={20} />' },
-    { key: 'previousBookings', label: 'Previous Bookings', icon: '<ClipboardList size={20} />' },
-    { key: 'support', label: 'Support', icon: '<HelpCircle size={20} />' },
+    { key: 'services', label: 'Services', icon: <Wrench size={20} /> },
+    { key: 'nearby', label: 'Nearby Technicians', icon: <MapPin size={20} /> },
+    { key: 'account', label: 'Account', icon: <User size={20} /> },
+    { key: 'relatives', label: 'Book for Others', icon: <PhoneCall size={20} /> },
+    { key: 'ongoing', label: 'Ongoing Booking', icon: <Satellite size={20} /> },
+    { key: 'previousBookings', label: 'Previous Bookings', icon: <ClipboardList size={20} /> },
+    { key: 'support', label: 'Support', icon: <HelpCircle size={20} /> },
   ]
 
   // Book for relatives state
@@ -317,9 +317,9 @@ const CustomerHome = () => {
           </button>
           <div className="flex items-center gap-2">
             <span className="flex items-center justify-center rounded-lg bg-[#CFEDEE] p-1 shadow-sm">
-              <img src="/logo.png" alt="FIXORA" className="w-6 h-6 object-contain" />
+              <img src="/logo.png" alt="FYXION" className="w-6 h-6 object-contain" />
             </span>
-            <div className="text-lg font-bold text-[#1E3A5F]">FIXORA</div>
+            <div className="text-lg font-bold text-[#1E3A5F]">FYXION</div>
           </div>
           <button aria-label="Notifications" className="text-[#E6A11A] text-lg">
             <Bell size={20} />
@@ -329,10 +329,10 @@ const CustomerHome = () => {
         <div className="rounded-[32px] border border-[#E6A11A]/30 bg-gradient-to-br from-white/90 via-[#CFEDEE]/40 to-white/80 backdrop-blur-sm p-8 text-[#1E3A5F] shadow-xl">
           <div className="mb-6 flex flex-col items-center gap-6 md:flex-row">
             <span className="flex items-center justify-center rounded-3xl bg-[#CFEDEE] p-3 shadow-[0_8px_24px_rgba(230,161,26,0.2)]">
-              <img src="/logo.png" alt="Field Fix" className="w-32 h-32 object-contain" />
+              <img src="/logo.png" alt="Fyxion" className="w-32 h-32 object-contain" />
             </span>
             <div className="flex-1 space-y-3 text-left">
-              <p className="text-xs font-semibold uppercase tracking-[0.5em] text-[#4B5563]">FIXORA</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.5em] text-[#4B5563]">FYXION</p>
               <h1 className="text-4xl font-bold leading-tight text-[#1E3A5F]">Welcome, {userName}! <Hand size={36} className="inline text-yellow-400" /></h1>
               <p className="text-base text-[#4B5563]">Connect with local technicians for all your home service needs.</p>
             </div>
@@ -405,8 +405,8 @@ const CustomerHome = () => {
               {activeSection === 'services' && (
                 <section className="space-y-4">
                   <div>
-                    <h2 className="text-2xl font-bold text-white mb-1">Services</h2>
-                    <p className="text-sm text-white/70">Select a category to begin</p>
+                    <h2 className="text-2xl font-bold text-[#1E3A5F] mb-1">Services</h2>
+                    <p className="text-sm text-[#4B5563]">Select a category to begin</p>
                   </div>
                   <div className="grid grid-cols-2 max-[360px]:grid-cols-1 gap-3 md:grid-cols-3">
                     {categories.map((category) => (
@@ -420,19 +420,19 @@ const CustomerHome = () => {
               {activeSection === 'changeLocation' && (
                 <section className="space-y-5">
                   <div>
-                    <h2 className="text-2xl font-bold text-white mb-1">Change Location</h2>
-                    <p className="text-sm text-white/70">Select your precise location from the map</p>
+                    <h2 className="text-2xl font-bold text-[#1E3A5F] mb-1">Change Location</h2>
+                    <p className="text-sm text-[#4B5563]">Select your precise location from the map</p>
                   </div>
 
-                  <div className="rounded-2xl border border-white/10 bg-white/5 p-6 space-y-4">
+                  <div className="rounded-2xl border border-[#E6A11A]/20 bg-white/5 p-6 space-y-4">
                     <div className="space-y-2">
-                      <p className="text-sm text-white/60">Current Location</p>
-                      <div className="rounded-xl border border-white/10 bg-white/5 p-4">
-                        <p className="font-semibold text-white">
+                       <p className="text-sm text-[#4B5563]">Current Location</p>
+                      <div className="rounded-xl border border-[#E6A11A]/20 bg-[#CFEDEE]/30 p-4">
+                        <p className="font-semibold text-[#1E3A5F]">
                           {currentLocation?.address || 'No location set'}
                         </p>
                         {currentLocation?.lat && currentLocation?.lng && (
-                          <p className="text-xs text-white/50 mt-2">
+                          <p className="text-xs text-[#4B5563] mt-2">
                             {currentLocation.lat.toFixed(4)}, {currentLocation.lng.toFixed(4)}
                           </p>
                         )}
@@ -440,14 +440,14 @@ const CustomerHome = () => {
                     </div>
 
                     <div className="space-y-2">
-                      <p className="text-sm text-white/60">Select New Location</p>
+                      <p className="text-sm text-[#4B5563]">Select New Location</p>
                       <Button
                         onClick={handleOpenMapPicker}
-                        className="w-full bg-blue-500 hover:bg-blue-600 text-white"
+                        className="w-full"
                       >
                         <MapPin size={20} /> Open Map to Select Location
                       </Button>
-                      <p className="text-xs text-white/60">Click the map to pin your exact location</p>
+                      <p className="text-xs text-[#4B5563]">Click the map to pin your exact location</p>
                     </div>
 
                     <div className="flex flex-col sm:flex-row gap-3 pt-2">
@@ -572,8 +572,8 @@ const CustomerHome = () => {
               {activeSection === 'nearby' && (
                 <section className="space-y-4">
                   <div>
-                    <h2 className="text-2xl font-bold text-white mb-1">Nearby Technicians & Repair Shops</h2>
-                    <p className="text-sm text-white/70">Within 0.5 - 1.5 km radius</p>
+                    <h2 className="text-2xl font-bold text-[#1E3A5F] mb-1">Nearby Technicians & Repair Shops</h2>
+                    <p className="text-sm text-[#4B5563]">Within 0.5 - 1.5 km radius</p>
                   </div>
                   {onlineTechs.length === 0 ? (
                     <EmptyState
@@ -600,7 +600,7 @@ const CustomerHome = () => {
               {activeSection === 'account' && (
                 <section className="space-y-4">
                   <div>
-                    <h2 className="text-2xl font-bold text-white mb-1">Account Settings</h2>
+                    <h2 className="text-2xl font-bold text-[#1E3A5F] mb-1">Account Settings</h2>
                   </div>
                   <div className="space-y-3">
                     {accountError && <ErrorBanner message={accountError} onClose={() => setAccountError('')} />}
@@ -1274,7 +1274,7 @@ const CustomerHome = () => {
           />
           <div className="absolute left-0 top-0 h-full w-72 max-w-[78%] bg-gradient-to-b from-white via-[#CFEDEE]/20 to-white shadow-2xl border-r border-[#E6A11A]/30 flex flex-col">
             <div className="flex items-center justify-between px-4 py-3 border-b border-[#E6A11A]/20 bg-white/80 backdrop-blur-sm">
-              <span className="text-lg font-bold text-[#1E3A5F]">FIXORA</span>
+              <span className="text-lg font-bold text-[#1E3A5F]">FYXION</span>
               <button aria-label="Close menu" className="text-xl text-[#4B5563] hover:text-[#E6A11A]" onClick={() => setIsMobileNavOpen(false)}>
                 ✕
               </button>

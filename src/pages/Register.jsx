@@ -1,4 +1,4 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
@@ -137,13 +137,13 @@ const Register = () => {
       <div className="relative w-full max-w-2xl space-y-6">
         <div className="text-center">
           <span className="mx-auto mb-4 flex w-fit items-center justify-center rounded-3xl bg-[#CFEDEE] p-3 shadow-[0_30px_90px_rgba(3,6,20,0.45)]">
-            <img src="/logo.png" alt="Field Fix" className="w-32 h-32 object-contain" />
+            <img src="/logo.png" alt="Fyxion" className="w-32 h-32 object-contain" />
           </span>
         </div>
         <div className="relative overflow-hidden bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl border border-[#E6A11A]/20 p-8">
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#E6A11A]/5 via-transparent to-[#14B8A6]/5" />
           <div className="relative space-y-6">
-            <h1 className="text-3xl font-bold text-center text-[#1E3A5F]">Create your FIXORA account</h1>
+            <h1 className="text-3xl font-bold text-center text-[#1E3A5F]">Create your FYXION account</h1>
 
             {error && <ErrorBanner message={error} />}
 

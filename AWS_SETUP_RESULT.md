@@ -1,4 +1,4 @@
-# FIXORA — AWS Setup Implementation Complete
+﻿# FYXION — AWS Setup Implementation Complete
 
 **Date**: March 6, 2026  
 **Status**: ✅ Ready for AWS credential configuration
@@ -104,7 +104,7 @@ These files were already fully implemented with feature flags and fallbacks:
 
 ### Step 1: Create IAM User (AWS Console)
 1. Go to https://console.aws.amazon.com/iam/
-2. Create user `fixora-backend` with programmatic access
+2. Create user `fyxion-backend` with programmatic access
 3. Attach policies: `AmazonS3FullAccess`, `AmazonSNSFullAccess`
 4. Copy Access Key ID and Secret Access Key
 5. Paste into `backend/.env`:
@@ -115,17 +115,17 @@ These files were already fully implemented with feature flags and fallbacks:
 
 ### Step 2: Create S3 Bucket
 1. Go to https://s3.console.aws.amazon.com/
-2. Create bucket: `fixora-uploads-yourname`
+2. Create bucket: `fyxion-uploads-yourname`
 3. Set CORS and bucket policy (see `AWS_SETUP_GUIDE.md`)
 4. Update `.env`:
    ```env
-   AWS_S3_BUCKET_NAME=fixora-uploads-yourname
+   AWS_S3_BUCKET_NAME=fyxion-uploads-yourname
    ENABLE_S3_UPLOAD=True
    ```
 
 ### Step 3: Create SNS Topic
 1. Go to https://console.aws.amazon.com/sns/
-2. Create Standard topic: `fixora-emergency-alerts`
+2. Create Standard topic: `fyxion-emergency-alerts`
 3. Add email subscription and confirm
 4. Update `.env`:
    ```env
@@ -143,7 +143,7 @@ These files were already fully implemented with feature flags and fallbacks:
 2. Create PostgreSQL instance
 3. Update `.env`:
    ```env
-   DATABASE_URL=postgresql://user:pass@endpoint:5432/fixora
+   DATABASE_URL=postgresql://user:pass@endpoint:5432/fyxion
    ```
 
 ---

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+﻿import { useEffect, useMemo, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import TechnicianCard from '../components/TechnicianCard'
 import StatusPill from '../components/StatusPill'
@@ -54,7 +54,7 @@ export default function AdminDashboard() {
     <div className="mx-auto w-full max-w-6xl px-4 pb-12 pt-4 md:pt-6">
       <div className="flex flex-col gap-4 rounded-2xl bg-white/95 border border-[#E6A11A]/20 p-5 shadow-md md:flex-row md:items-center md:justify-between">
         <div>
-          <p className="text-xs uppercase tracking-[0.4em] text-[#1E3A5F]/60 font-semibold">Fixora</p>
+          <p className="text-xs uppercase tracking-[0.4em] text-[#1E3A5F]/60 font-semibold">Fyxion</p>
           <h1 className="text-2xl font-bold text-[#1E3A5F]">Admin Panel</h1>
         </div>
         <div className="flex gap-2">

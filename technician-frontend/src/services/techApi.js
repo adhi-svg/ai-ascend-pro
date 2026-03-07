@@ -1,5 +1,5 @@
-// FIXORA Technician Frontend — Backend API Service
-const API_BASE_URL = 'http://localhost:8000/api/v1'
+﻿// FYXION Technician Frontend — Backend API Service
+const API_BASE_URL = `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/v1`
 
 const getToken = () => localStorage.getItem('tech_auth_token')
 
@@ -76,6 +76,26 @@ export const techRegister = async (userData) => {
 }
 
 export const techLogout = () => clearAuth()
+
+export const exchangeGoogleCode = async (code) => {
+    const response = await fetch(`${API_BASE_URL}/auth/google/exchange`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code, role: 'technician' }),
+    })
+
+    const data = await response.json()
+    if (!response.ok || data.success === false) {
+        throw new Error(data.message || data.error?.details || 'Google login failed')
+    }
+
+    if (data.data) {
+        localStorage.setItem('tech_auth_token', data.data.access_token)
+        localStorage.setItem('tech_user_info', JSON.stringify(data.data.user))
+    }
+
+    return data.data
+}
 
 export const getStoredUser = () => {
     const token = getToken()

@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useApp } from '../context/AppContext'
 import { exchangeGoogleCode } from '../services/api'
+import { Hourglass } from 'lucide-react'
 
 const OAuthCallback = () => {
   const navigate = useNavigate()
@@ -23,7 +24,7 @@ const OAuthCallback = () => {
       code: code?.substring(0, 10) + '...',
       state,
       storedState,
-      error
+      error,
     })
 
     if (error) {
@@ -35,7 +36,12 @@ const OAuthCallback = () => {
     }
 
     if (!code || !state || !storedState || state !== storedState) {
-      console.error('[OAuthCallback] Invalid state or missing code', { code: !!code, state: !!state, storedState: !!storedState, match: state === storedState })
+      console.error('[OAuthCallback] Invalid state or missing code', {
+        code: !!code,
+        state: !!state,
+        storedState: !!storedState,
+        match: state === storedState,
+      })
       sessionStorage.removeItem('oauth_state')
       setToast({ type: 'error', message: 'Authentication validation failed - state mismatch' })
       setTimeout(() => navigate('/login', { replace: true }), 2000)
@@ -95,7 +101,9 @@ const OAuthCallback = () => {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-[#CFEDEE] via-[#E8F8F9] to-[#D4F0F2]">
       <div className="text-center">
-        <div className="animate-spin mb-4 text-4xl"><Hourglass size={16} className="inline mr-1" /></div>
+        <div className="animate-spin mb-4 text-4xl">
+          <Hourglass size={16} className="inline mr-1" />
+        </div>
         <p className="text-[#1E3A5F] font-semibold">Processing your login...</p>
         <p className="text-[#1E3A5F]/60 text-sm mt-2">Please wait</p>
         <p className="text-[#FF6B6B]/60 text-xs mt-4">If this takes more than 10 seconds, please try again.</p>

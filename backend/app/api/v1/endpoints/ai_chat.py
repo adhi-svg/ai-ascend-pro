@@ -1,8 +1,8 @@
 # ============================================================
-# FLEX AI CHAT WITH GENERATIVE AI (Gemini)
+# FLEX AI CHAT WITH GENERATIVE AI (Groq)
 # Theme: "Intelligent. Autonomous. Agentic in Action."
 # Meet FLEX AI: Your AI-powered intelligent assistant
-# Uses Google Gemini 1.5 Pro for natural conversations
+# Uses Groq Llama 3 models for ultra-fast natural conversations
 # ============================================================
 
 import os
@@ -13,34 +13,36 @@ from fastapi import APIRouter
 from pydantic import BaseModel
 from typing import Optional, List, Dict, Any
 
-# Suppress deprecation warning for google-generativeai
+# Suppress warnings
 warnings.filterwarnings("ignore", category=FutureWarning)
 
 try:
-    import google.generativeai as genai
-    GENAI_AVAILABLE = True
+    from groq import Groq
+    GROQ_AVAILABLE = True
 except ImportError:
-    GENAI_AVAILABLE = False
+    GROQ_AVAILABLE = False
 
 from app.utils.responses import success_response
 from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
-# Configure Gemini
-GEMINI_API_KEY = settings.GOOGLE_API_KEY
-if not GEMINI_API_KEY:
-    logger.warning("⚠️ GOOGLE_API_KEY not set in settings. Using fallback responses only.")
-    GENAI_AVAILABLE = False
-elif not GENAI_AVAILABLE:
-    logger.warning("⚠️ google-generativeai library not available. Using fallback responses.")
+# Configure Groq
+GROQ_API_KEY = settings.GROQ_API_KEY
+groq_client = None
+
+if not GROQ_API_KEY:
+    logger.warning("⚠️ GROQ_API_KEY not set in settings. Using fallback responses only.")
+    GROQ_AVAILABLE = False
+elif not GROQ_AVAILABLE:
+    logger.warning("⚠️ groq library not available. Using fallback responses.")
 else:
     try:
-        genai.configure(api_key=GEMINI_API_KEY)
-        logger.info("✅ Gemini API configured successfully with Gemini 1.5 Pro")
+        groq_client = Groq(api_key=GROQ_API_KEY)
+        logger.info("✅ Groq API configured successfully with Llama 3 models")
     except Exception as e:
-        logger.error(f"❌ Failed to configure Gemini: {str(e)}")
-        GENAI_AVAILABLE = False
+        logger.error(f"❌ Failed to configure Groq: {str(e)}")
+        GROQ_AVAILABLE = False
 
 router = APIRouter(prefix="/ai", tags=["AI Agent"])
 
@@ -114,8 +116,8 @@ Electrical, Plumbing, AC Repair, WiFi/Internet, Appliance Repair, Carpentry, Cle
 - Force HIGH urgency if critical risks detected in image
 
 ## Important
-- Return ONLY JSON
-- No markdown code blocks
+- Return ONLY JSON matching the requested structure
+- No markdown code blocks surrounding the JSON
 - No explanations outside JSON
 - Ensure all fields are valid JSON types
 - Empty arrays [] for empty lists, not null
@@ -171,16 +173,16 @@ def get_fallback_response() -> Dict[str, Any]:
 
 
 # ============================================================
-# GEMINI AI CHAT ENGINE
+# GROQ AI CHAT ENGINE
 # ============================================================
 
-def call_gemini_api(
+def call_ai_api(
     message: str,
     image_base64: Optional[str] = None,
     context: Dict[str, Any] = None
 ) -> Dict[str, Any]:
     """
-    Call Gemini API to generate intelligent response.
+    Call Groq API to generate intelligent response.
     
     Args:
         message: User's text message
@@ -190,63 +192,68 @@ def call_gemini_api(
     Returns:
         Parsed JSON response matching ChatResponse schema
     """
-    if not GEMINI_API_KEY or not GENAI_AVAILABLE:
-        logger.warning("Gemini API not available. Returning fallback response.")
+    if not GROQ_API_KEY or not GROQ_AVAILABLE or not groq_client:
+        logger.warning("Groq API not available. Returning fallback response.")
         return get_fallback_response()
     
     try:
-        # Initialize Gemini model (using Flash for better free tier quotas)
-        logger.info("Initializing Gemini model...")
-        model = genai.GenerativeModel(
-            model_name="models/gemini-2.5-flash",
-            system_instruction=SYSTEM_PROMPT
-        )
+        logger.info("Initializing Groq chat completion...")
         
-        # Build user message
-        user_prompt = f"User message: {message}"
+        # Build user message content
+        user_content = f"User message: {message}"
         if context:
-            user_prompt += f"\nUser role: {context.get('user_role', 'customer')}"
-            user_prompt += f"\nLocale: {context.get('locale', 'en-IN')}"
+            user_content += f"\nUser role: {context.get('user_role', 'customer')}"
+            user_content += f"\nLocale: {context.get('locale', 'en-IN')}"
         
-        # Prepare content for API call
-        content = []
+        messages = [
+            {"role": "system", "content": SYSTEM_PROMPT}
+        ]
         
-        # Add text
-        content.append(user_prompt)
-        
-        # Add image if provided
+        # Determine model and format messages based on image presence
         if image_base64:
-            try:
-                import base64
-                # Handle base64 with data URI prefix
+            # Use multimodal model
+            model_name = "llama-3.2-11b-vision-preview"
+            
+            # Format image string for Groq Requirements (data:image/jpeg;base64,...)
+            if not image_base64.startswith("data:image"):
+                # Clean any non-standard prefixes
                 if "," in image_base64:
                     image_base64 = image_base64.split(",")[1]
+                image_url = f"data:image/jpeg;base64,{image_base64}"
+            else:
+                image_url = image_base64
                 
-                image_data = base64.b64decode(image_base64)
-                
-                # Add image to content
-                content.append({
-                    "mime_type": "image/jpeg",
-                    "data": image_data
-                })
-                logger.info(f"Image added to request: {len(image_data)} bytes")
-            except Exception as e:
-                logger.error(f"❌ Failed to process image: {str(e)}")
-                # Continue without image
+            messages.append({
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": user_content},
+                    {
+                        "type": "image_url",
+                        "image_url": {"url": image_url}
+                    }
+                ]
+            })
+            logger.info("Image added to Groq vision request")
+        else:
+            # Use high-performance text model
+            model_name = "llama-3.3-70b-versatile"
+            messages.append({
+                "role": "user",
+                "content": user_content
+            })
         
-        # Call Gemini API
-        logger.info(f"📞 Calling Gemini API with message: {message[:50]}...")
-        response = model.generate_content(content)
+        # Call API
+        logger.info(f"📞 Calling Groq model {model_name} with message: {message[:50]}...")
+        chat_completion = groq_client.chat.completions.create(
+            messages=messages,
+            model=model_name,
+            response_format={"type": "json_object"},
+            temperature=0.2, # Low temperature for reliable JSON
+        )
         
         # Extract response text
-        response_text = response.text.strip()
-        logger.info(f"✅ Gemini response received: {len(response_text)} chars")
-        
-        # Remove markdown code blocks if present
-        if response_text.startswith("```json"):
-            response_text = response_text.replace("```json\n", "").replace("\n```", "")
-        elif response_text.startswith("```"):
-            response_text = response_text.replace("```\n", "").replace("\n```", "")
+        response_text = chat_completion.choices[0].message.content.strip()
+        logger.info(f"✅ Groq response received: {len(response_text)} chars")
         
         # Parse JSON response
         logger.info("Parsing JSON response...")
@@ -283,15 +290,15 @@ def call_gemini_api(
             if not isinstance(vision.get("visible_damage"), list):
                 vision["visible_damage"] = []
         
-        logger.info(f"✅ Gemini success: intent={result.get('intent')}, urgency={result.get('urgency')}")
+        logger.info(f"✅ Groq success: intent={result.get('intent')}, urgency={result.get('urgency')}")
         return result
     
     except json.JSONDecodeError as e:
-        logger.error(f"❌ Failed to parse JSON from Gemini: {str(e)}")
+        logger.error(f"❌ Failed to parse JSON from AI: {str(e)}")
         logger.error(f"Response was: {response_text[:200]}")
         return get_fallback_response()
     except Exception as e:
-        logger.error(f"❌ Gemini API call failed: {str(e)}", exc_info=True)
+        logger.error(f"❌ AI API call failed: {str(e)}", exc_info=True)
         return get_fallback_response()
 
 
@@ -302,13 +309,13 @@ def call_gemini_api(
 @router.post("/chat", response_model=dict)
 async def ai_help_chat(req: ChatRequest):
     """
-    FLEX AI - Intelligent generative chat endpoint using Gemini.
+    FLEX AI - Intelligent generative chat endpoint using Groq.
     
     Supports:
-    - Text-only messages
-    - Image analysis via Gemini Vision
+    - Text-only messages (llama-3.3-70b-versatile)
+    - Image analysis via Vision (llama-3.2-11b-vision-preview)
     - Structured JSON responses matching schema
-    - Fallback responses if Gemini fails
+    - Fallback responses if Groq fails
     
     Args:
         req: ChatRequest containing message, optional image, and context
@@ -318,8 +325,8 @@ async def ai_help_chat(req: ChatRequest):
     """
     context_dict = req.context.dict() if req.context else {}
     
-    # Call Gemini AI engine
-    result = call_gemini_api(
+    # Call AI engine
+    result = call_ai_api(
         message=req.message,
         image_base64=req.image_base64,
         context=context_dict
@@ -362,7 +369,7 @@ def lambda_handler(event, context):
         image_base64 = event.get("image_base64")
         chat_context = event.get("context", {})
         
-        result = call_gemini_api(message, image_base64, chat_context)
+        result = call_ai_api(message, image_base64, chat_context)
         
         return {
             "statusCode": 200,

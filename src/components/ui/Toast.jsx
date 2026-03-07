@@ -25,6 +25,12 @@ const toastConfig = {
     icon: '⚠',
     bg: 'bg-white'
   },
+  error: {
+    gradient: 'from-red-500 to-rose-600',
+    border: 'border-red-400',
+    icon: '✕',
+    bg: 'bg-white'
+  },
 }
 
 const Toast = ({ toast, onClear }) => {

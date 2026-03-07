@@ -1,4 +1,4 @@
-# AWS Cognito Migration Guide
+﻿# AWS Cognito Migration Guide
 
 ## ✅ Migration Complete
 
@@ -77,7 +77,7 @@ Your authentication system has been successfully migrated from Google OAuth to *
 ```bash
 # Via AWS Console or CLI
 aws cognito-idp create-user-pool \
-  --pool-name fieldfix-users \
+  --pool-name Fyxion-users \
   --policies "PasswordPolicy={MinimumLength=8,RequireUppercase=true,RequireLowercase=true,RequireNumbers=true}" \
   --auto-verified-attributes email \
   --username-attributes email \
@@ -91,7 +91,7 @@ aws cognito-idp create-user-pool \
 ```bash
 aws cognito-idp create-user-pool-client \
   --user-pool-id us-east-1_XXXXXXXXX \
-  --client-name fieldfix-web-client \
+  --client-name Fyxion-web-client \
   --generate-secret \
   --explicit-auth-flows ALLOW_REFRESH_TOKEN_AUTH ALLOW_USER_PASSWORD_AUTH ALLOW_USER_SRP_AUTH \
   --region us-east-1
@@ -150,12 +150,12 @@ aws cognito-idp create-group \
 ```bash
 # Set up Cognito Hosted UI domain
 aws cognito-idp create-user-pool-domain \
-  --domain fieldfix-auth \
+  --domain Fyxion-auth \
   --user-pool-id us-east-1_XXXXXXXXX \
   --region us-east-1
 ```
 
-**Hosted UI URL:** `https://fieldfix-auth.auth.us-east-1.amazoncognito.com`
+**Hosted UI URL:** `https://Fyxion-auth.auth.us-east-1.amazoncognito.com`
 
 ---
 
@@ -358,7 +358,7 @@ Amplify.configure({
     userPoolId: 'us-east-1_XXXXXXXXX',
     userPoolWebClientId: 'your-app-client-id',
     oauth: {
-      domain: 'fieldfix-auth.auth.us-east-1.amazoncognito.com',
+      domain: 'Fyxion-auth.auth.us-east-1.amazoncognito.com',
       redirectSignIn: 'http://localhost:5173/',
       redirectSignOut: 'http://localhost:5173/',
       responseType: 'code',
@@ -389,7 +389,7 @@ const idToken = session.getIdToken().getJwtToken();
 
 ```javascript
 // Redirect to Cognito Hosted UI
-const cognitoLoginUrl = `https://fieldfix-auth.auth.us-east-1.amazoncognito.com/login?client_id=your-app-client-id&response_type=code&redirect_uri=http://localhost:5173/callback`;
+const cognitoLoginUrl = `https://Fyxion-auth.auth.us-east-1.amazoncognito.com/login?client_id=your-app-client-id&response_type=code&redirect_uri=http://localhost:5173/callback`;
 
 window.location.href = cognitoLoginUrl;
 ```

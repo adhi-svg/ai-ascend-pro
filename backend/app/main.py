@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Request, Depends
+﻿from fastapi import FastAPI, HTTPException, Request, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
@@ -9,6 +9,7 @@ from app.stores.seed import seed_categories, seed_demo_data
 from app.core.deps import get_current_user
 from app.core.database import init_db
 from app.utils.responses import error_response
+from app.core.config import get_cors_origins
 from pathlib import Path
 import logging
 
@@ -16,22 +17,15 @@ logger = logging.getLogger(__name__)
 
 # Create FastAPI app
 app = FastAPI(
-    title="FieldFix Backend",
+    title="Fyxion Backend",
     description="Home Services Backend API",
     version="2.0.0",
 )
 
-# CORS middleware - allow both frontends
+# CORS middleware - allow both frontends + configurable production origins
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173", 
-        "http://127.0.0.1:5173",
-        "http://localhost:5174",
-        "http://127.0.0.1:5174",
-        "http://0.0.0.0:5173",
-        "http://0.0.0.0:5174"
-    ],
+    allow_origins=get_cors_origins(),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -78,6 +72,7 @@ async def aws_status():
     from app.core.config import settings
     from app.utils.s3_manager import s3_manager
     from app.utils.sns_manager import sns_manager
+    from app.utils.dynamodb_manager import dynamodb_manager
     
     status = {
         "database": {
@@ -136,6 +131,14 @@ async def aws_status():
     except Exception as e:
         status["database"]["connection"] = f"❌ Error: {str(e)}"
     
+    # DynamoDB status
+    status["dynamodb"] = {
+        "enabled": settings.ENABLE_DYNAMODB,
+        "table_prefix": settings.AWS_DYNAMODB_TABLE_PREFIX,
+        "has_credentials": bool(settings.AWS_ACCESS_KEY_ID),
+        **dynamodb_manager.health_check(),
+    }
+    
     return {"status": "ok", "services": status}
 
 @app.get("/auth/google/callback")
@@ -172,6 +175,16 @@ async def startup_event():
         seed_categories()
         seed_demo_data()
         logger.info("✓ Database initialized successfully")
+        
+        # Initialize DynamoDB tables if enabled
+        try:
+            from app.utils.dynamodb_manager import dynamodb_manager
+            if dynamodb_manager.enabled:
+                dynamodb_manager.ensure_tables()
+                logger.info("✓ DynamoDB tables initialized")
+        except Exception as e:
+            logger.warning(f"DynamoDB init skipped: {e}")
+        
         logger.info("✓ App started successfully")
     except Exception as e:
         logger.error(f"Startup failed: {str(e)}")

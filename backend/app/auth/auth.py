@@ -49,8 +49,8 @@ def create_access_token(data: Dict[str, Any], expires_delta: Optional[timedelta]
 def verify_token(token: str) -> Dict[str, Any]:
     """Verify token and return payload.
 
-    NOTE: This function is intentionally isolated so you can later replace
-    its internals with AWS Cognito/JWKS verification without changing callers.
+    If Cognito is configured, delegates to CognitoVerifier for RS256/JWKS
+    verification.  Otherwise, uses local HS256 JWT verification.
     """
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -58,6 +58,27 @@ def verify_token(token: str) -> Dict[str, Any]:
         headers={"WWW-Authenticate": "Bearer"},
     )
 
+    # ── Cognito path (RS256 / JWKS) ────────────────────────────
+    try:
+        from .cognito_verifier import cognito_verifier
+
+        if cognito_verifier.is_configured:
+            try:
+                payload = cognito_verifier.verify_token(token)
+                user_info = cognito_verifier.extract_user_info(payload)
+                # Return in the same format as local JWT
+                return {
+                    "sub": user_info["id"],
+                    "email": user_info.get("email", ""),
+                    "role": user_info.get("role", "Citizen"),
+                    "is_active": user_info.get("is_active", True),
+                }
+            except Exception:
+                raise credentials_exception
+    except ImportError:
+        pass  # cognito_verifier not available, use local JWT
+
+    # ── Local JWT path (HS256) ─────────────────────────────────
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
     except JWTError:

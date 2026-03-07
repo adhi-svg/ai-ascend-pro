@@ -1,6 +1,6 @@
-# FIXORA — AWS Services Setup Guide
+﻿# FYXION — AWS Services Setup Guide
 
-**Purpose**: Step-by-step guide to configure all AWS services for FIXORA.  
+**Purpose**: Step-by-step guide to configure all AWS services for FYXION.  
 **Date**: March 2026  
 **Status**: Code is ready — only credential configuration needed.
 
@@ -36,7 +36,7 @@ https://console.aws.amazon.com/iam/
 
 ### 1.2 Create a New User
 1. Click **Users** → **Create user**
-2. User name: `fixora-backend`
+2. User name: `fyxion-backend`
 3. Check **Provide user access to the AWS Management Console** (optional)
 4. Click **Next**
 
@@ -68,7 +68,7 @@ AWS_REGION=ap-south-1
 ### 2.1 Create S3 Bucket
 1. Go to [S3 Console](https://s3.console.aws.amazon.com/)
 2. Click **Create bucket**
-3. Bucket name: `fixora-uploads` (must be globally unique, try `fixora-uploads-yourname`)
+3. Bucket name: `fyxion-uploads` (must be globally unique, try `fyxion-uploads-yourname`)
 4. Region: `ap-south-1` (Asia Pacific - Mumbai) or your preferred region
 5. **Uncheck** "Block all public access" (for document URLs to work)
 6. Acknowledge the warning
@@ -85,12 +85,12 @@ Go to bucket → **Permissions** → **Bucket policy** → Paste:
             "Effect": "Allow",
             "Principal": "*",
             "Action": "s3:GetObject",
-            "Resource": "arn:aws:s3:::fixora-uploads-yourname/*"
+            "Resource": "arn:aws:s3:::fyxion-uploads-yourname/*"
         }
     ]
 }
 ```
-> Replace `fixora-uploads-yourname` with your actual bucket name.
+> Replace `fyxion-uploads-yourname` with your actual bucket name.
 
 ### 2.3 Create Folder Structure
 Inside the bucket, create these folders:
@@ -115,7 +115,7 @@ Go to bucket → **Permissions** → **CORS** → Paste:
 
 ### 2.5 Update `.env`
 ```env
-AWS_S3_BUCKET_NAME=fixora-uploads-yourname
+AWS_S3_BUCKET_NAME=fyxion-uploads-yourname
 ENABLE_S3_UPLOAD=True
 ```
 
@@ -133,9 +133,9 @@ Restart backend and check logs:
 1. Go to [SNS Console](https://console.aws.amazon.com/sns/)
 2. Click **Topics** → **Create topic**
 3. Type: **Standard**
-4. Name: `fixora-emergency-alerts`
+4. Name: `fyxion-emergency-alerts`
 5. Click **Create topic**
-6. **Copy the Topic ARN** (looks like `arn:aws:sns:ap-south-1:123456789012:fixora-emergency-alerts`)
+6. **Copy the Topic ARN** (looks like `arn:aws:sns:ap-south-1:123456789012:fyxion-emergency-alerts`)
 
 ### 3.2 Create Email Subscription (for Admin Alerts)
 1. Click the topic → **Create subscription**
@@ -150,7 +150,7 @@ Restart backend and check logs:
 
 ### 3.4 Update `.env`
 ```env
-AWS_SNS_TOPIC_ARN=arn:aws:sns:ap-south-1:123456789012:fixora-emergency-alerts
+AWS_SNS_TOPIC_ARN=arn:aws:sns:ap-south-1:123456789012:fyxion-emergency-alerts
 ENABLE_SNS_ALERTS=True
 ```
 
@@ -172,8 +172,8 @@ Restart backend and check logs:
    - Version: **15.x** (latest stable)
    - Template: **Free tier** (for dev/testing)
 4. Settings:
-   - DB instance identifier: `fixora-db`
-   - Master username: `fixora_admin`
+   - DB instance identifier: `fyxion-db`
+   - Master username: `fyxion_admin`
    - Master password: Choose a strong password
 5. Instance configuration:
    - Class: `db.t3.micro` (Free tier)
@@ -183,7 +183,7 @@ Restart backend and check logs:
    - Public access: **Yes** (for development; **No** for production)
    - Security group: Create new or use existing
 7. Additional configuration:
-   - Initial database name: `fixora`
+   - Initial database name: `fyxion`
 8. Click **Create database**
 
 ### 4.2 Configure Security Group
@@ -196,11 +196,11 @@ Restart backend and check logs:
 
 ### 4.3 Get Connection Endpoint
 1. Go to RDS instance details
-2. Copy the **Endpoint** (looks like `fixora-db.c1234abcde.ap-south-1.rds.amazonaws.com`)
+2. Copy the **Endpoint** (looks like `fyxion-db.c1234abcde.ap-south-1.rds.amazonaws.com`)
 
 ### 4.4 Update `.env`
 ```env
-DATABASE_URL=postgresql://fixora_admin:YOUR_PASSWORD@fixora-db.c1234abcde.ap-south-1.rds.amazonaws.com:5432/fixora
+DATABASE_URL=postgresql://fyxion_admin:YOUR_PASSWORD@fyxion-db.c1234abcde.ap-south-1.rds.amazonaws.com:5432/fyxion
 ```
 
 ### 4.5 Initialize Database
@@ -213,7 +213,7 @@ After updating DATABASE_URL, restart backend — it auto-creates all 7 tables:
 ### 4.6 Verify Connection
 ```bash
 # Test with psql (optional)
-psql -h fixora-db.c1234abcde.ap-south-1.rds.amazonaws.com -U fixora_admin -d fixora
+psql -h fyxion-db.c1234abcde.ap-south-1.rds.amazonaws.com -U fyxion_admin -d fyxion
 ```
 
 ---
@@ -226,12 +226,12 @@ psql -h fixora-db.c1234abcde.ap-south-1.rds.amazonaws.com -U fixora_admin -d fix
 3. Sign-in options: **Phone number** + **Email**
 4. Password policy: Customize as needed
 5. MFA: **Optional** (recommended for production)
-6. User pool name: `fixora-users`
+6. User pool name: `fyxion-users`
 7. Click **Create user pool**
 
 ### 5.2 Create App Client
 1. Go to user pool → **App integration** → **Create app client**
-2. App client name: `fixora-backend`
+2. App client name: `fyxion-backend`
 3. Authentication flows: `ALLOW_USER_PASSWORD_AUTH`, `ALLOW_REFRESH_TOKEN_AUTH`
 4. Click **Create app client**
 5. Copy **Client ID**
@@ -261,7 +261,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES=1440
 DEBUG=False
 
 # Database (PostgreSQL on RDS)
-DATABASE_URL=postgresql://fixora_admin:YourPassword@fixora-db.xxx.ap-south-1.rds.amazonaws.com:5432/fixora
+DATABASE_URL=postgresql://fyxion_admin:YourPassword@fyxion-db.xxx.ap-south-1.rds.amazonaws.com:5432/fyxion
 
 # Google OAuth
 GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
@@ -281,11 +281,11 @@ AWS_SECRET_ACCESS_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
 AWS_REGION=ap-south-1
 
 # AWS S3
-AWS_S3_BUCKET_NAME=fixora-uploads-yourname
+AWS_S3_BUCKET_NAME=fyxion-uploads-yourname
 ENABLE_S3_UPLOAD=True
 
 # AWS SNS
-AWS_SNS_TOPIC_ARN=arn:aws:sns:ap-south-1:123456789012:fixora-emergency-alerts
+AWS_SNS_TOPIC_ARN=arn:aws:sns:ap-south-1:123456789012:fyxion-emergency-alerts
 ENABLE_SNS_ALERTS=True
 
 # AWS Cognito (optional)

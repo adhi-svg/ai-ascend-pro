@@ -1,4 +1,4 @@
-# FIXORA — Setup & Deployment Guide
+﻿# FYXION — Setup & Deployment Guide
 
 **Version**: 2.0.0 | **Last Updated**: March 2026
 
@@ -60,7 +60,7 @@ npm install && npm run dev
 ## Project Structure
 
 ```
-fixora/
+fyxion/
 ├── src/                          # Customer Frontend (React)
 │   ├── components/
 │   │   ├── cards/                # ServiceCategoryCard, TechnicianCard, etc.
@@ -269,7 +269,7 @@ DEBUG=True
 
 # Database (default: SQLite)
 DATABASE_URL=sqlite:///./test.db
-# Production: postgresql://user:password@host:5432/fixora
+# Production: postgresql://user:password@host:5432/fyxion
 
 # Google OAuth
 GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
@@ -320,10 +320,10 @@ COGNITO_APP_CLIENT_ID=
 ### 1. RDS PostgreSQL
 ```bash
 aws rds create-db-instance \
-  --db-instance-identifier fixora-db \
+  --db-instance-identifier fyxion-db \
   --db-instance-class db.t3.micro \
   --engine postgres \
-  --master-username fixora_admin \
+  --master-username fyxion_admin \
   --master-user-password YourSecurePassword \
   --allocated-storage 20
 ```
@@ -332,11 +332,11 @@ aws rds create-db-instance \
 Create bucket with folders: `documents/`, `images/`, `complaints/`
 
 ### 3. SNS Topic
-Create topic: `fixora-emergency-alerts`
+Create topic: `fyxion-emergency-alerts`
 
 ### 4. Update .env for Production
 ```env
-DATABASE_URL=postgresql://user:pass@fixora-db.xxx.rds.amazonaws.com:5432/fixora
+DATABASE_URL=postgresql://user:pass@fyxion-db.xxx.rds.amazonaws.com:5432/fyxion
 ENABLE_S3_UPLOAD=True
 ENABLE_SNS_ALERTS=True
 DEBUG=False
@@ -372,10 +372,10 @@ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
 
 ### Build & Push to ECR
 ```bash
-docker build -t fixora-backend:latest .
-docker tag fixora-backend:latest <account>.dkr.ecr.us-east-1.amazonaws.com/fixora-backend:latest
+docker build -t fyxion-backend:latest .
+docker tag fyxion-backend:latest <account>.dkr.ecr.us-east-1.amazonaws.com/fyxion-backend:latest
 aws ecr get-login-password | docker login --username AWS --password-stdin <account>.dkr.ecr.us-east-1.amazonaws.com
-docker push <account>.dkr.ecr.us-east-1.amazonaws.com/fixora-backend:latest
+docker push <account>.dkr.ecr.us-east-1.amazonaws.com/fyxion-backend:latest
 ```
 
 ---

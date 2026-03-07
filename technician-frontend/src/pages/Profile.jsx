@@ -1,4 +1,4 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { useAuth } from '../context/AuthContext.jsx'
 import { useTechApp } from '../context/TechAppContext.jsx'
 import Button from '../components/ui/Button.jsx'
@@ -49,7 +49,7 @@ export default function Profile() {
 
       <Card className="p-6">
         <div className="flex items-center gap-4">
-          <img src={technicianPhoto} alt="TechFlow" className="h-14 w-14 rounded-full object-cover" />
+          <img src={technicianPhoto} alt="Fyxion" className="h-14 w-14 rounded-full object-cover" />
           <div>
             <p className="text-lg font-semibold text-brand-primary">{user?.name}</p>
             <p className="text-sm text-brand-text-secondary">{user?.serviceArea}</p>

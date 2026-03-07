@@ -1,4 +1,4 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 
 export default function StepAgreement({ formData, updateFormData, errors, onSubmit }) {
   const [acceptTerms, setAcceptTerms] = useState(false)
@@ -34,14 +34,14 @@ export default function StepAgreement({ formData, updateFormData, errors, onSubm
           <div>
             <h4 className="font-semibold text-[#1E3A5F] mb-2">1. Service Commitment</h4>
             <p className="text-xs">
-              As a Fixora partner, you agree to provide services professionally and maintain high quality standards. You must respond to service requests within the agreed timeframe and complete jobs as committed.
+              As a Fyxion partner, you agree to provide services professionally and maintain high quality standards. You must respond to service requests within the agreed timeframe and complete jobs as committed.
             </p>
           </div>
 
           <div>
             <h4 className="font-semibold text-[#1E3A5F] mb-2">2. Pricing & Payments</h4>
             <p className="text-xs">
-              All service charges must be transparent and agreed upon with customers before starting work. Fixora will process payments within 5-7 business days after service completion and customer confirmation.
+              All service charges must be transparent and agreed upon with customers before starting work. Fyxion will process payments within 5-7 business days after service completion and customer confirmation.
             </p>
           </div>
 
@@ -69,7 +69,7 @@ export default function StepAgreement({ formData, updateFormData, errors, onSubm
           <div>
             <h4 className="font-semibold text-[#1E3A5F] mb-2">6. Account Termination</h4>
             <p className="text-xs">
-              Fixora reserves the right to suspend or terminate accounts for violation of terms, repeated customer complaints, or fraudulent activities.
+              Fyxion reserves the right to suspend or terminate accounts for violation of terms, repeated customer complaints, or fraudulent activities.
             </p>
           </div>
         </div>
@@ -83,7 +83,7 @@ export default function StepAgreement({ formData, updateFormData, errors, onSubm
             className="mt-1 h-5 w-5 rounded border-gray-300 text-[#E6A11A] focus:ring-[#E6A11A] cursor-pointer"
           />
           <span className="text-sm text-gray-700">
-            I have read and agree to the <span className="font-semibold text-[#1E3A5F]">Fixora Partner Terms & Conditions</span>
+            I have read and agree to the <span className="font-semibold text-[#1E3A5F]">Fyxion Partner Terms & Conditions</span>
             <span className="text-red-500 ml-1">*</span>
           </span>
         </label>

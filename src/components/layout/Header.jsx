@@ -1,4 +1,4 @@
-import { Link, useLocation, useNavigate } from 'react-router-dom'
+﻿import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useApp } from '../../context/AppContext'
 import Button from '../ui/Button'
 
@@ -22,9 +22,9 @@ const Header = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 flex-shrink-0">
             <span className="flex items-center justify-center rounded-xl bg-[#CFEDEE] p-1 shadow-sm">
-              <img src="/logo.png" alt="FIXORA" className="w-12 h-12 object-contain" />
+              <img src="/logo.png" alt="FYXION" className="w-12 h-12 object-contain" />
             </span>
-            <span className="text-lg font-bold tracking-wide hidden sm:inline">FIXORA</span>
+            <span className="text-lg font-bold tracking-wide hidden sm:inline">FYXION</span>
           </Link>
           
           {/* Navigation Menu - Only on splash/home */}
@@ -80,9 +80,9 @@ const Header = () => {
             className="flex items-center gap-2 justify-center"
           >
             <span className="flex items-center justify-center rounded-xl bg-[#CFEDEE] p-1 shadow-sm">
-              <img src="/logo.png" alt="FIXORA" className="w-8 h-8 object-contain" />
+              <img src="/logo.png" alt="FYXION" className="w-8 h-8 object-contain" />
             </span>
-            <span className="text-lg font-bold tracking-[0.2em] uppercase text-[#1E3A5F]">FIXORA</span>
+            <span className="text-lg font-bold tracking-[0.2em] uppercase text-[#1E3A5F]">FYXION</span>
           </Link>
         </div>
       </header>

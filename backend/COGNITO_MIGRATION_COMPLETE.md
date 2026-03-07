@@ -1,4 +1,4 @@
-# ✅ AWS Cognito Migration - Complete Summary
+﻿# ✅ AWS Cognito Migration - Complete Summary
 
 ## Status: Migration Complete ✅
 
@@ -75,13 +75,13 @@ All tests passed ✅:
 ```bash
 # Create User Pool
 aws cognito-idp create-user-pool \
-  --pool-name fieldfix-users \
+  --pool-name Fyxion-users \
   --region us-east-1
 
 # Create App Client
 aws cognito-idp create-user-pool-client \
   --user-pool-id us-east-1_XXXXXXXXX \
-  --client-name fieldfix-client \
+  --client-name Fyxion-client \
   --region us-east-1
 
 # Create Groups

@@ -1,6 +1,6 @@
-# FIXORA — Remaining Work & Balance Items Checklist
+﻿# FYXION — Remaining Work & Balance Items Checklist
 
-**Project:** FIXORA – Professional Technician Services Platform  
+**Project:** FYXION – Professional Technician Services Platform  
 **Date:** March 6, 2026  
 **Analyzed by:** Full project audit across all 3 apps (Customer, Technician, Backend)
 
@@ -25,7 +25,7 @@
 |---|---|---|---|
 | Customer login | Uses backend API (`/auth/login`) | ✅ Wired to backend | Done |
 | Technician login | **Mock token** (`tech_mock_token_12345`) hardcoded in `AuthContext.jsx` | Wire to real backend JWT auth | 🔴 Critical |
-| Admin login | **localStorage flag** (`fixora_admin_session`) | Wire to backend admin auth with proper RBAC | 🔴 Critical |
+| Admin login | **localStorage flag** (`fyxion_admin_session`) | Wire to backend admin auth with proper RBAC | 🔴 Critical |
 | Google OAuth callback | Partially implemented, redirects exist | Test end-to-end, fix redirect URI mismatches | 🔴 Critical |
 | JWT token refresh | Not implemented anywhere | Add token refresh mechanism or re-auth flow | 🟡 High |
 | Password hashing | Uses `passlib[bcrypt]` on backend | Verify bcrypt version compatibility (pinned to 3.2.2) | 🟡 High |

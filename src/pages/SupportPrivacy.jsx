@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom'
+﻿import { useNavigate } from 'react-router-dom'
 
 const SupportPrivacy = () => {
   const navigate = useNavigate()
@@ -21,7 +21,7 @@ const SupportPrivacy = () => {
       </div>
 
       <div className="glass-panel rounded-2xl p-6 bg-white border border-slate-100 shadow-md space-y-4 text-slate-800">
-        <p className="text-sm">Your privacy is important to us. This Privacy Policy explains how FIXORA collects, uses, and protects your information.</p>
+        <p className="text-sm">Your privacy is important to us. This Privacy Policy explains how FYXION collects, uses, and protects your information.</p>
 
         <ol className="list-decimal list-inside space-y-3">
           <li>

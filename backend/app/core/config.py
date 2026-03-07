@@ -23,12 +23,15 @@ class Settings(BaseSettings):
     COGNITO_JWKS_URL: Optional[str] = None  # Auto-generated if not provided
     
     # Google OAuth (legacy - will be federated through Cognito)
-    GOOGLE_CLIENT_ID: str = ""
-    GOOGLE_CLIENT_SECRET: str = ""
-    GOOGLE_MAPS_API_KEY: str = ""
+    GOOGLE_CLIENT_ID: Optional[str] = None
+    GOOGLE_CLIENT_SECRET: Optional[str] = None
+    GOOGLE_MAPS_API_KEY: Optional[str] = None
     
     # Google Gemini AI
-    GOOGLE_API_KEY: str = ""
+    GOOGLE_API_KEY: Optional[str] = None
+    
+    # Groq (FLEX AI)
+    GROQ_API_KEY: Optional[str] = None
     
     # Facebook OAuth
     FACEBOOK_APP_ID: str = ""
@@ -48,6 +51,14 @@ class Settings(BaseSettings):
     # Feature Flags
     ENABLE_S3_UPLOAD: bool = False
     ENABLE_SNS_ALERTS: bool = False
+    ENABLE_DYNAMODB: bool = False
+    
+    # DynamoDB
+    AWS_DYNAMODB_TABLE_PREFIX: str = "fyxion_"
+    
+    # Deployment
+    BACKEND_URL: str = "http://localhost:8000"
+    ALLOWED_ORIGINS: str = ""  # Comma-separated, falls back to localhost defaults
     
     model_config = SettingsConfigDict(
         env_file=str(Path(__file__).parent.parent.parent / ".env"),
@@ -75,4 +86,21 @@ print(f"[CONFIG] AWS Cognito configured: {bool(settings.COGNITO_USER_POOL_ID and
 print(f"[CONFIG] Google Client ID loaded: {bool(settings.GOOGLE_CLIENT_ID)}")
 print(f"[CONFIG] AWS S3 enabled: {settings.ENABLE_S3_UPLOAD}")
 print(f"[CONFIG] AWS SNS enabled: {settings.ENABLE_SNS_ALERTS}")
+print(f"[CONFIG] AWS DynamoDB enabled: {settings.ENABLE_DYNAMODB}")
+
+
+def get_cors_origins() -> list:
+    """Get CORS origins from settings, with localhost defaults."""
+    defaults = [
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "http://localhost:5174",
+        "http://127.0.0.1:5174",
+        "http://0.0.0.0:5173",
+        "http://0.0.0.0:5174",
+    ]
+    if settings.ALLOWED_ORIGINS:
+        extra = [o.strip() for o in settings.ALLOWED_ORIGINS.split(",") if o.strip()]
+        return list(set(defaults + extra))
+    return defaults
 

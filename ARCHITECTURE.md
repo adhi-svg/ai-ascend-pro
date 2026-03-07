@@ -1,4 +1,4 @@
-# FIXORA — Architecture & System Design
+﻿# FYXION — Architecture & System Design
 
 **Version**: 2.0.0 | **Last Updated**: March 2026
 
@@ -21,7 +21,7 @@
 
 ```
 ┌───────────────────────────────────────────────────────────────┐
-│                    FIXORA Backend v2.0 (FastAPI + SQLAlchemy)  │
+│                    FYXION Backend v2.0 (FastAPI + SQLAlchemy)  │
 └───────────────────────────────────────────────────────────────┘
 
 ┌──────────────────┐   ┌──────────────────┐   ┌──────────────┐
@@ -264,8 +264,8 @@ AWS Cloud
 ```json
 {
   "Statement": [
-    { "Action": ["s3:PutObject","s3:GetObject","s3:DeleteObject"], "Resource": "arn:aws:s3:::fixora-uploads/*" },
-    { "Action": ["sns:Publish"], "Resource": "arn:aws:sns:*:*:fixora-alerts" },
+    { "Action": ["s3:PutObject","s3:GetObject","s3:DeleteObject"], "Resource": "arn:aws:s3:::fyxion-uploads/*" },
+    { "Action": ["sns:Publish"], "Resource": "arn:aws:sns:*:*:fyxion-alerts" },
     { "Action": ["logs:CreateLogGroup","logs:CreateLogStream","logs:PutLogEvents"], "Resource": "*" }
   ]
 }

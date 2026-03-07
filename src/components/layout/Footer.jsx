@@ -1,13 +1,13 @@
-const Footer = () => {
+﻿const Footer = () => {
   return (
     <footer className="border-t border-[#E6A11A]/20 bg-gradient-to-r from-[#1E3A5F] to-[#2E5A8F] backdrop-blur">
       <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-8 md:flex-row md:items-center md:justify-between">
         <div className="flex items-center gap-3">
           <span className="flex items-center justify-center rounded-xl bg-[#CFEDEE] p-1 shadow-sm">
-            <img src="/logo.png" alt="FIXORA" className="w-8 h-8 object-contain" />
+            <img src="/logo.png" alt="FYXION" className="w-8 h-8 object-contain" />
           </span>
           <div>
-            <p className="font-bold text-white text-lg">FIXORA</p>
+            <p className="font-bold text-white text-lg">FYXION</p>
             <p className="text-xs text-white/70">Your Trusted Technician Partner</p>
           </div>
         </div>
@@ -17,7 +17,7 @@ const Footer = () => {
           <a href="/support/terms" className="text-sm hover:text-[#E6A11A] transition-colors">Terms</a>
           <a href="/support/contact" className="text-sm hover:text-[#E6A11A] transition-colors">Contact</a>
         </div>
-        <p className="text-xs text-white/60">© 2026 FIXORA. All rights reserved.</p>
+        <p className="text-xs text-white/60">© 2026 FYXION. All rights reserved.</p>
       </div>
     </footer>
   )

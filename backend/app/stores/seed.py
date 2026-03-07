@@ -1,4 +1,4 @@
-from app.core.database import SessionLocal, init_db
+﻿from app.core.database import SessionLocal, init_db
 from app.models import Category, User, Technician, UserRoleEnum, TechnicianStatusEnum, Booking, BookingStatusEnum
 from app.core.security import hash_password
 import json
@@ -39,7 +39,7 @@ def seed_demo_data():
                 phone="1234567890",
                 password_hash=hash_password("admin123"),
                 name="System Admin",
-                email="admin@fixora.com",
+                email="admin@fyxion.com",
                 role=UserRoleEnum.ADMIN
             )
             db.add(admin)

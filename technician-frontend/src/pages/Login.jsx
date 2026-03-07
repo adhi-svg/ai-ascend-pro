@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
 
@@ -18,6 +18,42 @@ export default function Login() {
       navigate(-1)
     } else {
       navigate('/')
+    }
+  }
+
+  const handleGoogleLogin = async () => {
+    try {
+      setError('')
+      setLoading(true)
+
+      const response = await fetch('http://localhost:8000/api/v1/auth/google/login?role=technician', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (!response.ok) {
+        setError(`Server error: ${response.status}. Please check if backend is running.`)
+        setLoading(false)
+        return
+      }
+
+      const data = await response.json()
+
+      if (!data?.data?.auth_url) {
+        setError('Google OAuth is not configured. Please contact support.')
+        setLoading(false)
+        return
+      }
+
+      const state = crypto.randomUUID()
+      sessionStorage.setItem('oauth_state', state)
+
+      window.location.href = `${data.data.auth_url}&state=${encodeURIComponent(state)}`
+    } catch (err) {
+      setError(`Failed to start Google login: ${err.message}. Please try again.`)
+      setLoading(false)
     }
   }
 
@@ -84,7 +120,7 @@ export default function Login() {
         </div>
         <div className="text-center">
           <span className="mx-auto mb-4 flex w-fit items-center justify-center rounded-3xl bg-[#CFEDEE] p-3 shadow-[0_20px_60px_rgba(30,58,95,0.15)]">
-            <img src={DEMO_TECH_PHOTO} alt="Field Fix" className="h-20 w-20 rounded-2xl object-cover" />
+            <img src={DEMO_TECH_PHOTO} alt="Fyxion" className="h-20 w-20 rounded-2xl object-cover" />
           </span>
           <p className="text-xs uppercase tracking-[0.4em] text-[#1E3A5F]/70 font-semibold">Technician Access</p>
         </div>
@@ -158,6 +194,7 @@ export default function Login() {
 
               <button
                 type="button"
+                onClick={handleGoogleLogin}
                 className="flex w-full items-center justify-center gap-3 rounded-full border border-gray-200 px-6 py-3 text-sm font-semibold text-[#1E3A5F] transition-all hover:border-[#E6A11A]"
               >
                 <svg className="h-5 w-5" viewBox="0 0 24 24" aria-hidden="true">

@@ -1,10 +1,10 @@
-# FIXORA - Professional Technician Services
+﻿# FYXION - Professional Technician Services
 
-Production-ready React application for **FIXORA**, a modern technician service platform connecting customers with verified local professionals. Built with React 18, Vite, and Tailwind CSS.
+Production-ready React application for **FYXION**, a modern technician service platform connecting customers with verified local professionals. Built with React 18, Vite, and Tailwind CSS.
 
 ## 🚀 Modern Startup Platform
 
-**FIXORA** - "A smooth way to get things fixed" is a professional-grade service marketplace designed for the modern economy. Connect with skilled technicians for electrical, plumbing, appliance repair, and more.
+**FYXION** - "A smooth way to get things fixed" is a professional-grade service marketplace designed for the modern economy. Connect with skilled technicians for electrical, plumbing, appliance repair, and more.
 
 ## ✨ Key Features
 - **Professional Design** - Modern, clean UI with startup-grade aesthetics
@@ -41,4 +41,4 @@ Production-ready React application for **FIXORA**, a modern technician service p
 ## Notes
 - OTP is used only for job completion, not login.
 - Admin panel is not implemented yet; integration hooks are marked in code.
-- Logo asset lives at `src/assets/fixora-logo.png` (replace with final brand asset).
+- Logo asset lives at `src/assets/fyxion-logo.png` (replace with final brand asset).

@@ -1,6 +1,6 @@
-# FieldFix Backend
+﻿# Fyxion Backend
 
-Fully working Python backend for FieldFix home-services app using **FastAPI**, in-memory storage, JWT authentication, and WebSocket tracking.
+Fully working Python backend for Fyxion home-services app using **FastAPI**, in-memory storage, JWT authentication, and WebSocket tracking.
 
 ## Features
 

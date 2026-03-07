@@ -1,4 +1,4 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { 
   Home, 
@@ -44,9 +44,9 @@ const TechnicianLayout = ({ children }) => {
           
           <div className="flex items-center gap-2">
             <span className="flex items-center justify-center rounded-lg bg-[#CFEDEE] p-1 shadow-sm">
-              <img src="/logo.png" alt="FIXORA" className="w-6 h-6 object-contain" />
+              <img src="/logo.png" alt="FYXION" className="w-6 h-6 object-contain" />
             </span>
-            <span className="font-bold text-lg">FIXORA Partner</span>
+            <span className="font-bold text-lg">FYXION Partner</span>
           </div>
 
           <button
@@ -75,10 +75,10 @@ const TechnicianLayout = ({ children }) => {
             {/* Logo - Desktop */}
             <div className="hidden lg:flex items-center gap-3 px-6 py-5 border-b border-white/10">
               <span className="flex items-center justify-center rounded-xl bg-[#CFEDEE] p-1 shadow-sm">
-                <img src="/logo.png" alt="FIXORA" className="w-8 h-8 object-contain" />
+                <img src="/logo.png" alt="FYXION" className="w-8 h-8 object-contain" />
               </span>
               <div>
-                <h1 className="font-bold text-lg">FIXORA Partner</h1>
+                <h1 className="font-bold text-lg">FYXION Partner</h1>
                 <p className="text-xs text-white/50">Technician Dashboard</p>
               </div>
             </div>

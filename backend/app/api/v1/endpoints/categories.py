@@ -10,7 +10,17 @@ router = APIRouter(prefix="/categories", tags=["Categories"])
 async def list_categories(db: Session = Depends(get_db)):
     """Get all active categories from the database."""
     categories = db.query(Category).filter(Category.is_active == True).all()
+    categories_list = [
+        {
+            "id": c.id,
+            "name": c.name,
+            "description": c.description,
+            "icon_url": c.icon_url,
+            "is_active": c.is_active
+        }
+        for c in categories
+    ]
     return success_response(
-        data=categories,
+        data=categories_list,
         message="Categories retrieved successfully"
     )

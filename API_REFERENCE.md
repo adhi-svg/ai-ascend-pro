@@ -1,4 +1,4 @@
-# FIXORA — API Reference
+﻿# FYXION — API Reference
 
 **Base URL**: `http://localhost:8000/api/v1`  
 **Auth**: All endpoints (except auth) require `Authorization: Bearer <token>`

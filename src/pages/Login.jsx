@@ -1,4 +1,4 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
@@ -290,7 +290,7 @@ const Login = () => {
       <div className="relative w-full max-w-5xl space-y-6">
         <div className="text-center">
           <span className="mx-auto mb-4 flex w-fit items-center justify-center rounded-3xl bg-[#CFEDEE] p-3 shadow-[0_20px_60px_rgba(30,58,95,0.15)]">
-            <img src="/logo.png" alt="Field Fix" className="w-32 h-32 object-contain" />
+            <img src="/logo.png" alt="Fyxion" className="w-32 h-32 object-contain" />
           </span>
           <p className="text-xs uppercase tracking-[0.4em] text-[#1E3A5F]/70 font-semibold">Customer Access</p>
         </div>
