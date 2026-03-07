@@ -92,17 +92,32 @@ print(f"[CONFIG] AWS DynamoDB enabled: {settings.ENABLE_DYNAMODB}")
 
 
 def get_cors_origins() -> list:
-    """Get CORS origins from settings, with localhost defaults."""
-    defaults = [
+    """Get CORS origins from settings, with localhost defaults.
+    
+    In development, allows common localhost dev ports (5173-5180).
+    In production, use ALLOWED_ORIGINS environment variable.
+    """
+    # Production origins
+    if settings.ALLOWED_ORIGINS:
+        origins = [o.strip() for o in settings.ALLOWED_ORIGINS.split(",") if o.strip()]
+        return origins
+    
+    # Development: Allow all common localhost dev ports (5173-5180)
+    # Vite uses next available port if current is busy, so we need a range
+    if settings.DEBUG:
+        origins = []
+        for port in range(5173, 5181):  # 5173-5180
+            origins.extend([
+                f"http://localhost:{port}",
+                f"http://127.0.0.1:{port}",
+                f"http://0.0.0.0:{port}",
+            ])
+        return origins
+    
+    # Fallback (for non-debug mode)
+    return [
         "http://localhost:5173",
         "http://127.0.0.1:5173",
         "http://localhost:5174",
         "http://127.0.0.1:5174",
-        "http://0.0.0.0:5173",
-        "http://0.0.0.0:5174",
     ]
-    if settings.ALLOWED_ORIGINS:
-        extra = [o.strip() for o in settings.ALLOWED_ORIGINS.split(",") if o.strip()]
-        return list(set(defaults + extra))
-    return defaults
-

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-export default function StepAgreement({ formData, updateFormData, errors, onSubmit }) {
+export default function StepAgreement({ formData, updateFormData, errors, onSubmit, loading }) {
   const [acceptTerms, setAcceptTerms] = useState(false)
   const [acceptConduct, setAcceptConduct] = useState(false)
 

@@ -109,8 +109,13 @@ class Technician(Base):
     
     # Profile
     shop_available = Column(Boolean, default=False)
+    shop_name = Column(String(200), nullable=True)
+    shop_address = Column(String(500), nullable=True)
+    shop_location_text = Column(String(500), nullable=True)
     profile_image_url = Column(String(500), nullable=True)
     documents = Column(Text, nullable=True)  # JSON string of document URLs
+    experience = Column(Integer, nullable=True)  # Years of experience
+    radius_km = Column(Float, nullable=True)  # Service radius in kilometers
     
     # Performance Score (calculated)
     performance_score = Column(Float, default=0.0)
@@ -287,3 +292,27 @@ class Category(Base):
     
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+class Document(Base):
+    """S3 Document Upload Metadata - stores references to files in S3."""
+    __tablename__ = "documents"
+    
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = Column(String(100), ForeignKey("users.id"), nullable=False, index=True)
+    document_type = Column(String(50), nullable=False, index=True)
+    original_name = Column(String(255), nullable=False)
+    s3_key = Column(String(500), nullable=False, unique=True, index=True)
+    content_type = Column(String(100), nullable=True)
+    file_size = Column(Integer, nullable=True)
+    is_verified = Column(Boolean, default=False, index=True)
+    
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    user = relationship("User", back_populates="documents")
+
+
+# Update User relationship to include documents
+User.documents = relationship("Document", back_populates="user", cascade="all, delete-orphan")

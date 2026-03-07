@@ -7,6 +7,7 @@ import {
   verifyOtp as apiVerifyOtp,
   toggleOnlineStatus as apiToggleOnline,
   updateLocation as apiUpdateLocation,
+  getStoredUser,
 } from '../services/techApi'
 
 const TechAppContext = createContext(null)
@@ -60,9 +61,13 @@ export function TechAppProvider({ children }) {
     }
   }
 
-  // Load bookings on mount
+  // Load bookings on mount (only if authenticated)
   useEffect(() => {
-    loadBookings()
+    const user = getStoredUser()
+    const token = localStorage.getItem('tech_auth_token')
+    if (user && token) {
+      loadBookings()
+    }
   }, [])
 
   // Poll for new bookings every 30 seconds

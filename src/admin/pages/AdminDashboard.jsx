@@ -11,10 +11,22 @@ export default function AdminDashboard() {
   const location = useLocation()
   const [activeFilter, setActiveFilter] = useState('PENDING')
   const [technicians, setTechnicians] = useState([])
+  const [authFailed, setAuthFailed] = useState(false)
 
   const loadData = async () => {
-    const data = await getAllTechnicians()
-    setTechnicians(data)
+    if (authFailed) return
+    try {
+      const data = await getAllTechnicians()
+      setTechnicians(data)
+    } catch (error) {
+      if (error?.message === 'Missing Bearer token' || error?.message === 'Session expired. Please sign in again.') {
+        setAuthFailed(true)
+        localStorage.removeItem(adminSessionKey)
+        localStorage.removeItem('auth_token')
+        localStorage.removeItem('user_info')
+        navigate('/admin/login', { replace: true })
+      }
+    }
   }
 
   useEffect(() => {
@@ -22,9 +34,10 @@ export default function AdminDashboard() {
   }, [location.key])
 
   useEffect(() => {
+    if (authFailed) return undefined
     const interval = setInterval(loadData, 15000)
     return () => clearInterval(interval)
-  }, [])
+  }, [authFailed])
 
   const counts = useMemo(() => {
     return technicians.reduce(
@@ -43,6 +56,8 @@ export default function AdminDashboard() {
 
   const handleLogout = () => {
     localStorage.removeItem(adminSessionKey)
+    localStorage.removeItem('auth_token')
+    localStorage.removeItem('user_info')
     navigate('/admin/login', { replace: true })
   }
 

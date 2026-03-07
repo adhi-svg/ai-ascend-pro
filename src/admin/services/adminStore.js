@@ -13,8 +13,19 @@ const getAdminToken = () => {
   }
 }
 
+const clearAdminSession = () => {
+  localStorage.removeItem(SESSION_KEY)
+}
+
 const fetchAPI = async (endpoint, options = {}) => {
   const token = getAdminToken()
+  if (!token) {
+    clearAdminSession()
+    localStorage.removeItem('auth_token')
+    localStorage.removeItem('user_info')
+    throw new Error('Missing Bearer token')
+  }
+
   const headers = {
     'Content-Type': 'application/json',
     ...(token && { Authorization: `Bearer ${token}` }),
@@ -29,6 +40,12 @@ const fetchAPI = async (endpoint, options = {}) => {
   const data = await response.json()
 
   if (!response.ok) {
+    if (response.status === 401) {
+      clearAdminSession()
+      localStorage.removeItem('auth_token')
+      localStorage.removeItem('user_info')
+      throw new Error('Session expired. Please sign in again.')
+    }
     throw new Error(data.message || data.error?.details || 'API request failed')
   }
 
@@ -43,6 +60,9 @@ export const getAllTechnicians = async (statusFilter) => {
     return Array.isArray(data) ? data : []
   } catch (error) {
     console.error('Failed to fetch technicians:', error)
+    if (error?.message === 'Missing Bearer token' || error?.message === 'Session expired. Please sign in again.') {
+      throw error
+    }
     return []
   }
 }

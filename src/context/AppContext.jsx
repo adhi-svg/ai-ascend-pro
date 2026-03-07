@@ -59,8 +59,14 @@ export const AppProvider = ({ children }) => {
     const pollUser = setInterval(() => {
       const storedUser = getCurrentUser()
       setUser(prev => {
-        // Only update if it actually changed
-        if (JSON.stringify(prev) !== JSON.stringify(storedUser)) {
+        const prevId = prev?.id || null
+        const nextId = storedUser?.id || null
+        const prevRole = String(prev?.role || '').toLowerCase()
+        const nextRole = String(storedUser?.role || '').toLowerCase()
+        const prevEmail = prev?.email || ''
+        const nextEmail = storedUser?.email || ''
+
+        if (prevId !== nextId || prevRole !== nextRole || prevEmail !== nextEmail) {
           if (storedUser) {
             console.log('[AppContext] User updated from localStorage:', storedUser.email)
           }
@@ -68,7 +74,7 @@ export const AppProvider = ({ children }) => {
         }
         return prev
       })
-    }, 50)
+    }, 2000)
 
     window.addEventListener('storage', handleStorageChange)
 
@@ -171,7 +177,7 @@ export const AppProvider = ({ children }) => {
         setComplaints(Array.isArray(c) ? c : [])
         
         // Fetch earnings only for technicians
-        if (user.role === 'TECHNICIAN') {
+        if (String(user.role || '').toLowerCase() === 'technician') {
           try {
             const e = await fetchEarnings()
             setEarnings(e)
@@ -247,6 +253,9 @@ export const AppProvider = ({ children }) => {
     try {
       setLoading(true)
       const data = await apiLogin(email, password)
+      if (!data?.user) {
+        throw new Error('Login response is missing user data')
+      }
       const userData = {
         ...data.user,
         email: email || data.user.email
@@ -266,6 +275,9 @@ export const AppProvider = ({ children }) => {
     try {
       setLoading(true)
       const data = await apiRegister({ email, password, name, phone, role, skills })
+      if (!data?.user) {
+        throw new Error('Registration response is missing user data')
+      }
       setUser(data.user)
       setToast({ type: 'success', message: 'Account created successfully' })
       return data.user

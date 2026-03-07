@@ -2,16 +2,74 @@ from fastapi import APIRouter, Depends, Query, BackgroundTasks, HTTPException
 from typing import Optional, List
 from app.core.deps import get_current_user, require_role
 from app.schemas.booking import BookingCreate, BookingUpdateStatus, BookingAssign, OTPVerify, BookingRating, BookingPayment
-from app.core.database import get_db
+from app.core.database import get_db, SessionLocal
 from app.models import User, Technician, Category, Booking, BookingStatusEnum, TechnicianStatusEnum
 from app.utils.responses import success_response, error_response
 from app.utils.otp import generate_otp, get_otp_expiry, is_otp_expired
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import SQLAlchemyError
 from datetime import datetime
 import asyncio
 import json
 
 router = APIRouter(prefix="/bookings", tags=["Bookings"])
+
+
+def _role_of(current_user: dict) -> str:
+    return str(current_user.get("role", "")).strip().lower()
+
+
+def _is_admin(current_user: dict) -> bool:
+    return _role_of(current_user) == "admin"
+
+
+def _can_access_booking(current_user: dict, booking: Booking) -> bool:
+    role = _role_of(current_user)
+    if role == "admin":
+        return True
+    if role == "customer":
+        return booking.customer_id == current_user["id"]
+    if role == "technician":
+        return booking.technician_id == current_user["id"]
+    return False
+
+
+def _commit_or_rollback(db: Session):
+    try:
+        db.commit()
+    except SQLAlchemyError as exc:
+        db.rollback()
+        raise HTTPException(
+            status_code=500,
+            detail={
+                "code": "DB_TRANSACTION_FAILED",
+                "detail": "Database transaction failed",
+            },
+        ) from exc
+
+
+def _serialize_booking(booking: Booking) -> dict:
+    return {
+        "id": booking.id,
+        "customer_id": booking.customer_id,
+        "technician_id": booking.technician_id,
+        "category_id": booking.category_id,
+        "service_name": booking.service_name,
+        "description": booking.description,
+        "address": booking.address,
+        "city": booking.city,
+        "status": booking.status.value if hasattr(booking.status, "value") else str(booking.status),
+        "otp_code": booking.otp_code,
+        "otp_expiry": booking.otp_expiry.isoformat() if booking.otp_expiry else None,
+        "otp_verified_at": booking.otp_verified_at.isoformat() if booking.otp_verified_at else None,
+        "payment_mode": booking.payment_mode,
+        "payment_status": booking.payment_status,
+        "actual_cost": float(booking.actual_cost) if booking.actual_cost is not None else None,
+        "rating": booking.rating,
+        "feedback": booking.feedback,
+        "created_at": booking.created_at.isoformat() if booking.created_at else None,
+        "updated_at": booking.updated_at.isoformat() if booking.updated_at else None,
+    }
 
 def pick_best_technician(db: Session, category_id: str, exclude_ids: list = None):
     """
@@ -60,61 +118,28 @@ async def auto_reassign_after_timeout(booking_id: str, timeout: int = 300):
     """
     await asyncio.sleep(timeout)
     
-    booking = booking_store.get_by_id(booking_id)
-    if not booking:
-        return
-    
-    # Only reassign if still waiting for technician action
-    if booking["status"] not in ["PENDING", "ASSIGNED"]:
-        return
-    
-    # Check reassignment limit
-    if booking.get("reassign_count", 0) >= 2:
-        # Max reassignments reached, mark as failed
-        booking_store.update(booking_id, status="CANCELLED")
-        events = booking.get("reassignment_events", [])
-        events.append({
-            "timestamp": datetime.utcnow().isoformat(),
-            "reason": "max_reassignments_reached",
-            "previous_technician": booking.get("technician_id")
-        })
-        booking_store.update(booking_id, reassignment_events=events)
-        return
-    
-    # Get previous technician to exclude
-    previous_tech_id = booking.get("technician_id")
-    exclude_ids = [previous_tech_id] if previous_tech_id else []
-    
-    # Try to find new technician
-    new_tech = pick_best_technician(booking["category_id"], exclude_ids=exclude_ids)
-    
-    if new_tech:
-        # Reassign to new technician
-        booking.technician_id = new_tech.user_id
-        booking.status = BookingStatusEnum.ASSIGNED
-        
-        # Log reassignment event
-        events = json.loads(booking.reassignment_events or "[]")
-        events.append({
-            "timestamp": datetime.utcnow().isoformat(),
-            "reason": "timeout",
-            "previous_technician": str(previous_tech_id) if previous_tech_id else None,
-            "new_technician": str(new_tech.user_id)
-        })
-        
-        booking.reassignment_events = json.dumps(events)
-        db.commit()
-    else:
-        # No technicians available, cancel booking
-        booking.status = BookingStatusEnum.CANCELLED
-        events = json.loads(booking.reassignment_events or "[]")
-        events.append({
-            "timestamp": datetime.utcnow().isoformat(),
-            "reason": "no_technicians_available",
-            "previous_technician": str(previous_tech_id) if previous_tech_id else None
-        })
-        booking.reassignment_events = json.dumps(events)
-        db.commit()
+    db = SessionLocal()
+    try:
+        booking = db.query(Booking).filter(Booking.id == booking_id).first()
+        if not booking:
+            return
+
+        if booking.status not in [BookingStatusEnum.PENDING, BookingStatusEnum.ASSIGNED]:
+            return
+
+        previous_tech_id = booking.technician_id
+        exclude_ids = [previous_tech_id] if previous_tech_id else []
+        new_tech = pick_best_technician(db, booking.category_id, exclude_ids=exclude_ids)
+
+        if new_tech:
+            booking.technician_id = new_tech.user_id
+            booking.status = BookingStatusEnum.ASSIGNED
+        else:
+            booking.status = BookingStatusEnum.CANCELLED
+
+        _commit_or_rollback(db)
+    finally:
+        db.close()
 
 @router.post("", response_model=dict)
 async def create_booking(
@@ -151,22 +176,23 @@ async def create_booking(
         otp_expiry=otp_expiry
     )
     db.add(booking)
-    db.commit()
+    _commit_or_rollback(db)
     db.refresh(booking)
     
     # If auto_assign requested, use intelligent dispatch
     if req.auto_assign:
         tech = pick_best_technician(db, req.category_id)
         if tech:
-            booking.technician_id = tech.user_id # Important: technician_id is user_id in model
+            booking.technician_id = tech.user_id  # Important: technician_id is user_id in model
             booking.status = BookingStatusEnum.ASSIGNED
-            db.commit()
+            _commit_or_rollback(db)
             db.refresh(booking)
-            background_tasks.add_task(auto_reassign_after_timeout, db, str(booking.id), 300)
+            background_tasks.add_task(auto_reassign_after_timeout, str(booking.id), 300)
+            return success_response(data=_serialize_booking(booking), message="Booking created and assigned successfully")
         else:
-            return error_response(code="NO_TECHNICIANS", details="No online technicians available")
-    
-    return success_response(data=booking, message="Booking created successfully")
+            return success_response(data=_serialize_booking(booking), message="Booking created. No online technicians currently available")
+    else:
+        return success_response(data=_serialize_booking(booking), message="Booking created successfully")
 
 @router.get("/me", response_model=dict)
 async def get_my_bookings(db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
@@ -175,7 +201,7 @@ async def get_my_bookings(db: Session = Depends(get_db), current_user: dict = De
         return error_response(code="FORBIDDEN", details="Only customers can view their bookings")
     
     bookings = db.query(Booking).filter(Booking.customer_id == current_user["id"]).all()
-    return success_response(data=bookings, message="Bookings retrieved successfully")
+    return success_response(data=[_serialize_booking(b) for b in bookings], message="Bookings retrieved successfully")
 
 @router.get("/technician/me/bookings", response_model=dict)
 async def get_my_technician_bookings(db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
@@ -184,7 +210,24 @@ async def get_my_technician_bookings(db: Session = Depends(get_db), current_user
         return error_response(code="FORBIDDEN", details="Only technicians can view their bookings")
     
     bookings = db.query(Booking).filter(Booking.technician_id == current_user["id"]).all()
-    return success_response(data=bookings, message="Bookings retrieved successfully")
+    return success_response(data=[_serialize_booking(b) for b in bookings], message="Bookings retrieved successfully")
+
+
+@router.get("/{booking_id}", response_model=dict)
+async def get_booking_details(
+    booking_id: str,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user),
+):
+    """Get booking details for customer/assigned technician/admin."""
+    booking = db.query(Booking).filter(Booking.id == booking_id).first()
+    if not booking:
+        return error_response(code="NOT_FOUND", details="Booking not found")
+
+    if not _can_access_booking(current_user, booking):
+        return error_response(code="FORBIDDEN", details="You can only view your own bookings")
+
+    return success_response(data=_serialize_booking(booking), message="Booking retrieved successfully")
 
 @router.patch("/{booking_id}/assign", response_model=dict)
 async def assign_booking(
@@ -198,6 +241,9 @@ async def assign_booking(
     booking = db.query(Booking).filter(Booking.id == booking_id).first()
     if not booking:
         return error_response(code="NOT_FOUND", details="Booking not found")
+
+    if not _is_admin(current_user) and booking.customer_id != current_user["id"]:
+        return error_response(code="FORBIDDEN", details="Only booking owner or admin can assign technician")
     
     if req.auto_assign:
         tech = pick_best_technician(db, booking.category_id)
@@ -211,9 +257,9 @@ async def assign_booking(
     
     booking.technician_id = tech_user_id
     booking.status = BookingStatusEnum.ASSIGNED
-    db.commit()
+    _commit_or_rollback(db)
     
-    return success_response(data=booking, message="Assigned successfully")
+    return success_response(data=_serialize_booking(booking), message="Assigned successfully")
 
 @router.patch("/{booking_id}/status", response_model=dict)
 async def update_booking_status(
@@ -226,6 +272,9 @@ async def update_booking_status(
     booking = db.query(Booking).filter(Booking.id == booking_id).first()
     if not booking:
         return error_response(code="NOT_FOUND", details="Booking not found")
+
+    if not _can_access_booking(current_user, booking):
+        return error_response(code="FORBIDDEN", details="You can only update your own bookings")
     
     # Map status string to Enum
     try:
@@ -234,10 +283,10 @@ async def update_booking_status(
         return error_response(code="INVALID_STATUS", details=f"Invalid status: {req.status}")
 
     # Check permissions
-    if current_user["role"] == "technician":
+    if _role_of(current_user) == "technician":
         if booking.technician_id != current_user["id"]:
             return error_response(code="FORBIDDEN", details="You can only update your own bookings")
-    elif current_user["role"] == "customer":
+    elif _role_of(current_user) == "customer":
         if booking.customer_id != current_user["id"]:
             return error_response(code="FORBIDDEN", details="You can only update your own bookings")
         if new_status != BookingStatusEnum.CANCELLED:
@@ -247,8 +296,8 @@ async def update_booking_status(
     if req.amount:
         booking.actual_cost = req.amount
     
-    db.commit()
-    return success_response(data=booking, message="Status updated successfully")
+    _commit_or_rollback(db)
+    return success_response(data=_serialize_booking(booking), message="Status updated successfully")
 
 @router.post("/{booking_id}/otp/verify", response_model=dict)
 async def verify_otp(
@@ -261,9 +310,12 @@ async def verify_otp(
     booking = db.query(Booking).filter(Booking.id == booking_id).first()
     if not booking:
         return error_response(code="NOT_FOUND", details="Booking not found")
+
+    if not _can_access_booking(current_user, booking):
+        return error_response(code="FORBIDDEN", details="You can only verify OTP for accessible bookings")
     
     if booking.otp_verified_at:
-        return success_response(data=booking, message="OTP already verified")
+        return success_response(data=_serialize_booking(booking), message="OTP already verified")
     
     if booking.otp_code != req.otp_code:
         return error_response(code="INVALID_OTP", details="Invalid OTP code")
@@ -273,8 +325,8 @@ async def verify_otp(
         return error_response(code="EXPIRED_OTP", details="OTP has expired")
     
     booking.otp_verified_at = datetime.utcnow()
-    db.commit()
-    return success_response(data=booking, message="OTP verified successfully")
+    _commit_or_rollback(db)
+    return success_response(data=_serialize_booking(booking), message="OTP verified successfully")
 
 @router.post("/{booking_id}/rating", response_model=dict)
 async def add_rating(
@@ -287,6 +339,12 @@ async def add_rating(
     booking = db.query(Booking).filter(Booking.id == booking_id).first()
     if not booking:
         return error_response(code="NOT_FOUND", details="Booking not found")
+
+    if booking.customer_id != current_user["id"] and not _is_admin(current_user):
+        return error_response(code="FORBIDDEN", details="Only booking customer or admin can add rating")
+
+    if booking.status != BookingStatusEnum.COMPLETED:
+        return error_response(code="INVALID_STATE", details="Booking must be completed before rating")
     
     if booking.rated_by_customer:
         return error_response(code="ALREADY_RATED", details="Already rated")
@@ -306,8 +364,8 @@ async def add_rating(
             tech.rating = round(new_avg, 2)
             tech.rating_count = new_count
     
-    db.commit()
-    return success_response(data=booking, message="Rating added")
+    _commit_or_rollback(db)
+    return success_response(data=_serialize_booking(booking), message="Rating added")
 
 @router.post("/{booking_id}/payment", response_model=dict)
 async def process_payment(
@@ -320,11 +378,14 @@ async def process_payment(
     booking = db.query(Booking).filter(Booking.id == booking_id).first()
     if not booking:
         return error_response(code="NOT_FOUND", details="Booking not found")
+
+    if booking.customer_id != current_user["id"] and not _is_admin(current_user):
+        return error_response(code="FORBIDDEN", details="Only booking customer or admin can process payment")
     
     booking.payment_mode = req.method
     booking.payment_status = "PAID"
     booking.actual_cost = req.amount
     booking.status = BookingStatusEnum.COMPLETED
     
-    db.commit()
-    return success_response(data=booking, message="Payment confirmed")
+    _commit_or_rollback(db)
+    return success_response(data=_serialize_booking(booking), message="Payment confirmed")

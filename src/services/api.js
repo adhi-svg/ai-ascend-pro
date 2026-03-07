@@ -1,5 +1,24 @@
 // Fyxion Backend API Integration
 const API_BASE_URL = `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/v1`
+const DEFAULT_TIMEOUT_MS = 15000
+
+const fetchWithTimeout = async (url, options = {}, timeout = DEFAULT_TIMEOUT_MS) => {
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), timeout)
+  try {
+    return await fetch(url, {
+      ...options,
+      signal: options.signal || controller.signal,
+    })
+  } catch (error) {
+    if (error?.name === 'AbortError') {
+      throw new Error('Request timed out. Please try again.')
+    }
+    throw error
+  } finally {
+    clearTimeout(timer)
+  }
+}
 
 // Helper function to get auth token
 const getAuthToken = () => {
@@ -20,11 +39,11 @@ const fetchAPI = async (endpoint, options = {}) => {
     ...options.headers,
   }
 
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+  const response = await fetchWithTimeout(`${API_BASE_URL}${endpoint}`, {
     ...options,
     headers,
     credentials: options.credentials ?? 'include',
-  })
+  }, options.timeout ?? DEFAULT_TIMEOUT_MS)
 
   const data = await response.json()
 
@@ -36,12 +55,16 @@ const fetchAPI = async (endpoint, options = {}) => {
     throw new Error(data.message || data.error?.details || 'API request failed')
   }
 
+  if (data?.success === false) {
+    throw new Error(data.message || data.error?.details || 'API request failed')
+  }
+
   return data.success ? data.data : data
 }
 
 // Authentication APIs
 export const login = async (email, password) => {
-  const response = await fetch(`${API_BASE_URL}/auth/login`, {
+  const response = await fetchWithTimeout(`${API_BASE_URL}/auth/login`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -51,11 +74,15 @@ export const login = async (email, password) => {
       email,
       password,
     }),
-  })
+  }, DEFAULT_TIMEOUT_MS)
 
   const data = await response.json()
-  if (!response.ok) {
+  if (!response.ok || data?.success === false) {
     throw new Error(data.message || data.error?.details || 'Login failed')
+  }
+
+  if (!data?.data?.user || !data?.data?.access_token) {
+    throw new Error('Invalid login response')
   }
 
   // Store token and user info
@@ -68,18 +95,22 @@ export const login = async (email, password) => {
 }
 
 export const register = async (userData) => {
-  const response = await fetch(`${API_BASE_URL}/auth/register`, {
+  const response = await fetchWithTimeout(`${API_BASE_URL}/auth/register`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
     credentials: 'include',
     body: JSON.stringify(userData),
-  })
+  }, DEFAULT_TIMEOUT_MS)
 
   const data = await response.json()
-  if (!response.ok) {
-    throw new Error(data.message || 'Registration failed')
+  if (!response.ok || data?.success === false) {
+    throw new Error(data.message || data.error?.details || 'Registration failed')
+  }
+
+  if (!data?.data?.user || !data?.data?.access_token) {
+    throw new Error('Invalid registration response')
   }
 
   // Store token and user info
@@ -98,14 +129,14 @@ export const logout = () => {
 export const exchangeGoogleCode = async (code) => {
   console.log('[API] Exchanging Google code for token')
 
-  const response = await fetch(`${API_BASE_URL}/auth/google/exchange`, {
+  const response = await fetchWithTimeout(`${API_BASE_URL}/auth/google/exchange`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
     credentials: 'include',
     body: JSON.stringify({ code }),
-  })
+  }, DEFAULT_TIMEOUT_MS)
 
   const data = await response.json()
 
@@ -156,7 +187,12 @@ export const getCurrentUser = () => {
   const token = getAuthToken()
   const userInfo = localStorage.getItem('user_info')
   if (!token || !userInfo) return null
-  return JSON.parse(userInfo)
+  try {
+    return JSON.parse(userInfo)
+  } catch {
+    clearAuth()
+    return null
+  }
 }
 
 // Category APIs
@@ -185,7 +221,7 @@ export const postBooking = async (payload) => {
 export const fetchNearbyJobs = async () => {
   // For technicians - get their requests
   const user = getCurrentUser()
-  if (user && user.role === 'TECHNICIAN') {
+  if (user && String(user.role || '').toLowerCase() === 'technician') {
     return await fetchTechnicianRequests()
   }
   // For customers - get their bookings
@@ -198,7 +234,7 @@ export const getBookingDetails = async (bookingId) => {
 
 export const assignTechnician = async (bookingId, technicianId) => {
   return await fetchAPI(`/bookings/${bookingId}/assign`, {
-    method: 'POST',
+    method: 'PATCH',
     body: JSON.stringify({ technician_id: technicianId }),
   })
 }
@@ -219,7 +255,7 @@ export const generateOTP = async (bookingId) => {
 export const completeJobWithOtp = async (bookingId, otp) => {
   return await fetchAPI(`/bookings/${bookingId}/otp/verify`, {
     method: 'POST',
-    body: JSON.stringify({ otp }),
+    body: JSON.stringify({ otp_code: otp }),
   })
 }
 

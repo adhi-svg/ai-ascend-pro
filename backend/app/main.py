@@ -62,6 +62,18 @@ async def http_exception_handler(request: Request, exc: HTTPException):
         )
     )
 
+
+@app.exception_handler(Exception)
+async def unhandled_exception_handler(request: Request, exc: Exception):
+    logger.exception("Unhandled error on %s %s", request.method, request.url.path)
+    return JSONResponse(
+        status_code=500,
+        content=error_response(
+            code="INTERNAL_SERVER_ERROR",
+            details="An unexpected error occurred",
+        ),
+    )
+
 @app.get("/health")
 async def health_check():
     return {"status": "ok", "version": "2.0.0"}

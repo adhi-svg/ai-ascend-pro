@@ -65,7 +65,8 @@ def seed_demo_data():
                 "email": "tech@demo.com",
                 "skills": ["AC", "Electrician"],
                 "rating": 4.8,
-                "city": "Delhi"
+                "city": "Delhi",
+                "status": TechnicianStatusEnum.APPROVED
             },
             {
                 "phone": "9100000002",
@@ -73,7 +74,35 @@ def seed_demo_data():
                 "email": "raj@demo.com",
                 "skills": ["Plumbing", "AC"],
                 "rating": 4.6,
-                "city": "Delhi"
+                "city": "Delhi",
+                "status": TechnicianStatusEnum.APPROVED
+            },
+            {
+                "phone": "9100000003",
+                "name": "Amit Sharma",
+                "email": "amit@demo.com",
+                "skills": ["Electrician"],
+                "rating": 0.0,
+                "city": "Delhi",
+                "status": TechnicianStatusEnum.PENDING
+            },
+            {
+                "phone": "9100000004",
+                "name": "Priya Singh",
+                "email": "priya@demo.com",
+                "skills": ["Cleaning"],
+                "rating": 0.0,
+                "city": "Mumbai",
+                "status": TechnicianStatusEnum.PENDING
+            },
+            {
+                "phone": "9100000005",
+                "name": "Suresh Patel",
+                "email": "suresh@demo.com",
+                "skills": ["Painting"],
+                "rating": 0.0,
+                "city": "Delhi",
+                "status": TechnicianStatusEnum.PENDING
             }
         ]
         
@@ -92,13 +121,13 @@ def seed_demo_data():
                 
                 t = Technician(
                     user_id=u.id,
-                    status=TechnicianStatusEnum.APPROVED,
+                    status=tech_data["status"],
                     skills=json.dumps(tech_data["skills"]),
                     rating=tech_data["rating"],
-                    rating_count=20,
-                    total_jobs=15,
+                    rating_count=20 if tech_data["status"] == TechnicianStatusEnum.APPROVED else 0,
+                    total_jobs=15 if tech_data["status"] == TechnicianStatusEnum.APPROVED else 0,
                     city=tech_data["city"],
-                    is_online=True
+                    is_online=tech_data["status"] == TechnicianStatusEnum.APPROVED
                 )
                 db.add(t)
 

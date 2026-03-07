@@ -31,6 +31,10 @@ const fetchAPI = async (endpoint, options = {}) => {
         throw new Error(data.message || data.error?.details || 'API request failed')
     }
 
+    if (data?.success === false) {
+        throw new Error(data.message || data.error?.details || 'API request failed')
+    }
+
     return data.success !== undefined ? data.data : data
 }
 
@@ -43,8 +47,12 @@ export const techLogin = async (email, password) => {
     })
 
     const data = await response.json()
-    if (!response.ok) {
+    if (!response.ok || data?.success === false) {
         throw new Error(data.message || data.error?.details || 'Login failed')
+    }
+
+    if (!data?.data?.user || !data?.data?.access_token) {
+        throw new Error('Invalid login response')
     }
 
     if (data.success && data.data) {
@@ -63,8 +71,12 @@ export const techRegister = async (userData) => {
     })
 
     const data = await response.json()
-    if (!response.ok) {
-        throw new Error(data.message || 'Registration failed')
+    if (!response.ok || data?.success === false) {
+        throw new Error(data.message || data.error?.details || 'Registration failed')
+    }
+
+    if (!data?.data?.user || !data?.data?.access_token) {
+        throw new Error('Invalid registration response')
     }
 
     if (data.success && data.data) {
@@ -87,6 +99,10 @@ export const exchangeGoogleCode = async (code) => {
     const data = await response.json()
     if (!response.ok || data.success === false) {
         throw new Error(data.message || data.error?.details || 'Google login failed')
+    }
+
+    if (!data?.data?.user || !data?.data?.access_token) {
+        throw new Error('Invalid Google login response')
     }
 
     if (data.data) {

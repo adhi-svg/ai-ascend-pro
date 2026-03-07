@@ -25,15 +25,54 @@ async def get_all_applications(
     Query params:
     - status: Filter by status (pending/approved/rejected/suspended)
     """
-    query = db.query(Technician)
+    import json
+    
+    query = db.query(Technician).join(User, Technician.user_id == User.id)
     
     if status:
         query = query.filter(Technician.status == TechnicianStatusEnum[status.upper()])
     
     technicians = query.all()
+    
+    # Enrich with user data for frontend
+    enriched_data = []
+    for tech in technicians:
+        skills_list = json.loads(tech.skills or "[]")
+        docs = json.loads(tech.documents or "{}")
+        
+        enriched_data.append({
+            "id": tech.id,
+            "userId": tech.user_id,
+            "fullName": tech.user.name or "Unknown",
+            "phone": tech.user.phone or "",
+            "email": tech.user.email or "",
+            "status": tech.status.value.upper(),
+            "skill": skills_list[0] if skills_list else None,
+            "skills": skills_list,
+            "profilePhotoUrl": tech.profile_image_url,
+            "aadhaarNumber": docs.get("aadhaar_number"),
+            "aadhaarFrontUrl": docs.get("aadhaar_front_url"),
+            "aadhaarBackUrl": docs.get("aadhaar_back_url"),
+            "selfieUrl": docs.get("selfie_url"),
+            "baseVisitFee": docs.get("base_visit_fee"),
+            "radiusKm": tech.radius_km or docs.get("radius_km"),
+            "experience": tech.experience,
+            "hasShop": tech.shop_available,
+            "shopName": tech.shop_name,
+            "shopAddress": tech.shop_address,
+            "shopLocation": tech.shop_location_text,
+            "city": tech.city,
+            "area": tech.area,
+            "rating": tech.rating,
+            "totalJobs": tech.total_jobs,
+            "isOnline": tech.is_online,
+            "createdAt": tech.created_at.isoformat() if tech.created_at else None,
+            "updatedAt": tech.updated_at.isoformat() if tech.updated_at else None,
+        })
+    
     return success_response(
-        data=[TechnicianApplicationSchema.from_orm(t).dict() for t in technicians],
-        message=f"Found {len(technicians)} technician applications"
+        data=enriched_data,
+        message=f"Found {len(enriched_data)} technician applications"
     )
 
 

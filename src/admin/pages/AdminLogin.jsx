@@ -2,23 +2,53 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { adminSessionKey } from '../services/adminStore'
 
+const API_BASE_URL = `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/v1`
+
 export default function AdminLogin() {
   const navigate = useNavigate()
-  const [username, setUsername] = useState('')
+  const [email, setEmail] = useState('admin@fyxion.com')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault()
     setError('')
+    setIsLoading(true)
 
-    if (username === 'admin' && password === 'fyxion123') {
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok || !data?.success) {
+        throw new Error(data?.message || data?.error?.details || 'Login failed')
+      }
+
+      const user = data?.data?.user
+      const token = data?.data?.access_token
+
+      if (!token || !user || user.role !== 'admin') {
+        throw new Error('Admin access required')
+      }
+
+      localStorage.setItem('auth_token', token)
+      localStorage.setItem('user_info', JSON.stringify(user))
       localStorage.setItem(adminSessionKey, '1')
       navigate('/admin/dashboard', { replace: true })
       return
+    } catch (err) {
+      localStorage.removeItem(adminSessionKey)
+      localStorage.removeItem('auth_token')
+      localStorage.removeItem('user_info')
+      setError(err.message || 'Invalid login credentials')
+    } finally {
+      setIsLoading(false)
     }
-
-    setError('Invalid username or password')
   }
 
   return (
@@ -44,12 +74,12 @@ export default function AdminLogin() {
 
           <form className="space-y-4" onSubmit={handleSubmit}>
             <div>
-              <label className="mb-2 block text-sm font-semibold text-[#1E3A5F]">Username</label>
+              <label className="mb-2 block text-sm font-semibold text-[#1E3A5F]">Email</label>
               <input
-                type="text"
-                value={username}
-                onChange={(event) => setUsername(event.target.value)}
-                placeholder="admin"
+                type="email"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                placeholder="admin@fyxion.com"
                 className="w-full rounded-lg border px-4 py-3 transition-colors focus:outline-none focus:ring-2"
                 style={{ borderColor: '#D1D5DB', color: '#1E3A5F' }}
               />
@@ -67,15 +97,16 @@ export default function AdminLogin() {
             </div>
             <button
               type="submit"
+              disabled={isLoading}
               className="w-full rounded-full px-6 py-4 text-sm font-semibold text-white transition-all hover:shadow-lg"
               style={{ background: '#E6A11A' }}
             >
-              Sign in
+              {isLoading ? 'Signing in...' : 'Sign in'}
             </button>
           </form>
 
           <div className="mt-6 rounded-xl border border-[#E6A11A]/20 bg-[#CFEDEE]/40 px-4 py-3 text-xs text-[#1E3A5F]">
-            Demo credentials: admin / fyxion123
+            Demo credentials: admin@fyxion.com / admin123
           </div>
         </div>
       </div>
