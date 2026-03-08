@@ -11,6 +11,7 @@ from app.core.database import get_db
 from app.models import User, Technician, UserRoleEnum, TechnicianStatusEnum
 from sqlalchemy.orm import Session
 import json
+from app.stores.technician_store import technician_store
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
@@ -142,6 +143,20 @@ async def register(req: RegisterRequest, db: Session = Depends(get_db)):
     
     db.commit()
     db.refresh(new_user)
+    
+    # Create in-memory technician store if technician
+    if req.role.lower() == "technician":
+        technician_store.create(
+            str(new_user.id),
+            skills=json.loads(new_tech.skills) if new_tech.skills else [],
+            city=req.city,
+            area=req.area,
+            latitude=req.latitude,
+            longitude=req.longitude,
+            shop_available=new_tech.shop_available,
+            profile_image_url=new_tech.profile_image_url,
+            documents=new_tech.documents
+        )
     
     # Generate token
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
@@ -365,6 +380,13 @@ async def google_exchange(req: GoogleCodeExchangeRequest, db: Session = Depends(
                 )
                 db.add(new_tech)
                 db.commit()
+                
+                technician_store.create(
+                    str(existing_user.id),
+                    skills=[],
+                    profile_image_url=user_info.get("picture", ""),
+                    documents="{}"
+                )
 
             logger.info(f"New user created with id: {existing_user.id}")
         else:

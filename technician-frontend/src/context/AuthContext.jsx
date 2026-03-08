@@ -4,8 +4,8 @@ import { techLogin, techRegister, techLogout, getStoredUser, fetchTechProfile, u
 const AuthContext = createContext(null)
 
 const storageKeys = {
-  token: 'tech_auth_token',
-  user: 'tech_user_info',
+  token: 'auth_token',
+  user: 'user_info',
 }
 
 export function AuthProvider({ children }) {
