@@ -265,7 +265,7 @@ export default function LandingPage() {
 
                 <button
                   type="button"
-                  onClick={() => { window.location.href = 'http://100.27.210.231:8000/api/v1/auth/cognito/login?provider=Google&role=technician' }}
+                  onClick={() => { window.location.href = 'http://98.92.251.154:8000/api/v1/auth/cognito/login?provider=Google&role=technician' }}
                   className="flex w-full items-center justify-center gap-3 rounded-full border border-gray-200 px-6 py-3 text-sm font-semibold text-[#1E3A5F] transition-all hover:border-[#E6A11A]"
                 >
                   <svg className="h-5 w-5" viewBox="0 0 24 24" aria-hidden="true">
@@ -278,7 +278,7 @@ export default function LandingPage() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => { window.location.href = 'http://100.27.210.231:8000/api/v1/auth/cognito/login?provider=Facebook&role=technician' }}
+                  onClick={() => { window.location.href = 'http://98.92.251.154:8000/api/v1/auth/cognito/login?provider=Facebook&role=technician' }}
                   className="flex w-full items-center justify-center gap-3 rounded-full border border-gray-200 px-6 py-3 text-sm font-semibold text-[#1E3A5F] transition-all hover:border-[#E6A11A]"
                 >
                   <svg className="h-5 w-5" fill="#1877F2" viewBox="0 0 24 24" aria-hidden="true">

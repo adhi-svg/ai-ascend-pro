@@ -8,7 +8,7 @@ import Loader from './components/ui/Loader'
 import Splash from './pages/Splash'
 import Login from './pages/Login'
 import Register from './pages/Register'
-import OAuthCallback from './pages/OAuthCallback'
+import AuthCallback from './pages/AuthCallback'
 import LocationPicker from './pages/LocationPicker'
 import CustomerHome from './pages/CustomerHome'
 import TechnicianList from './pages/TechnicianList'
@@ -59,7 +59,7 @@ const RequireAuth = ({ children }) => {
     try {
       user = JSON.parse(userInfoStr)
       console.log('[RequireAuth] User loaded from localStorage:', user.email)
-    } catch (e) {
+    } catch {
       console.error('[RequireAuth] Failed to parse user info from localStorage')
       user = null
     }
@@ -103,7 +103,7 @@ const AppFrame = () => {
           <Route path="/" element={<Splash />} />
           <Route path="/login" element={user ? <Navigate to="/customer/home" replace /> : <Login />} />
           <Route path="/register" element={user ? <Navigate to="/customer/home" replace /> : <Register />} />
-          <Route path="/auth/callback" element={<OAuthCallback />} />
+          <Route path="/auth/callback" element={<AuthCallback />} />
           <Route
             path="/location-picker"
             element={

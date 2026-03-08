@@ -1,6 +1,6 @@
 // Fyxion Backend API Integration
-const API_BASE_URL = `${import.meta.env.VITE_API_URL || 'http://100.27.210.231:8000'}/api/v1`
-const DEFAULT_TIMEOUT_MS = 15000
+const API_BASE_URL = `${import.meta.env.VITE_API_URL || 'http://98.92.251.154:8000'}/api/v1`
+const DEFAULT_TIMEOUT_MS = 30000
 
 const fetchWithTimeout = async (url, options = {}, timeout = DEFAULT_TIMEOUT_MS) => {
   const controller = new AbortController()
@@ -321,7 +321,7 @@ export const searchFAQs = async (query) => {
 
 // WebSocket for real-time tracking
 export const createTrackingWebSocket = (bookingId, onLocationUpdate) => {
-  const ws = new WebSocket(`ws://100.27.210.231:8000/ws/bookings/${bookingId}`)
+  const ws = new WebSocket(`ws://98.92.251.154:8000/ws/bookings/${bookingId}`)
 
   ws.onopen = () => {
     console.log('WebSocket connected for booking:', bookingId)

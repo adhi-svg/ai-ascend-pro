@@ -99,7 +99,7 @@ const AIHelpChat = () => {
         requestBody.image_base64 = selectedImage
       }
 
-      const response = await fetch('http://100.27.210.231:8000/api/v1/ai/chat', {
+      const response = await fetch('http://98.92.251.154:8000/api/v1/ai/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -209,8 +209,8 @@ const AIHelpChat = () => {
               >
                 <div
                   className={`max-w-[80%] rounded-lg p-3 ${msg.role === 'user'
-                      ? 'bg-[#14B8A6] text-white'
-                      : 'bg-white border border-[#14B8A6]/20 text-[#1E3A5F]'
+                    ? 'bg-[#14B8A6] text-white'
+                    : 'bg-white border border-[#14B8A6]/20 text-[#1E3A5F]'
                     }`}
                 >
                   {/* User Image Preview */}
@@ -281,10 +281,10 @@ const AIHelpChat = () => {
                       {msg.urgency && (
                         <span
                           className={`text-xs px-2 py-0.5 rounded-full font-semibold ${msg.urgency === 'HIGH'
-                              ? 'bg-red-100 text-red-700'
-                              : msg.urgency === 'MEDIUM'
-                                ? 'bg-orange-100 text-orange-700'
-                                : 'bg-green-100 text-green-700'
+                            ? 'bg-red-100 text-red-700'
+                            : msg.urgency === 'MEDIUM'
+                              ? 'bg-orange-100 text-orange-700'
+                              : 'bg-green-100 text-green-700'
                             }`}
                         >
                           {msg.urgency}

@@ -1,5 +1,5 @@
 // FYXION Technician Frontend — Backend API Service
-const API_BASE_URL = `${import.meta.env.VITE_API_URL || 'http://100.27.210.231:8000'}/api/v1`
+const API_BASE_URL = `${import.meta.env.VITE_API_URL || 'http://98.92.251.154:8000'}/api/v1`
 
 const getToken = () => localStorage.getItem('tech_auth_token')
 

@@ -45,15 +45,16 @@ const Login = () => {
     setOtp(value)
   }
 
-  const API_URL = import.meta.env.VITE_API_URL || 'http://100.27.210.231:8000'
+  const API_URL = import.meta.env.VITE_API_URL || 'http://98.92.251.154:8000'
 
   const handleGoogleLogin = () => {
-    // Redirect to backend Cognito route which handles the entire OAuth flow
-    window.location.href = `${API_URL}/api/v1/auth/cognito/login?provider=Google&role=customer`
+    const frontendUrl = window.location.origin;
+    window.location.href = `http://98.92.251.154:8000/api/v1/auth/cognito/login?provider=Google&role=customer&frontendUrl=${frontendUrl}`;
   }
 
   const handleFacebookLogin = () => {
-    window.location.href = `${API_URL}/api/v1/auth/cognito/login?provider=Facebook&role=customer`
+    const frontendUrl = window.location.origin;
+    window.location.href = `http://98.92.251.154:8000/api/v1/auth/cognito/login?provider=Facebook&role=customer&frontendUrl=${frontendUrl}`;
   }
 
   const sendOtp = (e) => {

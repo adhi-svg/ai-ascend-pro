@@ -72,9 +72,9 @@ export default function ActiveJob() {
     const a =
       Math.sin(latDiff / 2) * Math.sin(latDiff / 2) +
       Math.cos(toRad(techLocation.lat)) *
-        Math.cos(toRad(customerLocation.lat)) *
-        Math.sin(lngDiff / 2) *
-        Math.sin(lngDiff / 2)
+      Math.cos(toRad(customerLocation.lat)) *
+      Math.sin(lngDiff / 2) *
+      Math.sin(lngDiff / 2)
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
     return earthRadius * c
   }, [customerLocation, techLocation])
@@ -85,7 +85,7 @@ export default function ActiveJob() {
     if (wsRef.current) return
 
     const wsToken = token || 'tech_mock_token_12345'
-    wsRef.current = new WebSocket(`ws://100.27.210.231:8000/ws/technicians/me/location?token=${wsToken}`)
+    wsRef.current = new WebSocket(`ws://98.92.251.154:8000/ws/technicians/me/location?token=${wsToken}`)
 
     wsRef.current.onopen = () => {
       addToast({ title: 'Live tracking', message: 'Sharing your location with customer.' })
@@ -360,9 +360,8 @@ export default function ActiveJob() {
           {bookingStatusOrder.map((status) => (
             <div
               key={status}
-              className={`rounded-2xl px-3 py-2 text-xs font-semibold transition ${
-                booking.status === status ? 'bg-brand-accent/20 text-brand-primary' : 'bg-white/70'
-              }`}
+              className={`rounded-2xl px-3 py-2 text-xs font-semibold transition ${booking.status === status ? 'bg-brand-accent/20 text-brand-primary' : 'bg-white/70'
+                }`}
             >
               {statusLabels[status]}
             </div>

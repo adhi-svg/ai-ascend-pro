@@ -32,7 +32,7 @@ const BookingDetails = () => {
     setError('')
 
     try {
-      const response = await fetch('http://100.27.210.231:8000/api/v1/ai/analyze', {
+      const response = await fetch('http://98.92.251.154:8000/api/v1/ai/analyze', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -197,10 +197,10 @@ const BookingDetails = () => {
                       value={manualUrgency}
                       onChange={(e) => setManualUrgency(e.target.value)}
                       className={`px-2 py-1 border rounded font-semibold ${manualUrgency === 'urgent'
-                          ? 'bg-red-50 text-red-700 border-red-200'
-                          : manualUrgency === 'high'
-                            ? 'bg-orange-50 text-orange-700 border-orange-200'
-                            : 'bg-green-50 text-green-700 border-green-200'
+                        ? 'bg-red-50 text-red-700 border-red-200'
+                        : manualUrgency === 'high'
+                          ? 'bg-orange-50 text-orange-700 border-orange-200'
+                          : 'bg-green-50 text-green-700 border-green-200'
                         }`}
                     >
                       <option value={aiAnalysis.urgency}>{aiAnalysis.urgency}</option>
